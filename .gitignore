@@ -332,3 +332,4 @@ $RECYCLE.BIN/
 # End of https://www.toptal.com/developers/gitignore/api/windows,macos,java,intellij+iml,intellij+all,intellij,git
 *.iml
 *.properties
+ssg-wms.iml
