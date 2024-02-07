@@ -1,4 +1,5 @@
 package util;
+
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -7,7 +8,20 @@ import java.util.Properties;
 
 public class DbConnection {
 
+    private static DbConnection instance;
     private static Connection conn;
+
+    private DbConnection() {
+        // Private constructor to prevent instantiation
+    }
+
+    public static DbConnection getInstance() throws Exception {
+        if (instance == null) {
+            instance = new DbConnection();
+            instance.getConnection(); // Initialize the connection
+        }
+        return instance;
+    }
 
     public static Connection getConnection() throws Exception {
         if (conn == null || conn.isClosed() || !conn.isValid(1)) {
