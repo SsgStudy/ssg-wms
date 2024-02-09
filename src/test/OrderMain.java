@@ -19,19 +19,24 @@ public class OrderMain {
 
         // 모든 주문 정보와 상세 정보 가져오기
         List<OrderVO> orders = orderController.getAllOrdersWithDetails();
+        // 헤더 출력
+        System.out.printf("%-10s%-12s%-25s%-20s%-20s%-16s%-8s%-22s%s\n",
+                "발주 번호", "발주 상태", "발주 상품 공급업체명", "발주 상품 배송예정일",
+                "발주 완료일", "발주 상세 번호", "발주 수량", "발주 상품 코드", "창고 코드");
+        System.out.println("-----------------------------------------------------------------------------------------------------------------------------------------------------------------");
 
         // 가져온 주문 정보 출력
         for (OrderVO order : orders) {
-            System.out.println("발주 번호: " + order.getOrderSeq());
-            System.out.println("발주 상태: " + order.getOrderStatus());
-            System.out.println("발주 상품 공급업체명: " + order.getIncomingProductSupplierName());
-            System.out.println("발주 상품 배송예정일: " + order.getDeliveryDate());
-            System.out.println("발주 완료일: " + order.getOrderCompletionDate());
-            System.out.println("발주 상세 번호: " + order.getOrderDetailSeq());
-            System.out.println("발주 수량" + order.getOrderCnt());
-            System.out.println("발주 상품 코드 : " + order.getProductCode());
-            System.out.println("창고 코드 " + order.getWarehouseCode());
-            System.out.println("------------------------------------");
+            System.out.printf("%-10d%-12s%-25s%-20s%-20s%-16d%-8d%-22s%s\n",
+                    order.getOrderSeq(),
+                    order.getOrderStatus(),
+                    order.getIncomingProductSupplierName(),
+                    order.getDeliveryDate(),
+                    order.getOrderCompletionDate() == null ? "            미완료                    " : order.getOrderCompletionDate(),
+                    order.getOrderDetailSeq(),
+                    order.getOrderCnt(),
+                    order.getProductCode(),
+                    order.getWarehouseCode());
         }
     }
 
