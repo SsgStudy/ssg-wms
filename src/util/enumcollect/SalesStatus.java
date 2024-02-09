@@ -1,4 +1,4 @@
-package util;
+package util.enumcollect;
 
 public enum SalesStatus {
     // 판매 중

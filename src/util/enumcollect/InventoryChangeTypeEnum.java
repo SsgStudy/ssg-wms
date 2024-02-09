@@ -1,4 +1,4 @@
-package util;
+package util.enumcollect;
 
 public enum InventoryChangeTypeEnum {
     // 수량 변경

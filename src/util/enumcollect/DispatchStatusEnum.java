@@ -1,4 +1,4 @@
-package util;
+package util.enumcollect;
 
 public enum DispatchStatusEnum {
     // 지시

@@ -1,4 +1,4 @@
-package util;
+package util.enumcollect;
 
 public enum MemberEnum {
     // 총관리자

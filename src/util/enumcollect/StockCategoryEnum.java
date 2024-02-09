@@ -1,4 +1,4 @@
-package util;
+package util.enumcollect;
 
 public enum StockCategoryEnum {
     // 신규
