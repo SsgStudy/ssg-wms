@@ -23,6 +23,7 @@ public class DbConnection {
         return instance;
     }
 
+
     public static Connection getConnection() throws Exception {
         if (conn == null || conn.isClosed() || !conn.isValid(1)) {
             Properties prop = loadDatabaseProperties();

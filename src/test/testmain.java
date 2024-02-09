@@ -12,6 +12,7 @@ public class testmain {
         try {
             conn = DbConnection.getConnection();
             System.out.println("접속 성공!");
+            conn.close();
         } catch (ClassNotFoundException c) {
             c.printStackTrace();
         } catch (Exception s) {
