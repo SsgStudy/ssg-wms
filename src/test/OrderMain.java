@@ -22,11 +22,15 @@ public class OrderMain {
 
         // 가져온 주문 정보 출력
         for (OrderVO order : orders) {
-            System.out.println("주문 번호: " + order.getOrderSeq());
-            System.out.println("주문 상태: " + order.getOrderStatus());
-            System.out.println("입고 상품 공급업체명: " + order.getIncomingProductSupplierName());
-            System.out.println("배송일: " + order.getDeliveryDate());
-            System.out.println("주문 완료일: " + order.getOrderCompletionDate());
+            System.out.println("발주 번호: " + order.getOrderSeq());
+            System.out.println("발주 상태: " + order.getOrderStatus());
+            System.out.println("발주 상품 공급업체명: " + order.getIncomingProductSupplierName());
+            System.out.println("발주 상품 배송예정일: " + order.getDeliveryDate());
+            System.out.println("발주 완료일: " + order.getOrderCompletionDate());
+            System.out.println("발주 상세 번호: " + order.getOrderDetailSeq());
+            System.out.println("발주 수량" + order.getOrderCnt());
+            System.out.println("발주 상품 코드 : " + order.getProductCode());
+            System.out.println("창고 코드 " + order.getWarehouseCode());
             System.out.println("------------------------------------");
         }
     }

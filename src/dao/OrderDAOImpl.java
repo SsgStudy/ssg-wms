@@ -46,7 +46,7 @@ public class OrderDAOImpl implements OrderDAO {
                     order.setOrderCompletionDate(completionTimestamp.toLocalDateTime());
                 }
                 order.setOrderDetailSeq(rs.getLong("PK_ORDER_DETAIL_SEQ"));
-                order.setOrderCount(rs.getInt("N_ORDER_CNT"));
+                order.setOrderCnt(rs.getInt("N_ORDER_CNT"));
                 order.setProductCode(rs.getString("V_PRODUCT_CD"));
                 order.setWarehouseCode(rs.getString("V_WAREHOUSE_CD"));
                 orders.add(order);
