@@ -30,6 +30,7 @@ public class WareHouseDaoImpl implements WareHouseDao {
             pstmt.setString(4, wareHouse.getWarehouseType());
             pstmt.setInt(5, wareHouse.getMemberSeq());
             pstmt.executeUpdate();
+            pstmt.close();
 
 
         } catch (Exception e) {
@@ -68,11 +69,6 @@ public class WareHouseDaoImpl implements WareHouseDao {
     }
 
     @Override
-    public List<WareHouse> viewWareHouseByName() {
-        return null;
-    }
-
-    @Override
     public List<WareHouse> viewWareHouseByName(String name) {
         List<WareHouse> wareHouses = new ArrayList<>();
         try {
@@ -90,6 +86,8 @@ public class WareHouseDaoImpl implements WareHouseDao {
                 wareHouse.setMemberSeq(rs.getInt("PK_MEMBER_SEQ"));
                 wareHouses.add(wareHouse);
             }
+            rs.close();
+            pstmt.close();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -123,6 +121,7 @@ public class WareHouseDaoImpl implements WareHouseDao {
                 wareHouse.setMemberSeq(rs.getInt("PK_MEMBER_SEQ"));
                 wareHouses.add(wareHouse);
             }
+            pstmt.close();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -143,7 +142,7 @@ public class WareHouseDaoImpl implements WareHouseDao {
         List<WareHouse> wareHouses = new ArrayList<>();
         try {
             conn = DbConnection.getInstance().getConnection();
-            String sql = new StringBuilder().append("SELECT * FROM TB_WAREHOUSE WHERE V_WAREHOUSE_TYPE LIKE ?").toString();
+            String sql = new StringBuilder().append("SELECT * FROM TB_WAREHOUSE WHERE S_WAREHOUSE_TYPE LIKE ?").toString();
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, "%" + type + "%");
             ResultSet rs = pstmt.executeQuery();
@@ -156,6 +155,7 @@ public class WareHouseDaoImpl implements WareHouseDao {
                 wareHouse.setMemberSeq(rs.getInt("PK_MEMBER_SEQ"));
                 wareHouses.add(wareHouse);
             }
+            pstmt.close();
 
         } catch (Exception e) {
             e.printStackTrace();
