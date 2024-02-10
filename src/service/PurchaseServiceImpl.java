@@ -1,6 +1,7 @@
 package service;
 
 import dao.PurchaseDAOImpl;
+import util.enumcollect.PurchaseEnum;
 import vo.PurchaseVO;
 
 import java.util.List;
@@ -35,14 +36,37 @@ public class PurchaseServiceImpl implements PurchaseService{
 
         List<PurchaseVO> purchaseList = dao.findByDateAndShop(dates[0], dates[1], selectedShopNames);
 
+        print(purchaseList);
+    }
+
+    @Override
+    public void updateOrderToConfirmed() {
+        System.out.println("확정할 주문의 번호를 입력해주세요. (1 2 3)");
+        List<Long> selectedPurchaseDetailSeq = List.of(sc.nextLine().split(" "))
+                .stream()
+                .map(Long::parseLong)
+                .collect(Collectors.toList());
+        int result = dao.updatePurchaseStatus(selectedPurchaseDetailSeq, PurchaseEnum.구매확정);
+
+        System.out.println(result + "건의 주문이 확정 되었습니다.");
+    }
+
+    @Override
+    public void readAllPurchases() {
+        List<PurchaseVO> purchaseList = dao.findAll();
+        print(purchaseList);
+    }
+
+    public void print(List<PurchaseVO> purchaseList) {
         System.out.println("주문 리스트");
-        System.out.printf("%-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-10s %-10s %n",
-                "주문 상태", "주문 수집일", "주문 번호", "쇼핑몰", "상품명", "브랜드", "구매자", "연락처 번호", "주문 수량", "판매 금액");
+        System.out.printf("%-10s %-10s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-10s %-10s %n",
+                "주문 번호", "주문 상태", "주문 일시", "주문 상세 번호", "쇼핑몰", "상품명", "브랜드", "구매자", "연락처 번호", "주문 수량", "판매 금액");
 
         System.out.println("----------------------------------------------------------------------------------------------------------------");
 
         purchaseList.forEach(purchase -> {
-            System.out.printf("%-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-10d %-10d %n",
+            System.out.printf("%-10s %-10s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-10d %-10d %n",
+                    purchase.getShopPurchaseSeq(),
                     purchase.getShopPurchaseStatus(),
                     purchase.getShopPurchaseDate().toString(),
                     purchase.getShopPurchaseDetailSeq(),
@@ -56,11 +80,7 @@ public class PurchaseServiceImpl implements PurchaseService{
         });
 
         System.out.println("----------------------------------------------------------------------------------------------------------------");
-    }
 
-    @Override
-    public void updateOrderToConfirmed() {
 
     }
-
 }

@@ -1,10 +1,12 @@
 package service;
 
+import vo.PurchaseVO;
+
 import java.util.List;
 
 public interface PurchaseService {
-    public void integrateShopPurchases(String startDate,
-                                       String endDate, List<String> shopName);
+    void integrateShopPurchases(String startDate, String endDate, List<String> shopName);
+    void updateOrderToConfirmed();
+    void readAllPurchases();
 
-    public void updateOrderToConfirmed();
 }

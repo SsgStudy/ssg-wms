@@ -1,12 +1,15 @@
 package dao;
 
 
+import util.enumcollect.PurchaseEnum;
 import vo.PurchaseVO;
 
 import java.util.List;
 
 public interface PurchaseDAO {
-    public List<PurchaseVO> findByDateAndShop(String startDate, String endDate, List<String> shopName);
-    public void updatePurchaseStatus();
-    public List<String> findShopName();
+    List<PurchaseVO> findByDateAndShop(String startDate, String endDate, List<String> shopName);
+    int updatePurchaseStatus(List<Long> purchaseDetailSeq, PurchaseEnum purchaseStatus);
+    List<String> findShopName();
+    List<PurchaseVO> findAll();
+
 }
