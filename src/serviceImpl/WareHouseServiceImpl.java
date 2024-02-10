@@ -101,6 +101,11 @@ public class WareHouseServiceImpl implements WareHouseService {
 
     }
 
+    @Override
+    public void updateWareHouse() {
+
+    }
+
     public void viewWareHouseByName() throws IOException {
         System.out.println();
         System.out.println("--".repeat(25));
