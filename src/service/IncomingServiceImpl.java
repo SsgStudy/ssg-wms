@@ -1,6 +1,7 @@
 package service;
 
 import dao.IncomingDAOImpl;
+import java.sql.SQLException;
 import java.util.List;
 import vo.IncomingVO;
 
@@ -16,4 +17,15 @@ public class IncomingServiceImpl implements IncomigService {
     public List<IncomingVO> getAllIncomingProductsWithDetails() {
         return incomingDAO.getAllIncomingProductsWithDetails();
     }
+    public void updateIncomingProductDetails(long seq, String zoneCode, int count, int price) throws SQLException {
+        incomingDAO.updateIncomingProduct(seq, zoneCode, count, price);
+    }
+
+    @Override
+    public void approveIncomingProduct(long seq) throws Exception {
+        incomingDAO.approveIncomingProduct(seq);
+
+    }
+
+
 }

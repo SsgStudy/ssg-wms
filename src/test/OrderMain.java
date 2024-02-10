@@ -11,7 +11,7 @@ import service.OrderService;
 import service.OrderServiceImpl;
 
 public class OrderMain {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
 
         // DAO 객체 생성
         IncomingDAOImpl incomingDAO = IncomingDAOImpl.getInstance();
@@ -39,7 +39,7 @@ public class OrderMain {
         int choice = scanner.nextInt();
 
         switch (choice) {
-            case 1 -> incomingController.printAllIncomingProductsWithDetails();
+            case 1 -> incomingController.incomingProductMenu();
             case 2 -> orderController.printAllOrdersWithDetails();
             default -> System.out.println("옳지 않은 입력입니다.");
         }

@@ -5,6 +5,7 @@ package dao;
         import java.sql.ResultSet;
         import java.sql.SQLException;
         import java.sql.Timestamp;
+        import java.time.LocalDateTime;
         import java.util.ArrayList;
         import java.util.List;
         import util.DbConnection;
@@ -63,5 +64,36 @@ public class IncomingDAOImpl implements IncomingDAO{
         }
 
         return incomingProducts;
+    }
+    // 입고 상품 정보 수정
+    public void updateIncomingProduct(long seq, String zoneCode, int count, int price) throws SQLException {
+        String sql = "UPDATE TB_INCOMING_PRODUCT SET V_ZONE_CD = ?, N_INCOMING_PRODUCT_CNT = ?, N_INCOMING_PRODUCT_PRICE = ? WHERE PK_INCOMING_PRODUCT_SEQ = ?";
+
+        try (Connection conn = DbConnection.getInstance().getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, zoneCode);
+            stmt.setInt(2, count);
+            stmt.setInt(3, price);
+            stmt.setLong(4, seq);
+
+            stmt.executeUpdate();
+        } catch (Exception e) {
+            throw new SQLException("입고 상품 정보 수정 중 오류 발생", e);
+        }
+    }
+
+    // 입고 상품 승인 (상태를 COMPLETE로 변경)
+    public void approveIncomingProduct(long seq) throws Exception {
+        String sql = "UPDATE TB_INCOMING_PRODUCT SET V_INCOMING_PRODUCT_STATUS = 'COMPLETE', DT_INCOMING_PRODUCT_DATE = ? WHERE PK_INCOMING_PRODUCT_SEQ = ?";
+
+        try (Connection conn = DbConnection.getInstance().getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
+            stmt.setLong(2, seq);
+
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new SQLException("입고 상품 승인 중 오류 발생", e);
+        }
     }
 }

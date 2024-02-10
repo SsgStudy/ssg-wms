@@ -1,20 +1,37 @@
 package controller;
 
 
+import java.sql.SQLException;
 import java.util.List;
+import java.util.Scanner;
 import service.IncomigService;
 import vo.IncomingVO;
 
 public class IncomingController {
+    Scanner scanner = new Scanner(System.in);
 
-    private IncomigService incomigService;
+    private IncomigService incomingService;
 
-    public IncomingController(IncomigService incomigService) {
-        this.incomigService = incomigService;
+    public IncomingController(IncomigService incomingService) {
+        this.incomingService = incomingService;
     }
 
     public List<IncomingVO> getAllIncomingProductsWithDetails() {
-        return incomigService.getAllIncomingProductsWithDetails();
+        return incomingService.getAllIncomingProductsWithDetails();
+    }
+    public void incomingProductMenu() throws Exception {
+        printAllIncomingProductsWithDetails();
+        System.out.println("관리할 입고 상품의 번호를 입력하세요:");
+        long seq = scanner.nextLong();
+        System.out.println("1. 수정\n2. 승인");
+        System.out.print("선택: ");
+        int manageChoice = scanner.nextInt();
+
+        switch (manageChoice) {
+            case 1 -> updateIncomingProduct(seq, scanner);
+            case 2 -> approveIncomingProduct(seq);
+            default -> System.out.println("옳지 않은 입력입니다.");
+        }
     }
 
     public void printAllIncomingProductsWithDetails() {
@@ -40,4 +57,18 @@ public class IncomingController {
                     incoming.getZoneCode());
         }
     }
+    public void updateIncomingProduct(long seq, Scanner scanner) throws SQLException {
+        System.out.println("수정할 ZONE 코드, 수량, 가격을 입력하세요 (공백으로 구분):");
+        String zoneCode = scanner.next();
+        int count = scanner.nextInt();
+        int price = scanner.nextInt();
+
+        incomingService.updateIncomingProductDetails(seq, zoneCode, count, price);
+        printAllIncomingProductsWithDetails();
+    }
+    public void approveIncomingProduct(long seq) throws Exception {
+        incomingService.approveIncomingProduct(seq);
+        printAllIncomingProductsWithDetails();
+    }
+
 }
