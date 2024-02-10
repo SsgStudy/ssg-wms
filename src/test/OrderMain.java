@@ -23,7 +23,8 @@ public class OrderMain {
 
 
         // 컨트롤러 객체 생성 및 서비스 객체 주입
-        IncomingController incomingController = new IncomingController(incomingService);
+        IncomingController incomingController;
+        incomingController = new IncomingController(incomingService);
         OrderController orderController = new OrderController(orderService);
 
 

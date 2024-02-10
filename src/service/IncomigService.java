@@ -1,12 +1,23 @@
 package service;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.List;
+import vo.DetailedIncomingVO;
 import vo.IncomingVO;
 
 public interface IncomigService {
+
     List<IncomingVO> getAllIncomingProductsWithDetails();
+
     void updateIncomingProductDetails(long seq, String zoneCode, int count, int price) throws SQLException;
+
     void approveIncomingProduct(long seq) throws Exception;
+
+    List<IncomingVO> getIncomingProductsByMonth(int year, int month) throws SQLException;
+
+    List<IncomingVO> getIncomingProductsByDateRange(LocalDate startDate, LocalDate endDate) throws SQLException;
+
+    DetailedIncomingVO getIncomingProductDetailsWithProductInfo(long seq) throws Exception;
 
 }
