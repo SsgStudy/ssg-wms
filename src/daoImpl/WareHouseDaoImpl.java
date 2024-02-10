@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class WareHouseDaoImpl implements WareHouseDao {
-    WareHouse wareHouse = new WareHouse();
 
     Connection conn = null;
 
@@ -94,7 +93,7 @@ public class WareHouseDaoImpl implements WareHouseDao {
         } finally {
             if (conn != null) {
                 try {
-                    conn.close();
+                    DbConnection.close();
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
@@ -128,7 +127,7 @@ public class WareHouseDaoImpl implements WareHouseDao {
         } finally {
             if (conn != null) {
                 try {
-                    conn.close();
+                    DbConnection.close();
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
@@ -162,7 +161,7 @@ public class WareHouseDaoImpl implements WareHouseDao {
         } finally {
             if (conn != null) {
                 try {
-                    conn.close();
+                    DbConnection.close();
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
