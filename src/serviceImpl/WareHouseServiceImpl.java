@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Scanner;
 
 public class WareHouseServiceImpl implements WareHouseService {
-    BufferedReader sc= new BufferedReader(new InputStreamReader(System.in));
+    BufferedReader sc = new BufferedReader(new InputStreamReader(System.in));
     WareHouseDaoImpl wareHouseDao = new WareHouseDaoImpl();
     List<WareHouse> wareHouseList = new ArrayList<>();
 
@@ -20,6 +20,7 @@ public class WareHouseServiceImpl implements WareHouseService {
         wareHouseMain();
 
     }
+
     public void wareHouseMain() throws IOException {
         System.out.println("--".repeat(25));
         System.out.println("[창고 관리]");
@@ -28,7 +29,7 @@ public class WareHouseServiceImpl implements WareHouseService {
         System.out.println("--".repeat(25));
         System.out.println("메뉴 선택 : ");
         int cmd = Integer.parseInt(sc.readLine().trim());
-        switch (cmd){
+        switch (cmd) {
             case 1 -> registerWareHouse();
             case 2 -> viewWareHouse();
         }
@@ -39,13 +40,13 @@ public class WareHouseServiceImpl implements WareHouseService {
         System.out.println("--".repeat(25));
         System.out.println("[창고 목록]");
         System.out.println("--".repeat(25));
-        System.out.printf("%7s | %8s | %10s | %6s\n", "창고코드", "창고명", "창고소재지", "창고종류");
+        System.out.printf("%7s | %12s | %10s | %6s | %3s\n", "창고코드", "창고명", "창고소재지", "창고종류", "관리자코드");
         System.out.println("--".repeat(25));
         wareHouseList = wareHouseDao.viewWareHouse();
         for (WareHouse wareHouse : wareHouseList) {
-            System.out.printf("%7s | %10s | %9s | %6s\n",
+            System.out.printf("%7s | %12s | %9s | %6s |%3s\n",
                     wareHouse.getWarehouseCode(),
-                    wareHouse.getWarehouseCode(),
+                    wareHouse.getWarehouseName(),
                     wareHouse.getWarehouseLocation(),
                     wareHouse.getWarehouseType(),
                     wareHouse.getMemberSeq());
@@ -82,6 +83,8 @@ public class WareHouseServiceImpl implements WareHouseService {
     public void viewWareHouse() throws IOException {
         System.out.println();
         System.out.println("--".repeat(25));
+        System.out.println("[창고 조회]");
+        System.out.println("--".repeat(25));
         System.out.println("1.전체 조회 | 2.창고명별 조회 | 3.소재지별 조회 | 4.창고종류별 조회 | 5. 돌아가기");
         System.out.println("--".repeat(25));
         System.out.printf("메뉴 선택 : ");
@@ -93,7 +96,6 @@ public class WareHouseServiceImpl implements WareHouseService {
             case 4 -> viewWareHouseByType();
             case 5 -> wareHouseMain();
         }
-        System.out.println("--".repeat(25));
         viewWareHouse();
 
 
@@ -102,14 +104,14 @@ public class WareHouseServiceImpl implements WareHouseService {
     public void viewWareHouseByName() throws IOException {
         System.out.println();
         System.out.println("--".repeat(25));
-        System.out.println("창고명 검색 : ");
+        System.out.print("창고명 검색 : ");
         String name = sc.readLine();
         System.out.println("--".repeat(25));
-        System.out.printf("%7s | %8s | %10s | %6s | %3s\n", "창고코드", "창고명", "창고소재지", "창고종류", "관리자코드");
+        System.out.printf("%7s | %12s | %10s | %6s | %3s\n", "창고코드", "창고명", "창고소재지", "창고종류", "관리자코드");
         System.out.println("--".repeat(25));
         wareHouseList = wareHouseDao.viewWareHouseByName(name);
         for (WareHouse wareHouse : wareHouseList) {
-            System.out.printf("%7s | %10s | %9s | %6s | %3s\n",
+            System.out.printf("%7s | %12s | %9s | %6s | %3s\n",
                     wareHouse.getWarehouseCode(),
                     wareHouse.getWarehouseName(),
                     wareHouse.getWarehouseLocation(),
@@ -122,14 +124,14 @@ public class WareHouseServiceImpl implements WareHouseService {
     public void viewWareHouseByLocation() throws IOException {
         System.out.println();
         System.out.println("--".repeat(25));
-        System.out.println("소재지 검색 : ");
+        System.out.print("소재지 검색 : ");
         String location = sc.readLine();
         System.out.println("--".repeat(25));
-        System.out.printf("%7s | %8s | %10s | %6s | %3s\n", "창고코드", "창고명", "창고소재지", "창고종류", "관리자코드");
+        System.out.printf("%7s | %12s | %10s | %6s | %3s\n", "창고코드", "창고명", "창고소재지", "창고종류", "관리자코드");
         System.out.println("--".repeat(25));
         wareHouseList = wareHouseDao.viewWareHouseByLocation(location);
         for (WareHouse wareHouse : wareHouseList) {
-            System.out.printf("%7s | %10s | %9s | %6s | %3s\n",
+            System.out.printf("%7s | %12s | %9s | %6s | %3s\n",
                     wareHouse.getWarehouseCode(),
                     wareHouse.getWarehouseName(),
                     wareHouse.getWarehouseLocation(),
@@ -142,14 +144,14 @@ public class WareHouseServiceImpl implements WareHouseService {
     public void viewWareHouseByType() throws IOException {
         System.out.println();
         System.out.println("--".repeat(25));
-        System.out.println("창고종류 검색 : ");
+        System.out.print("창고종류 검색 : ");
         String type = sc.readLine();
         System.out.println("--".repeat(25));
-        System.out.printf("%7s | %8s | %10s | %6s | %3s\n", "창고코드", "창고명", "창고소재지", "창고종류", "관리자코드");
+        System.out.printf("%7s | %12s | %10s | %6s | %3s\n", "창고코드", "창고명", "창고소재지", "창고종류", "관리자코드");
         System.out.println("--".repeat(25));
         wareHouseList = wareHouseDao.viewWareHouseByType(type);
         for (WareHouse wareHouse : wareHouseList) {
-            System.out.printf("%7s | %10s | %9s | %6s | %3s\n",
+            System.out.printf("%7s | %12s | %9s | %6s | %3s\n",
                     wareHouse.getWarehouseCode(),
                     wareHouse.getWarehouseName(),
                     wareHouse.getWarehouseLocation(),
@@ -157,11 +159,5 @@ public class WareHouseServiceImpl implements WareHouseService {
                     wareHouse.getMemberSeq());
         }
         System.out.println("--".repeat(25));
-    }
-
-
-    @Override
-    public void updateWareHouse() {
-
     }
 }
