@@ -46,7 +46,7 @@ public class PurchaseServiceImpl implements PurchaseService{
                 .stream()
                 .map(Long::parseLong)
                 .collect(Collectors.toList());
-        int result = dao.updatePurchaseStatus(selectedPurchaseDetailSeq, PurchaseEnum.구매확정);
+        int result = dao.updatePurchaseStatus(selectedPurchaseDetailSeq, PurchaseEnum.주문확정);
 
         System.out.println(result + "건의 주문이 확정 되었습니다.");
     }

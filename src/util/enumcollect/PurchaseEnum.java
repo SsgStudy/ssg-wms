@@ -1,5 +1,5 @@
 package util.enumcollect;
 
 public enum PurchaseEnum {
-    신규, 구매확정
+    신규, 주문확정
 }
