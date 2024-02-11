@@ -9,6 +9,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import util.DbConnection;
+import vo.InventoryVO;
 import vo.OutgoingInstVO;
 import vo.OutgoingVO;
 
@@ -130,6 +131,82 @@ public class OutgoingDAOImpl implements OutgoingDAO {
                 insertOutgoingProduct(product);
             } catch (SQLException e) {
                 throw new SQLException("DB 삽입 에러", e);
+            }
+        }
+    }
+    // 출고 상태 및 출고일자 업데이트
+    public void updateOutgoingProductStatusAndDate(Long pkOutgoingId, LocalDateTime date, String status) throws Exception {
+        String sql = "UPDATE TB_OUTGOING_PRODUCT SET V_OUTGOING_STATUS = ?, DT_OUTGOING_DATE = ? WHERE PK_OUTGOING_ID = ?";
+
+        try (Connection conn = DbConnection.getInstance().getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, status);
+            pstmt.setString(2, date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+            pstmt.setLong(3, pkOutgoingId);
+
+            int affectedRows = pstmt.executeUpdate();
+            if (affectedRows == 0) {
+                throw new SQLException("출고 상태 업데이트 실패: PK_OUTGOING_ID = " + pkOutgoingId);
+            }
+        }
+    }
+
+    // 출고 수량 조회
+    public int getOutgoingProductQuantity(Long pkOutgoingId) throws Exception {
+        String sql = "SELECT N_OUTGOING_CNT FROM TB_OUTGOING_PRODUCT WHERE PK_OUTGOING_ID = ?";
+
+        try (Connection conn = DbConnection.getInstance().getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setLong(1, pkOutgoingId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("N_OUTGOING_CNT");
+                } else {
+                    throw new SQLException("출고 수량 조회 실패: PK_OUTGOING_ID = " + pkOutgoingId);
+                }
+            }
+        }
+    }
+
+    // 창고 코드 및 구역 코드에 따른 재고 조회
+    public List<InventoryVO> getInventoryByProductCodeAndQuantity(String productCd, int quantity) throws Exception {
+        List<InventoryVO> inventories = new ArrayList<>();
+        String sql = "SELECT V_WAREHOUSE_CD, V_ZONE_CD, N_INVENTORY_CNT FROM TB_INVENTORY WHERE V_PRODUCT_CD = ? AND N_INVENTORY_CNT >= ?";
+
+        try (Connection conn = DbConnection.getInstance().getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, productCd);
+            pstmt.setInt(2, quantity);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    InventoryVO inventory = new InventoryVO();
+                    inventory.setWarehouseCd(rs.getString("V_WAREHOUSE_CD"));
+                    inventory.setZoneCd(rs.getString("V_ZONE_CD"));
+                    inventory.setInventoryCnt(rs.getInt("N_INVENTORY_CNT"));
+                    inventories.add(inventory);
+                }
+            }
+        }
+        return inventories;
+    }
+
+    public void updateOutgoingProduct(Long pkOutgoingId, int newQuantity, String warehouseCd, String zoneCd) throws Exception {
+        String sql = "UPDATE TB_OUTGOING_PRODUCT SET N_OUTGOING_CNT = ?, V_WAREHOUSE_CD = ?, V_ZONE_CD = ? WHERE PK_OUTGOING_ID = ?";
+
+        try (Connection conn = DbConnection.getInstance().getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, newQuantity);
+            pstmt.setString(2, warehouseCd);
+            pstmt.setString(3, zoneCd);
+            pstmt.setLong(4, pkOutgoingId);
+
+            int affectedRows = pstmt.executeUpdate();
+            if (affectedRows == 0) {
+                throw new SQLException("출고 상품 업데이트 실패: PK_OUTGOING_ID = " + pkOutgoingId);
             }
         }
     }
