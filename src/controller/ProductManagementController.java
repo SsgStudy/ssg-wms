@@ -2,13 +2,11 @@ package controller;
 
 import service.ProductServiceImpl;
 import service.ProductService;
-import util.enumcollect.SalesStatus;
 import vo.Category;
 import vo.Product;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ProductManagementController {
@@ -53,7 +51,9 @@ public class ProductManagementController {
                 System.out.println("소분류 카테고리 번호를 입력하세요: ");
                 int detailCategoryNumber = Integer.parseInt(sc.readLine().trim());
 
-                selectedCategoryCode = "00" +mainCategoryNumber + "-" + "00" + subCategoryNumber + "-" + "00" + detailCategoryNumber;
+                selectedCategoryCode =  String.format("%03d", mainCategoryNumber) + "-"
+                        + String.format("%03d", subCategoryNumber) + "-"
+                        + String.format("%03d", detailCategoryNumber);
 
             }catch (Exception e){
                 System.out.println("카테고리 조회 중 오류가 발생했습니다: " + e.getMessage());

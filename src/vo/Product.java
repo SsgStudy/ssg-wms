@@ -7,14 +7,14 @@ import java.sql.Date;
 
 @Data
 public class Product {
-    private String ProductCode;
-    private String ProductId;
-    private String ProductName;
-    private int ProductPrice;
-    private String ProductBrand;
-    private String ProductOrign;
-    private String Manufactor;
-    private SalesStatus PrductStatus;
-    private Date ProductManufactorsDate;
-    private String CategoryCode;
+    private String productCode;
+    private String productId;
+    private String productName;
+    private int productPrice;
+    private String productBrand;
+    private String productOrign;
+    private String manufactor;
+    private SalesStatus prductStatus;
+    private Date productManufactorsDate;
+    private String categoryCode;
 }

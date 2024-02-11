@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class Category {
-    private String CategoryCode;
-    private String CategoryName;
-    private String CategoryParentCode;
+    private String categoryCode;
+    private String categoryName;
+    private String categoryParentCode;
 }
