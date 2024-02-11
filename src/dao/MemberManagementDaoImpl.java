@@ -11,7 +11,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MemberManagementDaoImpl {
+public class MemberManagementDaoImpl implements MemberManagementDao {
     private static DbConnection instance;
     static Connection conn;
     private PreparedStatement pstmt;
