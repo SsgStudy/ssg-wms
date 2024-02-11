@@ -210,5 +210,21 @@ public class OutgoingDAOImpl implements OutgoingDAO {
             }
         }
     }
+    @Override
+    public String getProductCodeByOutgoingId(Long pkOutgoingId) throws Exception {
+        String sql = "SELECT V_PRODUCT_CD FROM TB_OUTGOING_PRODUCT WHERE PK_OUTGOING_ID = ?";
+        try (Connection conn = DbConnection.getInstance().getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setLong(1, pkOutgoingId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("V_PRODUCT_CD");
+                } else {
+                    throw new SQLException("상품 코드 조회 실패: PK_OUTGOING_ID = " + pkOutgoingId);
+                }
+            }
+        }
+    }
+
 
 }

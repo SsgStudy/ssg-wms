@@ -1,6 +1,8 @@
 package controller;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Scanner;
 import service.OutgoingService;
@@ -87,17 +89,27 @@ public class OutgoingController {
             System.out.print("수정할 출고 상품의 ID를 입력하세요: ");
             Long pkOutgoingId = scanner.nextLong();
 
-            // 출고 상태를 WAIT로 변경하고, 출고일자를 현재로 설정
-            outgoingService.updateOutgoingProductStatusAndDate(pkOutgoingId, LocalDateTime.now(), "WAIT");
+            // 출고 상품에 대한 상품 코드 자동 조회
+            String productCd = outgoingService.getProductCodeByOutgoingId(pkOutgoingId);
 
             // 출고 수량 조회
             int currentQuantity = outgoingService.getOutgoingProductQuantity(pkOutgoingId);
             System.out.println("현재 출고 수량: " + currentQuantity + ". 수정할 수량을 입력하세요 (최대 " + currentQuantity + "): ");
             int newQuantity = scanner.nextInt();
 
+            // 출고 일자 입력
+            LocalDateTime outgoingDate = null;
+            while (outgoingDate == null) {
+                System.out.print("출고 일자를 입력하세요 (예: 202401301400): ");
+                String outgoingDateInput = scanner.next(); // 문자열로 입력 받음
+                try {
+                    outgoingDate = LocalDateTime.parse(outgoingDateInput, DateTimeFormatter.ofPattern("yyyyMMddHHmm"));
+                } catch (DateTimeParseException e) {
+                    System.out.println("잘못된 날짜 형식입니다. 'yyyyMMddHHmm' 형식으로 입력해주세요.");
+                }
+            }
+
             // 재고 정보 조회 및 선택
-            System.out.print("상품 코드를 입력하세요: ");
-            String productCd = scanner.next();
             List<InventoryVO> inventories = outgoingService.getInventoryByProductCodeAndQuantity(productCd, newQuantity);
             if (inventories.isEmpty()) {
                 System.out.println("해당 상품에 대한 충분한 재고가 없습니다.");
@@ -107,19 +119,25 @@ public class OutgoingController {
             System.out.println("선택 가능한 창고 및 구역 목록:");
             for (int i = 0; i < inventories.size(); i++) {
                 InventoryVO inventory = inventories.get(i);
-                System.out.println((i + 1) + ". 창고 코드: " + inventory.getWarehouseCd() + ", 구역 코드: " + inventory.getZoneCd() + ", 재고 수량: " + inventory.getInventoryCnt());
+                System.out.println(
+                        (i + 1) + ". 창고 코드: " + inventory.getWarehouseCd() + ", 구역 코드: " + inventory.getZoneCd() + ", 재고 수량: "
+                                + inventory.getInventoryCnt());
             }
             System.out.print("선택: ");
             int inventoryChoice = scanner.nextInt();
             InventoryVO selectedInventory = inventories.get(inventoryChoice - 1);
 
-            // 출고 정보 업데이트 메서드 호출 (가정)
-            outgoingService.updateOutgoingProduct(pkOutgoingId, newQuantity, selectedInventory.getWarehouseCd(), selectedInventory.getZoneCd());
-            System.out.println("출고 상품이 성공적으로 업데이트되었습니다.");
+            // 출고 상품 업데이트 및 출고 상태 WAIT로 변경, 출고 일자 업데이트
+            outgoingService.updateOutgoingProduct(pkOutgoingId, newQuantity, selectedInventory.getWarehouseCd(),
+                    selectedInventory.getZoneCd());
+            outgoingService.updateOutgoingProductStatusAndDate(pkOutgoingId, outgoingDate, "WAIT");
+            System.out.println("출고 승인이 성공적으로 업데이트 되었습니다.\n 예정 출고 일자: " + outgoingDate.format(
+                    DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
 
         } catch (Exception e) {
             System.out.println("오류 발생: " + e.getMessage());
             e.printStackTrace();
         }
     }
+
 }

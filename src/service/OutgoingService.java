@@ -27,5 +27,6 @@ public interface OutgoingService {
 
     void updateOutgoingProduct(Long pkOutgoingId, int newQuantity, String warehouseCd, String zoneCd) throws Exception;
 
+    String getProductCodeByOutgoingId(Long pkOutgoingId) throws Exception;
 
 }

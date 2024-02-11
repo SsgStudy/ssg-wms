@@ -45,4 +45,9 @@ public class OutgoingServiceImpl implements OutgoingService {
     public void updateOutgoingProduct(Long pkOutgoingId, int newQuantity, String warehouseCd, String zoneCd) throws Exception {
         outgoingDAO.updateOutgoingProduct(pkOutgoingId, newQuantity, warehouseCd, zoneCd);
     }
+
+    @Override
+    public String getProductCodeByOutgoingId(Long pkOutgoingId) throws Exception {
+        return outgoingDAO.getProductCodeByOutgoingId(pkOutgoingId);
+    }
 }

@@ -4,10 +4,14 @@ import controller.OutgoingController;
 import dao.OutgoingDAOImpl;
 import service.OutgoingService;
 import service.OutgoingServiceImpl;
+import util.AsciiPrinter;
 
 public class OutgoingMain {
 
     public static void main(String[] args) {
+        AsciiPrinter asciiPrinter = new AsciiPrinter();
+        asciiPrinter.printLoginTitle();
+        asciiPrinter.printMainTitle();
         // DAO 객체 생성
         OutgoingDAOImpl outgoingDAO = new OutgoingDAOImpl();
 

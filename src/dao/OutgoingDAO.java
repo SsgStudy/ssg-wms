@@ -23,4 +23,7 @@ public interface OutgoingDAO {
     List<InventoryVO> getInventoryByProductCodeAndQuantity(String productCd, int quantity) throws Exception;
 
     void updateOutgoingProduct(Long pkOutgoingId, int newQuantity, String warehouseCd, String zoneCd) throws Exception;
+
+    String getProductCodeByOutgoingId(Long pkOutgoingId) throws Exception;
+
 }
