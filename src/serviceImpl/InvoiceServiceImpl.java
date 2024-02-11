@@ -63,9 +63,6 @@ public class InvoiceServiceImpl implements InvoiceService {
     }
 
     public Blob createQRCode(String invoiceCode, String invoiceType, int purchaseCode) {
-        invoiceCode = invoice.getInvoiceCode(); // 운송장코드
-        invoiceType = "Express"; // 운송장종류
-        purchaseCode = 0; // 발주코드
 
         // QR 코드로 포함될 전체 텍스트
         String text = "Invoice Code : " + invoiceCode + "\n" +
@@ -75,14 +72,28 @@ public class InvoiceServiceImpl implements InvoiceService {
         // QR 코드 이미지 생성
         int width = 300; // QR 코드의 너비
         int height = 300; // QR 코드의 높이
-        String filePath = "invoice-qr-code.png"; // QR코드 이미지 파일 경로
+//        Blob qrCodeImage = createQRCode(invoiceCode, invoiceType, purchaseCode);
+//        String filePath = "invoice-qr-code6.png"; // QR코드 이미지 파일 경로
 
         try {
             Hashtable<EncodeHintType, Object> hintMap = new Hashtable<>();
             hintMap.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.L);
             QRCodeWriter qrCodeWriter = new QRCodeWriter();
             BitMatrix byteMatrix = qrCodeWriter.encode(text, BarcodeFormat.QR_CODE, width, height, hintMap);
+
             BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+            Graphics2D graphics = image.createGraphics();
+            graphics.setColor(Color.WHITE);
+            graphics.fillRect(0, 0, width, height);
+            graphics.setColor(Color.BLACK);
+            for (int i = 0; i < width; i++) {
+                for (int j = 0; j < height; j++) {
+                    if (byteMatrix.get(i, j)) {
+                        graphics.fillRect(i, j, 1, 1);
+                    }
+                }
+            }
+            graphics.dispose();
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ImageIO.write(image, "png", baos);
