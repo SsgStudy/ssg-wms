@@ -92,10 +92,24 @@ public class OutgoingDAOImpl implements OutgoingDAO {
             }
             throw e;
         } finally {
-            if (pstmt != null) try { pstmt.close(); } catch (SQLException e) { e.printStackTrace(); }
-            if (conn != null) try { conn.setAutoCommit(true); conn.close(); } catch (SQLException e) { e.printStackTrace(); }
+            if (pstmt != null) {
+                try {
+                    pstmt.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
+
     public void processOutgoingProducts(int shopSeq) throws Exception {
         List<OutgoingVO> outgoingProducts = new ArrayList<>();
         String query = "SELECT spd.PK_SHOP_PURCHASE_DETAIL_SEQ, spd.PK_SHOP_PURCHASE_SEQ, spd.N_PRODUCT_CNT, spd.V_PRODUCT_CD, sp.PK_SHOP_CD, sp.V_SHOP_PURCHASE_NM, sp.V_SHOP_PURCHASE_ADDR, sp.V_SHOP_PURCHASE_TEL, sp.V_SHOP_PURCHASE_STATUS, sp.DT_SHOP_PURCHASE_DATE FROM TB_SHOP_PURCHASE sp JOIN TB_SHOP_PURCHASE_DETAIL spd ON sp.PK_SHOP_PURCHASE_SEQ = spd.PK_SHOP_PURCHASE_SEQ WHERE sp.PK_SHOP_PURCHASE_SEQ = ?";
@@ -134,6 +148,7 @@ public class OutgoingDAOImpl implements OutgoingDAO {
             }
         }
     }
+
     // 출고 상태 및 출고일자 업데이트
     public void updateOutgoingProductStatusAndDate(Long pkOutgoingId, LocalDateTime date, String status) throws Exception {
         String sql = "UPDATE TB_OUTGOING_PRODUCT SET V_OUTGOING_STATUS = ?, DT_OUTGOING_DATE = ? WHERE PK_OUTGOING_ID = ?";
@@ -210,6 +225,7 @@ public class OutgoingDAOImpl implements OutgoingDAO {
             }
         }
     }
+
     @Override
     public String getProductCodeByOutgoingId(Long pkOutgoingId) throws Exception {
         String sql = "SELECT V_PRODUCT_CD FROM TB_OUTGOING_PRODUCT WHERE PK_OUTGOING_ID = ?";
@@ -226,5 +242,31 @@ public class OutgoingDAOImpl implements OutgoingDAO {
         }
     }
 
+    //출고 테이블 전체 조회
+    public List<OutgoingVO> getAllOutgoings() throws Exception {
+        List<OutgoingVO> outgoings = new ArrayList<>();
+        String sql = "SELECT PK_OUTGOING_ID, V_OUTGOING_STATUS, DT_OUTGOING_DATE, N_OUTGOING_CNT, V_PRODUCT_CD, V_WAREHOUSE_CD, V_ZONE_CD FROM TB_OUTGOING_PRODUCT";
+
+        try (Connection conn = DbConnection.getInstance().getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql);
+                ResultSet rs = pstmt.executeQuery()) {
+
+            while (rs.next()) {
+                OutgoingVO outgoing = new OutgoingVO();
+                outgoing.setOutgoingId(rs.getLong("PK_OUTGOING_ID"));
+                outgoing.setOutgoingStatus(rs.getString("V_OUTGOING_STATUS"));
+                outgoing.setOutgoingDate(rs.getTimestamp("DT_OUTGOING_DATE").toLocalDateTime());
+                outgoing.setOutgoingCnt(rs.getInt("N_OUTGOING_CNT"));
+                outgoing.setProductCd(rs.getString("V_PRODUCT_CD"));
+                outgoing.setWarehouseCd(rs.getString("V_WAREHOUSE_CD"));
+                outgoing.setZoneCd(rs.getString("V_ZONE_CD"));
+                outgoings.add(outgoing);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+        return outgoings;
+    }
 
 }

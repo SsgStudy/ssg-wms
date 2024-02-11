@@ -50,4 +50,9 @@ public class OutgoingServiceImpl implements OutgoingService {
     public String getProductCodeByOutgoingId(Long pkOutgoingId) throws Exception {
         return outgoingDAO.getProductCodeByOutgoingId(pkOutgoingId);
     }
+
+    @Override
+    public List<OutgoingVO> getAllOutgoings() throws Exception {
+        return outgoingDAO.getAllOutgoings();
+    }
 }

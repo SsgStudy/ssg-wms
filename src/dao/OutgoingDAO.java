@@ -26,4 +26,6 @@ public interface OutgoingDAO {
 
     String getProductCodeByOutgoingId(Long pkOutgoingId) throws Exception;
 
-}
+    List<OutgoingVO> getAllOutgoings() throws Exception;
+
+    }

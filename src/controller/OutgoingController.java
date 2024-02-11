@@ -85,6 +85,7 @@ public class OutgoingController {
     }
 
     public void updateOutgoingProductMenu() {
+        printAllOutgoings();
         try {
             System.out.print("수정할 출고 상품의 ID를 입력하세요: ");
             Long pkOutgoingId = scanner.nextLong();
@@ -136,6 +137,27 @@ public class OutgoingController {
 
         } catch (Exception e) {
             System.out.println("오류 발생: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    public void printAllOutgoings() {
+        try {
+            List<OutgoingVO> outgoings = outgoingService.getAllOutgoings();
+            if (outgoings.isEmpty()) {
+                System.out.println("출고 현황 정보가 없습니다.");
+            } else {
+                System.out.printf("\n%-10s %-20s %-30s %-10s %-15s %-15s %-15s\n", "ID", "상태", "출고일", "수량", "상품코드", "창고코드", "구역코드");
+                for (OutgoingVO outgoing : outgoings) {
+                    System.out.printf("%-10d %-20s %-30s %-10d %-15s %-15s %-15s\n",
+                            outgoing.getOutgoingId(), outgoing.getOutgoingStatus(),
+                            outgoing.getOutgoingDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")),
+                            outgoing.getOutgoingCnt(), outgoing.getProductCd(),
+                            outgoing.getWarehouseCd(), outgoing.getZoneCd());
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("출고 현황 조회 중 오류가 발생했습니다: " + e.getMessage());
             e.printStackTrace();
         }
     }
