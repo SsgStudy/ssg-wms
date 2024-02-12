@@ -1,6 +1,8 @@
 package vo;
 
 import lombok.Data;
+import util.enumcollect.PurchaseClaimEnum;
+import util.enumcollect.PurchaseEnum;
 
 import java.sql.Date;
 
@@ -12,11 +14,12 @@ public class PurchaseVO {
     private String shopPurchaseName;
     private String shopPurchaseAddress;
     private String shopPurchaseTel;
-    private String shopPurchaseStatus;
+    private PurchaseEnum shopPurchaseStatus;
     private Date shopPurchaseDate;
     private long shopPurchaseDetailSeq;
     private int productCnt;
     private String productName;
     private String productBrand;
     private int productPrice;
+    private PurchaseClaimEnum shopPurchaseClaim;
 }
