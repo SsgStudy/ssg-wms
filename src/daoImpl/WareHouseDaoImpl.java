@@ -30,8 +30,6 @@ public class WareHouseDaoImpl implements WareHouseDao {
             pstmt.setInt(5, wareHouse.getMemberSeq());
             pstmt.executeUpdate();
             pstmt.close();
-
-
         } catch (Exception e) {
             e.printStackTrace();
         }
