@@ -4,8 +4,7 @@ import dao.PurchaseDAOImpl;
 import util.enumcollect.PurchaseEnum;
 import vo.PurchaseVO;
 
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -34,21 +33,46 @@ public class PurchaseServiceImpl implements PurchaseService{
                 .map(idx -> shopList.get(idx - 1))
                 .collect(Collectors.toList());
 
-        List<PurchaseVO> purchaseList = dao.findByDateAndShop(dates[0], dates[1], selectedShopNames);
+        List<Long> shopPurchaseSeqList = dao.getPurchaseByDateAndShopName(dates[0], dates[1], selectedShopNames);
+
+        if (shopPurchaseSeqList.size() == 0)
+            return;
+
+        // 상태 변경
+        int result = dao.updatePurchaseStatus(shopPurchaseSeqList, PurchaseEnum.신규등록);
+        System.out.println(result + "건의 주문이 수집되었습니다.");
+
+        List<PurchaseVO> purchaseList = dao.getPurchaseListByPurchaseSeq(shopPurchaseSeqList);
 
         print(purchaseList);
     }
 
     @Override
-    public void updateOrderToConfirmed() {
+    public void updatePurchaseToConfirmed() {
         System.out.println("확정할 주문의 번호를 입력해주세요. (1 2 3)");
+        List<Long> selectedPurchaseSeq = List.of(sc.nextLine().split(" "))
+                .stream()
+                .map(Long::parseLong)
+                .collect(Collectors.toList());
+        int result = dao.updatePurchaseStatus(selectedPurchaseSeq, PurchaseEnum.주문확정);
+
+        System.out.println(result + "건의 주문이 확정 되었습니다.");
+
+        List<PurchaseVO> resultList = dao.getPurchaseListByPurchaseSeq(selectedPurchaseSeq);
+        print(resultList);
+    }
+
+    @Override
+    public void updatePurchaseToCancel() {
+        System.out.println("취소/반품할 주문의 번호를 입력해주세요. (1 2 3)");
         List<Long> selectedPurchaseDetailSeq = List.of(sc.nextLine().split(" "))
                 .stream()
                 .map(Long::parseLong)
                 .collect(Collectors.toList());
-        int result = dao.updatePurchaseStatus(selectedPurchaseDetailSeq, PurchaseEnum.주문확정);
 
-        System.out.println(result + "건의 주문이 확정 되었습니다.");
+        int result = dao.updatePurchaseStatus(selectedPurchaseDetailSeq, PurchaseEnum.주문취소완료);
+
+        System.out.println(result + "건의 주문이 취소 되었습니다.");
     }
 
     @Override
@@ -56,6 +80,41 @@ public class PurchaseServiceImpl implements PurchaseService{
         List<PurchaseVO> purchaseList = dao.findAll();
         print(purchaseList);
     }
+
+    @Override
+    public void integrateShopClaims() {
+        System.out.println("클레임 수집 일자를 입력해주세요 (YYYY-mm-DD YYYY-mm-DD)");
+        String date = sc.nextLine();
+        String[] dates = date.split(" ");
+
+        System.out.println("쇼핑몰 리스트");
+        List<String> shopList = dao.findShopName();
+        IntStream.rangeClosed(1, shopList.size())
+                .forEach(idx-> System.out.println(idx + ". " + shopList.get(idx - 1)));
+
+        System.out.println("수집할 쇼핑몰의 번호를 입력해주세요. (1 2 3)");
+        List<Integer> selectedShopIndexes = List.of(sc.nextLine().split(" "))
+                .stream()
+                .map(Integer::parseInt)
+                .collect(Collectors.toList());
+
+        List<String> selectedShopNames = selectedShopIndexes.stream()
+                .map(idx -> shopList.get(idx - 1))
+                .collect(Collectors.toList());
+
+        // 수집
+        List<Long> claimSeqList = dao.getClaimByDateAndShopName(dates[0], dates[1], selectedShopNames);
+
+        // 상태 변경
+        int result = dao.updatePurchaseStatusCancelOrReturn(claimSeqList);
+
+        System.out.println(result + "건의 취소/반품 내역이 있습니다.");
+
+        // 수집 내용 조회
+        List<PurchaseVO> claimList = dao.getPurchaseListByPurchaseSeq(claimSeqList);
+        printClaim(claimList);
+    }
+
 
     public void print(List<PurchaseVO> purchaseList) {
         System.out.println("주문 리스트");
@@ -80,7 +139,27 @@ public class PurchaseServiceImpl implements PurchaseService{
         });
 
         System.out.println("----------------------------------------------------------------------------------------------------------------");
+    }
+
+    public void printClaim(List<PurchaseVO> purchaseList) {
+        System.out.println("주문 리스트");
+        System.out.printf("%-10s %-10s %-10s %-15s %-15s %-15s %-15s %n",
+                "주문 번호", "클레임" ,"주문 상태", "주문 일시", "쇼핑몰", "구매자", "연락처 번호");
+
+        System.out.println("----------------------------------------------------------------------------------------------------------------");
 
 
+        purchaseList.forEach(purchase -> {
+            System.out.printf("%-10s %-10s %-10s %-15s %-15s %-15s %-15s %n",
+                    purchase.getShopPurchaseSeq(),
+                    purchase.getShopPurchaseClaim(),
+                    purchase.getShopPurchaseStatus(),
+                    purchase.getShopPurchaseDate().toString(),
+                    purchase.getShopName(),
+                    purchase.getShopPurchaseName(),
+                    purchase.getShopPurchaseTel());
+        });
+
+        System.out.println("----------------------------------------------------------------------------------------------------------------");
     }
 }
