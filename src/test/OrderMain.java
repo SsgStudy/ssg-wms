@@ -12,11 +12,12 @@ import service.LoginManagementServiceImpl;
 import service.OrderServiceImpl;
 
 public class OrderMain {
+
     public static void main(String[] args) throws Exception {
         // DAO 객체 생성
         IncomingDAOImpl incomingDAO = IncomingDAOImpl.getInstance();
         OrderDAOImpl orderDAO = OrderDAOImpl.getInstance();
-        LoginManagementDAOImpl loginDAO = LoginManagementDAOImpl.getInstance(); // 로그인 관리 DAO
+        LoginManagementDAOImpl loginDAO = LoginManagementDAOImpl.getInstance();
 
         // 서비스 객체 생성 및 DAO 객체 주입
         IncomingServiceImpl incomingService = new IncomingServiceImpl(incomingDAO);
@@ -25,7 +26,6 @@ public class OrderMain {
 
         // 컨트롤러 객체 생성 및 서비스 객체 주입
         IncomingController incomingController = new IncomingController(incomingService);
-        OrderController orderController = new OrderController(orderService);
         MemberController memberController = new MemberController();
 
         Scanner scanner = new Scanner(System.in);
@@ -47,7 +47,11 @@ public class OrderMain {
 
             switch (choice) {
                 case 1 -> incomingController.incomingProductMenu();
-                case 2 -> orderController.printAllOrdersWithDetails();
+                case 2 -> {
+                    OrderController orderController = new OrderController(orderService);
+                    orderController.printAllOrdersWithDetails();
+
+                }
                 default -> System.out.println("옳지 않은 입력입니다.");
             }
         } else {

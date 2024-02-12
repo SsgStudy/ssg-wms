@@ -1,29 +1,43 @@
 package controller;
 
 import dao.LoginManagementDAOImpl;
-import dao.OrderDAO;
-import dao.OrderDAOImpl;
 import java.util.List;
 import service.OrderService;
-import service.OrderServiceImpl;
+import util.enumcollect.MemberEnum;
 import vo.OrderVO;
 
 public class OrderController {
     private OrderService orderService;
-    private final LoginManagementDAOImpl loginDao = LoginManagementDAOImpl.getInstance();
+    private LoginManagementDAOImpl loginDao;
+    private MemberEnum loginMemberRole;
+    private String loginMemberId;
 
     public OrderController(OrderService orderService) {
         this.orderService = orderService;
+        this.loginDao = LoginManagementDAOImpl.getInstance();
+        updateLoginInfo(); // 로그인 정보 초기화
     }
-
+    public void updateLoginInfo() {
+        this.loginMemberRole = loginDao.getMemberRole();
+        this.loginMemberId = loginDao.getMemberId();
+        System.out.println("로그인 유지 정보 출력 아이디 : " + loginMemberId);
+        System.out.println("로그인 유지 정보 출력 권한 : " + loginMemberRole);
+    }
     public List<OrderVO> getAllOrdersWithDetails() {
         return orderService.getAllOrdersWithDetails();
     }
 
     public void printAllOrdersWithDetails() {
+        System.out.println("현재 로그인한 사용자: " + loginMemberId);
+        System.out.println("사용자 권한: " + loginMemberRole);
+
+        // 권한 검사 로직
+        if (!(loginMemberRole == MemberEnum.ADMIN || loginMemberRole == MemberEnum.WAREHOUSE_MANAGER || loginMemberRole == MemberEnum.OPERATOR)) {
+            System.out.println("권한이 없습니다.");
+            return;
+        }
         List<OrderVO> orders = getAllOrdersWithDetails();
-        System.out.println("현재 로그인한 사용자: " + loginDao.getMemberId());
-        System.out.println("사용자 권한: " + loginDao.getMemberRole());
+
 
         System.out.printf("%-10s%-12s%-25s%-20s%-20s%-16s%-8s%-22s%s\n",
                 "발주 번호", "발주 상태", "발주 상품 공급업체명", "발주 상품 배송예정일",
