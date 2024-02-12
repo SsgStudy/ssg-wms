@@ -11,7 +11,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MemberManagementDaoImpl {
+public class MemberManagementDaoImpl implements MemberManagementDao {
     private static DbConnection instance;
     static Connection conn;
     private PreparedStatement pstmt;
@@ -29,7 +29,7 @@ public class MemberManagementDaoImpl {
         }
     }
 
-    public List<Member> readMember() {
+    public List<Member> getMemberList() {
         List<Member> members = new ArrayList<>();
 
         try {
@@ -110,7 +110,7 @@ public class MemberManagementDaoImpl {
         return member;
     }
 
-    public MemberEnum getUserRoleById(String userId) {
+    public MemberEnum getMemberRoleById(String userId) {
         MemberEnum userRole = null;
         String sql = new StringBuilder().append("SELECT V_MEMBER_AUTH ")
                 .append("FROM TB_MEMBER WHERE V_MEMBER_ID = ?").toString();
@@ -132,7 +132,7 @@ public class MemberManagementDaoImpl {
         return userRole;
 
     }
-    public int update(int no, Member member){
+    public int updateMemberByNo(int no, Member member){
         int row=0;
 
         String sql = new StringBuilder().append("UPDATE TB_MEMBER SET ")

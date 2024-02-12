@@ -7,11 +7,11 @@ import java.util.List;
 
 public interface MemberManagementDao {
 
-   public List<Member> readMember();
+   public List<Member> getMemberList();
    public Member getMemberByUserId(String userId);
    public Member getMemberByNo(int no);
-   public MemberEnum getUserRoleById(String userId);
-   public int update(int no, Member member);
+   public MemberEnum getMemberRoleById(String userId);
+   public int updateMemberByNo(int no, Member member);
 
 
 }
