@@ -15,39 +15,39 @@ public class MemberServicelmpl implements MemberService {
 
     private MemberManagementDao memberDao = new MemberManagementDaoImpl();
 
+@Override
+    public List<Member> getMemberList() {
 
-    public List<Member> readMember() {
-
-        return memberDao.readMember();
+        return memberDao.getMemberList();
     }
-
+@Override
     public Member getMemberByUserId(String userId) {
-        // 특정 사용자 ID로 회원 정보 조회
+
         return memberDao.getMemberByUserId(userId);
     }
+    @Override
+    public MemberEnum getMemberRoleById(String userId) {
 
-    public MemberEnum getUserRoleById(String userId) {
-        // 사용자 ID로 사용자의 역할 조회
-        return memberDao.getUserRoleById(userId);
+        return memberDao.getMemberRoleById(userId);
     }
-
+    @Override
     public boolean updateMemberInfo(int no, String newId, String newName) {
         // 회원 정보 업데이트 로직
         Member memberToUpdate = memberDao.getMemberByNo(no);
         if (memberToUpdate != null) {
             memberToUpdate.setMemberId(newId);
             memberToUpdate.setMemberName(newName);
-            return memberDao.update(no, memberToUpdate) > 0;
+            return memberDao.updateMemberByNo(no, memberToUpdate) > 0;
         }
         return false;
     }
-
+    @Override
     public Member getMemberByNo(int no) {
         // 회원 번호로 회원 정보 조회
         return memberDao.getMemberByNo(no);
     }
-
-    public void memberUpdate(int no, String newId, String newName) {
+    @Override
+    public void getMemberUpdate(int no, String newId, String newName) {
 
         try{
             // 회원 정보 업데이트

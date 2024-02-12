@@ -8,17 +8,17 @@ import java.util.List;
 
 public interface MemberService {
 
-    public List<Member> readMember();
+    public List<Member> getMemberList();
 
     public Member getMemberByUserId(String userId);
 
-    public MemberEnum getUserRoleById(String userId);
+    public MemberEnum getMemberRoleById(String userId);
 
     public boolean updateMemberInfo(int no, String newId, String newName);
 
     public Member getMemberByNo(int no);
 
-    public void memberUpdate(int no, String newId, String newName);
+    public void getMemberUpdate(int no, String newId, String newName);
 
 
 
