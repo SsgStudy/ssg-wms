@@ -23,8 +23,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class InvoiceServiceImpl implements InvoiceService {
+    private static Logger logger = Logger.getLogger(InvoiceServiceImpl.class.getName());
     InvoiceDaoImpl invoiceDao = new InvoiceDaoImpl();
     BufferedReader sc = new BufferedReader(new InputStreamReader(System.in));
     Invoice invoice = new Invoice();
@@ -35,10 +37,16 @@ public class InvoiceServiceImpl implements InvoiceService {
         System.out.println("--".repeat(25));
         System.out.println("1.송장 등록 | 2.송장 조회");
         System.out.print("메뉴 선택 : ");
-        int cmd = Integer.parseInt(sc.readLine().trim());
-        switch (cmd) {
-            case 1 -> registerInvoice();
-            case 2 -> viewInvoice();
+        try {
+            int cmd = Integer.parseInt(sc.readLine().trim());
+            switch (cmd) {
+                case 1 -> registerInvoice();
+                case 2 -> viewInvoice();
+            }
+        }catch (NumberFormatException e){
+            logger.info("숫자로 입력하세요.");
+            e.printStackTrace();
+            invoiceMain();
         }
     }
 
@@ -52,19 +60,22 @@ public class InvoiceServiceImpl implements InvoiceService {
         System.out.print("송장 종류 입력 : ");
         invoice.setInvoiceType(sc.readLine());
         System.out.print("주문 번호 입력 : ");
-        //주문 정보를 받아올 수 있는 부분 작성(아직...이지만 일단 뭐라도 넣어서 기능구현 해보기)
-        invoice.setPurchaseCode(Integer.parseInt(sc.readLine().trim()));
-        Blob qrCodeImage = createQRCode2(invoice.getInvoiceCode(), String.valueOf(invoice.getInvoiceType()), invoice.getPurchaseCode());
-        invoice.setQrCode(qrCodeImage);
-        System.out.println("[택배사 선택]");
-        System.out.println("--".repeat(25));
-        System.out.println("1.한진택배 | 2.CJ대한통운 | 3.우체국택배 | 4.롯데택배 | 5.로젠택배");
-        System.out.print("택배사 선택 : ");
-        invoice.setLogisticCode(Integer.parseInt(sc.readLine().trim()));
-        invoiceDao.registerInvoice(invoice);
+        try {
+            invoice.setPurchaseCode(Integer.parseInt(sc.readLine().trim()));
+            Blob qrCodeImage = createQRCode2(invoice.getInvoiceCode(), String.valueOf(invoice.getInvoiceType()), invoice.getPurchaseCode());
+            invoice.setQrCode(qrCodeImage);
+            System.out.println("[택배사 선택]");
+            System.out.println("--".repeat(25));
+            System.out.println("1.한진택배 | 2.CJ대한통운 | 3.우체국택배 | 4.롯데택배 | 5.로젠택배");
+            System.out.print("택배사 선택 : ");
+            invoice.setLogisticCode(Integer.parseInt(sc.readLine().trim()));
+            invoiceDao.registerInvoice(invoice);
+        }catch (NumberFormatException e){
+            logger.info("주문 번호는 숫자로 입력하세요.");
+            e.printStackTrace();
+            registerInvoice();
+        }
         invoiceMain();
-
-
     }
 
     public Blob createQRCode(String invoiceCode, String invoiceType, int purchaseCode) {
