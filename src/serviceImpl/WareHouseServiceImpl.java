@@ -14,8 +14,8 @@ import java.util.Scanner;
 import java.util.logging.Logger;
 
 public class WareHouseServiceImpl implements WareHouseService {
-    BufferedReader sc = new BufferedReader(new InputStreamReader(System.in));
-    Scanner scanner = new Scanner(System.in);
+    BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    Scanner sc = new Scanner(System.in);
     WareHouseDaoImpl wareHouseDao = new WareHouseDaoImpl();
     List<WareHouse> wareHouseList = new ArrayList<>();
     private static Logger logger = Logger.getLogger(WareHouseServiceImpl.class.getName());
@@ -33,7 +33,7 @@ public class WareHouseServiceImpl implements WareHouseService {
         System.out.println("--".repeat(25));
         System.out.print("메뉴 선택 : ");
         try {
-            int cmd =scanner.nextInt();
+            int cmd =sc.nextInt();
             switch (cmd) {
                 case 1 -> {
                     registerWareHouse();
@@ -78,15 +78,15 @@ public class WareHouseServiceImpl implements WareHouseService {
         System.out.println("[신규 창고 등록]");
         System.out.println("--".repeat(25));
         System.out.printf("창고 코드 지정 : ");
-        wareHouse.setWarehouseCode(sc.readLine());
+        wareHouse.setWarehouseCode(br.readLine());
         System.out.printf("창고 명 지정 : ");
-        wareHouse.setWarehouseName(sc.readLine());
+        wareHouse.setWarehouseName(br.readLine());
         System.out.printf("창고 소재지(도시 국가) 지정 : ");
-        wareHouse.setWarehouseLocation(sc.readLine());
+        wareHouse.setWarehouseLocation(br.readLine());
         System.out.printf("창고 종류 지정 : ");
-        wareHouse.setWarehouseType(sc.readLine());
+        wareHouse.setWarehouseType(br.readLine());
         System.out.printf("창고관리자 코드 : ");
-        wareHouse.setMemberSeq(scanner.nextInt());
+        wareHouse.setMemberSeq(sc.nextInt());
         System.out.printf("[%s의 등록이 완료되었습니다.]\n", wareHouse.getWarehouseName());
         System.out.println("창고관리자 코드 : " + wareHouse.getMemberSeq());
         wareHouseDao.registerWareHouse(wareHouse);
@@ -104,7 +104,7 @@ public class WareHouseServiceImpl implements WareHouseService {
         System.out.println("--".repeat(25));
         System.out.printf("메뉴 선택 : ");
         try {
-            int cmd = Integer.parseInt(sc.readLine().trim());
+            int cmd = Integer.parseInt(br.readLine().trim());
             switch (cmd) {
                 case 1 -> wareHouseTable();
                 case 2 -> viewWareHouseByName();
@@ -122,16 +122,12 @@ public class WareHouseServiceImpl implements WareHouseService {
 
     }
 
-    @Override
-    public void updateWareHouse() {
-
-    }
 
     public void viewWareHouseByName() throws IOException {
         System.out.println();
         System.out.println("--".repeat(25));
         System.out.print("창고명 검색 : ");
-        String name = sc.readLine();
+        String name = br.readLine();
         System.out.println("--".repeat(25));
         System.out.printf("%7s | %12s | %10s | %6s | %3s\n", "창고코드", "창고명", "창고소재지", "창고종류", "관리자코드");
         System.out.println("--".repeat(25));
@@ -151,7 +147,7 @@ public class WareHouseServiceImpl implements WareHouseService {
         System.out.println();
         System.out.println("--".repeat(25));
         System.out.print("소재지 검색 : ");
-        String location = sc.readLine();
+        String location = br.readLine();
         System.out.println("--".repeat(25));
         System.out.printf("%7s | %12s | %10s | %6s | %3s\n", "창고코드", "창고명", "창고소재지", "창고종류", "관리자코드");
         System.out.println("--".repeat(25));
@@ -171,7 +167,7 @@ public class WareHouseServiceImpl implements WareHouseService {
         System.out.println();
         System.out.println("--".repeat(25));
         System.out.print("창고종류 검색 : ");
-        String type = sc.readLine();
+        String type = br.readLine();
         System.out.println("--".repeat(25));
         System.out.printf("%7s | %12s | %10s | %6s | %3s\n", "창고코드", "창고명", "창고소재지", "창고종류", "관리자코드");
         System.out.println("--".repeat(25));
