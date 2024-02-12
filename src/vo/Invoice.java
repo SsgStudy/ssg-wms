@@ -8,7 +8,7 @@ import java.util.Date;
 public class Invoice {
     private String invoiceCode;
     private Date invoicePrintDate;
-    private WaybillTypeEnum invoiceType;
+    private String invoiceType;
     private Blob qrCode;
     private int logisticCode;
     private int purchaseCode;
@@ -54,11 +54,11 @@ public class Invoice {
         this.invoicePrintDate = invoicePrintDate;
     }
 
-    public WaybillTypeEnum getInvoiceType() {
+    public String getInvoiceType() {
         return invoiceType;
     }
 
-    public void setInvoiceType(WaybillTypeEnum invoiceType) {
+    public void setInvoiceType(String invoiceType) {
         this.invoiceType = invoiceType;
     }
 
