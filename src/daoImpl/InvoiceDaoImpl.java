@@ -4,11 +4,14 @@ import dao.InvoiceDao;
 import serviceImpl.InvoiceServiceImpl;
 import util.DbConnection;
 import vo.Invoice;
-import java.sql.Date;
+import vo.WareHouse;
+import java.util.ArrayList;
+import java.util.List;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.Timestamp;
+import java.sql.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class InvoiceDaoImpl implements InvoiceDao {
     Connection conn = null;
@@ -43,7 +46,33 @@ public class InvoiceDaoImpl implements InvoiceDao {
     }
 
     @Override
-    public void viewInvoice() {
+    public List<Invoice> viewInvoice() {
+        List<Invoice> invoices = new ArrayList<>();
+        try {
+            conn = DbConnection.getInstance().getConnection();
+            String sql = new StringBuilder().append("SELECT * FROM TB_INVOICE").toString();
 
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                Invoice invoice = new Invoice();
+                invoice.setInvoiceCode(rs.getString("V_INVOICE_CD"));
+                invoice.setInvoicePrintDate(rs.getDate("DT_INVOICE_PRINT_DATE"));
+                invoice.setInvoiceType(rs.getString("V_INVOICE_TYPE"));
+                invoice.setQrCode(rs.getBlob("B_INVOICE_QR_CD"));
+                invoice.setLogisticCode(rs.getInt("PK_LOGISTIC_SEQ"));
+                invoice.setPurchaseCode(rs.getInt("PK_SHOP_PURCHASE_SEQ"));
+                invoices.add(invoice);
+            }
+
+            rs.close();
+            pstmt.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return invoices;
     }
 }
