@@ -13,12 +13,12 @@ import java.util.Scanner;
 
 public class WareHouseServiceImpl implements WareHouseService {
     BufferedReader sc = new BufferedReader(new InputStreamReader(System.in));
+    Scanner scanner = new Scanner(System.in);
     WareHouseDaoImpl wareHouseDao = new WareHouseDaoImpl();
     List<WareHouse> wareHouseList = new ArrayList<>();
 
     public void wareHouseRunner() throws IOException {
         wareHouseMain();
-
     }
 
     public void wareHouseMain() throws IOException {
@@ -27,11 +27,17 @@ public class WareHouseServiceImpl implements WareHouseService {
         System.out.println("--".repeat(25));
         System.out.println("1.창고 등록 | 2. 창고 조회");
         System.out.println("--".repeat(25));
-        System.out.println("메뉴 선택 : ");
-        int cmd = Integer.parseInt(sc.readLine().trim());
-        switch (cmd) {
-            case 1 -> registerWareHouse();
-            case 2 -> viewWareHouse();
+        System.out.print("메뉴 선택 : ");
+        try {String cmdstr = scanner.nextLine();
+            int cmd = Integer.parseInt(cmdstr);
+            switch (cmd) {
+                case 1 -> {registerWareHouse();
+                    break;}
+                case 2 -> {viewWareHouse();
+                    break;}
+            }
+        }catch (NumberFormatException e){
+            e.printStackTrace();
         }
     }
 
@@ -73,7 +79,7 @@ public class WareHouseServiceImpl implements WareHouseService {
         wareHouse.setWarehouseType(sc.readLine());
         System.out.printf("창고관리자 코드 : ");
         wareHouse.setMemberSeq(sc.read());
-        System.out.printf("[%s의 등록이 완료되었습니다.]", wareHouse.getWarehouseName());
+        System.out.printf("[%s의 등록이 완료되었습니다.]\n",wareHouse.getWarehouseName());
         wareHouseDao.registerWareHouse(wareHouse);
         wareHouseMain();
 
