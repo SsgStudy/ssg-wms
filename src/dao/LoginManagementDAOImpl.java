@@ -1,37 +1,20 @@
 package dao;
 
-import lombok.Getter;
 import util.DbConnection;
 import util.enumcollect.MemberEnum;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 
-public class LoginManagementDAOImpl implements LoginManagementDAO {
+public class LoginManagementDAOImpl {
 
-    private static LoginManagementDAOImpl instance;
+    private static volatile LoginManagementDAOImpl instance;
+    private String memberId;
+    private MemberEnum memberRole;
+    private Connection conn;
 
     private LoginManagementDAOImpl() {
-    }
-
-    public static LoginManagementDAOImpl getInstance() {
-        if (instance == null) {
-            instance = new LoginManagementDAOImpl();
-        }
-        return instance;
-    }
-
-
-    @Getter
-    private String memberId;
-    @Getter
-    private MemberEnum memberRole;
-
-    Connection conn;
-
-    {
         try {
             conn = DbConnection.getConnection();
         } catch (Exception e) {
@@ -39,33 +22,45 @@ public class LoginManagementDAOImpl implements LoginManagementDAO {
         }
     }
 
-    @Override
-    public int logIn(String id, String password) {
-        int state = 0;
-        String sql = new StringBuilder("SELECT * FROM TB_MEMBER WHERE V_MEMBER_ID = ? and V_MEMBER_PW = ?").toString();
-        try {
-            PreparedStatement pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, id);
-            pstmt.setString(2, password);
-
-
-            ResultSet rs = pstmt.executeQuery();
-            if (rs.next()) {
-                memberId = rs.getString("V_MEMBER_ID");
-                memberRole = MemberEnum.valueOf(rs.getString("V_MEMBER_AUTH"));
-                state = 1;
+    public static LoginManagementDAOImpl getInstance() {
+        if (instance == null) {
+            synchronized (LoginManagementDAOImpl.class) {
+                if (instance == null) {
+                    instance = new LoginManagementDAOImpl();
+                }
             }
-            pstmt.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            state = -1;
         }
-        return state;
+        return instance;
     }
 
-    @Override
+    public int logIn(String id, String password) {
+        String sql = "SELECT * FROM TB_MEMBER WHERE V_MEMBER_ID = ? AND V_MEMBER_PW = ?";
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, id);
+            pstmt.setString(2, password);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                this.memberId = rs.getString("V_MEMBER_ID");
+                this.memberRole = MemberEnum.valueOf(rs.getString("V_MEMBER_AUTH"));
+                return 1; // 로그인 성공
+            }
+            return 0; // 로그인 실패
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1; // 오류 발생
+        }
+    }
+
     public void logOut() {
-        memberId = null;
-        memberRole = null;
+        this.memberId = null;
+        this.memberRole = null;
+    }
+
+    public String getMemberId() {
+        return memberId;
+    }
+
+    public MemberEnum getMemberRole() {
+        return memberRole;
     }
 }

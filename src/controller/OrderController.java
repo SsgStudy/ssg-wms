@@ -1,5 +1,6 @@
 package controller;
 
+import dao.LoginManagementDAOImpl;
 import dao.OrderDAO;
 import dao.OrderDAOImpl;
 import java.util.List;
@@ -9,6 +10,7 @@ import vo.OrderVO;
 
 public class OrderController {
     private OrderService orderService;
+    private final LoginManagementDAOImpl loginDao = LoginManagementDAOImpl.getInstance();
 
     public OrderController(OrderService orderService) {
         this.orderService = orderService;
@@ -20,6 +22,8 @@ public class OrderController {
 
     public void printAllOrdersWithDetails() {
         List<OrderVO> orders = getAllOrdersWithDetails();
+        System.out.println("현재 로그인한 사용자: " + loginDao.getMemberId());
+        System.out.println("사용자 권한: " + loginDao.getMemberRole());
 
         System.out.printf("%-10s%-12s%-25s%-20s%-20s%-16s%-8s%-22s%s\n",
                 "발주 번호", "발주 상태", "발주 상품 공급업체명", "발주 상품 배송예정일",
