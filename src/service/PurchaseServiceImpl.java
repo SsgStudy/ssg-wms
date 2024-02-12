@@ -65,14 +65,23 @@ public class PurchaseServiceImpl implements PurchaseService{
     @Override
     public void updatePurchaseToCancel() {
         System.out.println("취소/반품할 주문의 번호를 입력해주세요. (1 2 3)");
-        List<Long> selectedPurchaseDetailSeq = List.of(sc.nextLine().split(" "))
-                .stream()
-                .map(Long::parseLong)
-                .collect(Collectors.toList());
+        Long purchaseSeq = Long.parseLong(sc.nextLine());
 
-        int result = dao.updatePurchaseStatus(selectedPurchaseDetailSeq, PurchaseEnum.주문취소완료);
+        String result = dao.processPurchaseCancelOrReturn(purchaseSeq);
 
-        System.out.println(result + "건의 주문이 취소 되었습니다.");
+        if (result.equals("CANCEL"))
+            System.out.println(purchaseSeq + "번 주문이 취소 되었습니다.");
+        else if (result.equals("RETURN")) {
+            dao.updatePurchaseStatus(List.of(purchaseSeq), PurchaseEnum.반품완료);
+            System.out.println(purchaseSeq + "번 주문이 반품 처리 되었습니다.");
+        }
+        else
+            System.out.println(purchaseSeq + "번 주문이 반품 처리 중에 있습니다.");
+            // 송장 연결 - INVOICE는 어디에??
+            // 창고에 재고 증가
+            // 주문 상태 - 반품 입고
+            // 검수
+            // 주문 상태 - 반품 완료
     }
 
     @Override
