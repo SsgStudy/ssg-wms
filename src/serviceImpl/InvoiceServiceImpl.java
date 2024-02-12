@@ -28,7 +28,7 @@ import java.util.logging.Logger;
 public class InvoiceServiceImpl implements InvoiceService {
     private static Logger logger = Logger.getLogger(InvoiceServiceImpl.class.getName());
     InvoiceDaoImpl invoiceDao = new InvoiceDaoImpl();
-    BufferedReader sc = new BufferedReader(new InputStreamReader(System.in));
+    BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
     Invoice invoice = new Invoice();
     List<Invoice> invoiceList = new ArrayList<>();
 
@@ -38,7 +38,7 @@ public class InvoiceServiceImpl implements InvoiceService {
         System.out.println("1.송장 등록 | 2.송장 조회");
         System.out.print("메뉴 선택 : ");
         try {
-            int cmd = Integer.parseInt(sc.readLine().trim());
+            int cmd = Integer.parseInt(br.readLine().trim());
             switch (cmd) {
                 case 1 -> registerInvoice();
                 case 2 -> viewInvoice();
@@ -56,19 +56,19 @@ public class InvoiceServiceImpl implements InvoiceService {
         System.out.println("[송장 등록]");
         System.out.println("--".repeat(25));
         System.out.print("송장 코드 입력 : ");
-        invoice.setInvoiceCode(sc.readLine());
+        invoice.setInvoiceCode(br.readLine());
         System.out.print("송장 종류 입력 : ");
-        invoice.setInvoiceType(sc.readLine());
+        invoice.setInvoiceType(br.readLine());
         System.out.print("주문 번호 입력 : ");
         try {
-            invoice.setPurchaseCode(Integer.parseInt(sc.readLine().trim()));
+            invoice.setPurchaseCode(Integer.parseInt(br.readLine().trim()));
             Blob qrCodeImage = createQRCode2(invoice.getInvoiceCode(), String.valueOf(invoice.getInvoiceType()), invoice.getPurchaseCode());
             invoice.setQrCode(qrCodeImage);
             System.out.println("[택배사 선택]");
             System.out.println("--".repeat(25));
             System.out.println("1.한진택배 | 2.CJ대한통운 | 3.우체국택배 | 4.롯데택배 | 5.로젠택배");
             System.out.print("택배사 선택 : ");
-            invoice.setLogisticCode(Integer.parseInt(sc.readLine().trim()));
+            invoice.setLogisticCode(Integer.parseInt(br.readLine().trim()));
             invoiceDao.registerInvoice(invoice);
         }catch (NumberFormatException e){
             logger.info("주문 번호는 숫자로 입력하세요.");
