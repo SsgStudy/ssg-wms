@@ -10,6 +10,7 @@ import daoImpl.InvoiceDaoImpl;
 import service.InvoiceService;
 import util.enumcollect.WaybillTypeEnum;
 import vo.Invoice;
+import vo.WareHouse;
 
 import javax.imageio.ImageIO;
 import javax.sql.rowset.serial.SerialException;
@@ -18,12 +19,15 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.sql.Blob;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
 
 public class InvoiceServiceImpl implements InvoiceService {
     InvoiceDaoImpl invoiceDao = new InvoiceDaoImpl();
     BufferedReader sc = new BufferedReader(new InputStreamReader(System.in));
     Invoice invoice = new Invoice();
+    List<Invoice> invoiceList = new ArrayList<>();
 
     public void invoiceMain() throws IOException {
         System.out.println("[송장 관리]");
@@ -45,7 +49,7 @@ public class InvoiceServiceImpl implements InvoiceService {
         System.out.print("송장 코드 입력 : ");
         invoice.setInvoiceCode(sc.readLine());
         System.out.print("송장 종류 입력 : ");
-        invoice.setInvoiceType(WaybillTypeEnum.valueOf(sc.readLine()));
+        invoice.setInvoiceType(sc.readLine());
         System.out.print("주문 번호 입력 : ");
         //주문 정보를 받아올 수 있는 부분 작성(아직...이지만 일단 뭐라도 넣어서 기능구현 해보기)
         invoice.setPurchaseCode(Integer.parseInt(sc.readLine().trim()));
@@ -72,8 +76,6 @@ public class InvoiceServiceImpl implements InvoiceService {
         // QR 코드 이미지 생성
         int width = 300; // QR 코드의 너비
         int height = 300; // QR 코드의 높이
-//        Blob qrCodeImage = createQRCode(invoiceCode, invoiceType, purchaseCode);
-//        String filePath = "invoice-qr-code6.png"; // QR코드 이미지 파일 경로
 
         try {
             Hashtable<EncodeHintType, Object> hintMap = new Hashtable<>();
@@ -112,7 +114,23 @@ public class InvoiceServiceImpl implements InvoiceService {
     }
 
     @Override
-    public void viewInvoice() {
-
+    public void viewInvoice() throws IOException {
+        System.out.println();
+        System.out.println("--".repeat(25));
+        System.out.println("[송장 목록]");
+        System.out.println("--".repeat(25));
+        System.out.printf("%4s | %8s | %5s | %20s \t| %4s | %4s\n", "송장코드", "송장날짜", "송장종류", "QR코드", "택배사코드", "발주코드");
+        System.out.println("--".repeat(25));
+        invoiceList = invoiceDao.viewInvoice();
+        for (Invoice invoice : invoiceList) {
+            System.out.printf("%7s | %10s | %7s | %20s |%4s | %4s\n",
+                    invoice.getInvoiceCode(),
+                    invoice.getInvoicePrintDate(),
+                    invoice.getInvoiceType(),
+                    invoice.getQrCode(),
+                    invoice.getLogisticCode(),
+                    invoice.getPurchaseCode());
+        }
+        invoiceMain();
     }
 }
