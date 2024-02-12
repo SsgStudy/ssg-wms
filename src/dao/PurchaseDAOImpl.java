@@ -317,7 +317,7 @@ public class PurchaseDAOImpl implements PurchaseDAO{
         return purchaseList;
     }
 
-    // 반품, 취소 접수
+    // 클레임 수집 시 상태 변경
     @Override
     public int updatePurchaseStatusCancelOrReturn(List<Long> purchaseSeqList) {
         Connection conn;
@@ -367,5 +367,44 @@ public class PurchaseDAOImpl implements PurchaseDAO{
         }
         return updatedRows;
     }
+
+    public String processPurchaseCancelOrReturn(Long purchaseSeq) {
+        Connection conn;
+        PreparedStatement pstmt = null;
+        CallableStatement cstmt = null;
+        String result = "";
+
+        try {
+
+            conn = DbConnection.getInstance().getConnection();
+
+            String procedureCall = "{call PROCESS_ORDER_CLAIM(?, ?)}";
+            pstmt = conn.prepareCall(procedureCall);
+
+            pstmt.setLong(1, purchaseSeq);
+            cstmt.registerOutParameter(2, Types.VARCHAR);
+            cstmt.execute();
+
+            result = cstmt.getString(2);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (pstmt != null) pstmt.close();
+                DbConnection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return result;
+    }
+
+    public int create() {
+
+        return 0;
+
+    }
+
 
 }
