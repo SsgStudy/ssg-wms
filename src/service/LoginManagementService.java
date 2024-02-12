@@ -1,7 +1,6 @@
 package service;
 
 public interface LoginManagementService {
-    void logIn();
-
+    int logIn(String id, String password);
     void logOut();
 }
