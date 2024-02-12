@@ -1,5 +1,6 @@
 package dao;
 
+import controller.OutgoingController;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -8,6 +9,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 import util.DbConnection;
 import vo.InventoryVO;
 import vo.OutgoingInstVO;
@@ -15,6 +17,7 @@ import vo.OutgoingVO;
 
 public class OutgoingDAOImpl implements OutgoingDAO {
 
+    private static Logger log = Logger.getLogger(OutgoingDAOImpl.class.getName());
     private static OutgoingDAOImpl instance;
 
     public OutgoingDAOImpl() {
@@ -43,7 +46,7 @@ public class OutgoingDAOImpl implements OutgoingDAO {
                 outgoingInsts.add(vo);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.warning(e.getMessage());
         }
         return outgoingInsts;
     }
@@ -80,14 +83,15 @@ public class OutgoingDAOImpl implements OutgoingDAO {
             System.out.println("출고 등록이 성공적으로 추가되었습니다.");
 
         } catch (Exception e) {
-            System.out.println("출고 등록 중 예외 발생: " + e.getMessage());
+            log.info("출고 등록 중 예외 발생: " + e.getMessage());
+
             if (conn != null) {
                 try {
-                    System.out.println("롤백 시도...");
+                    log.info("롤백 시도...");
                     conn.rollback();
-                    System.out.println("롤백 완료");
+                    log.info("롤백 완료");
                 } catch (SQLException ex) {
-                    System.out.println("롤백 중 예외 발생: " + ex.getMessage());
+                    log.warning("롤백 중 예외 발생: " + ex.getMessage());
                 }
             }
             throw e;
@@ -96,7 +100,7 @@ public class OutgoingDAOImpl implements OutgoingDAO {
                 try {
                     pstmt.close();
                 } catch (SQLException e) {
-                    e.printStackTrace();
+                    log.warning(e.getMessage());
                 }
             }
             if (conn != null) {
@@ -104,7 +108,7 @@ public class OutgoingDAOImpl implements OutgoingDAO {
                     conn.setAutoCommit(true);
                     conn.close();
                 } catch (SQLException e) {
-                    e.printStackTrace();
+                    log.warning(e.getMessage());
                 }
             }
         }
