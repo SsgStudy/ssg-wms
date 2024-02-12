@@ -69,6 +69,7 @@ public class InvoiceDaoImpl implements InvoiceDao {
             rs.close();
             pstmt.close();
 
+            DbConnection.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
