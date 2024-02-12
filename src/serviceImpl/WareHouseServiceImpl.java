@@ -7,18 +7,22 @@ import vo.WareHouse;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.logging.Logger;
 
 public class WareHouseServiceImpl implements WareHouseService {
     BufferedReader sc = new BufferedReader(new InputStreamReader(System.in));
+    Scanner scanner = new Scanner(System.in);
     WareHouseDaoImpl wareHouseDao = new WareHouseDaoImpl();
     List<WareHouse> wareHouseList = new ArrayList<>();
+    private static Logger logger = Logger.getLogger(WareHouseServiceImpl.class.getName());
+
 
     public void wareHouseRunner() throws IOException {
         wareHouseMain();
-
     }
 
     public void wareHouseMain() throws IOException {
@@ -27,11 +31,21 @@ public class WareHouseServiceImpl implements WareHouseService {
         System.out.println("--".repeat(25));
         System.out.println("1.창고 등록 | 2. 창고 조회");
         System.out.println("--".repeat(25));
-        System.out.println("메뉴 선택 : ");
-        int cmd = Integer.parseInt(sc.readLine().trim());
-        switch (cmd) {
-            case 1 -> registerWareHouse();
-            case 2 -> viewWareHouse();
+        System.out.print("메뉴 선택 : ");
+        try {
+            int cmd =scanner.nextInt();
+            switch (cmd) {
+                case 1 -> {
+                    registerWareHouse();
+                }
+                case 2 -> {
+                    viewWareHouse();
+                }
+            }
+        } catch (NumberFormatException e) {
+            logger.info("숫자만 입력하세요.");
+            e.printStackTrace();
+            wareHouseMain();
         }
     }
 
@@ -72,8 +86,9 @@ public class WareHouseServiceImpl implements WareHouseService {
         System.out.printf("창고 종류 지정 : ");
         wareHouse.setWarehouseType(sc.readLine());
         System.out.printf("창고관리자 코드 : ");
-        wareHouse.setMemberSeq(sc.read());
-        System.out.printf("[%s의 등록이 완료되었습니다.]", wareHouse.getWarehouseName());
+        wareHouse.setMemberSeq(scanner.nextInt());
+        System.out.printf("[%s의 등록이 완료되었습니다.]\n", wareHouse.getWarehouseName());
+        System.out.println("창고관리자 코드 : " + wareHouse.getMemberSeq());
         wareHouseDao.registerWareHouse(wareHouse);
         wareHouseMain();
 
@@ -88,13 +103,19 @@ public class WareHouseServiceImpl implements WareHouseService {
         System.out.println("1.전체 조회 | 2.창고명별 조회 | 3.소재지별 조회 | 4.창고종류별 조회 | 5. 돌아가기");
         System.out.println("--".repeat(25));
         System.out.printf("메뉴 선택 : ");
-        int cmd = Integer.parseInt(sc.readLine().trim());
-        switch (cmd) {
-            case 1 -> wareHouseTable();
-            case 2 -> viewWareHouseByName();
-            case 3 -> viewWareHouseByLocation();
-            case 4 -> viewWareHouseByType();
-            case 5 -> wareHouseMain();
+        try {
+            int cmd = Integer.parseInt(sc.readLine().trim());
+            switch (cmd) {
+                case 1 -> wareHouseTable();
+                case 2 -> viewWareHouseByName();
+                case 3 -> viewWareHouseByLocation();
+                case 4 -> viewWareHouseByType();
+                case 5 -> wareHouseMain();
+            }
+        }catch (NumberFormatException e){
+            logger.info("숫자만 입력하세요.");
+            e.printStackTrace();
+            viewWareHouse();
         }
         viewWareHouse();
 
