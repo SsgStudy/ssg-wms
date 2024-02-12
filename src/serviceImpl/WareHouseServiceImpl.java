@@ -7,6 +7,7 @@ import vo.WareHouse;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -32,8 +33,7 @@ public class WareHouseServiceImpl implements WareHouseService {
         System.out.println("--".repeat(25));
         System.out.print("메뉴 선택 : ");
         try {
-            String cmdstr = scanner.nextLine();
-            int cmd = Integer.parseInt(cmdstr);
+            int cmd =scanner.nextInt();
             switch (cmd) {
                 case 1 -> {
                     registerWareHouse();
@@ -86,8 +86,9 @@ public class WareHouseServiceImpl implements WareHouseService {
         System.out.printf("창고 종류 지정 : ");
         wareHouse.setWarehouseType(sc.readLine());
         System.out.printf("창고관리자 코드 : ");
-        wareHouse.setMemberSeq(sc.read());
+        wareHouse.setMemberSeq(scanner.nextInt());
         System.out.printf("[%s의 등록이 완료되었습니다.]\n", wareHouse.getWarehouseName());
+        System.out.println("창고관리자 코드 : " + wareHouse.getMemberSeq());
         wareHouseDao.registerWareHouse(wareHouse);
         wareHouseMain();
 

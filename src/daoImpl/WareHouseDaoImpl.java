@@ -18,6 +18,7 @@ public class WareHouseDaoImpl implements WareHouseDao {
     @Override
     public void registerWareHouse(WareHouse wareHouse) {
         try {
+            System.out.println("dao 전달받은 값 : " + wareHouse.getMemberSeq());
 
             conn = DbConnection.getInstance().getConnection();
             String sql = "INSERT INTO `TB_WAREHOUSE` (`V_WAREHOUSE_CD`, `V_WAREHOUSE_NM`, `V_WAREHOUSE_LOC`, `S_WAREHOUSE_TYPE`, `PK_MEMBER_SEQ`) VALUES\n" +
@@ -28,6 +29,7 @@ public class WareHouseDaoImpl implements WareHouseDao {
             pstmt.setString(3, wareHouse.getWarehouseLocation());
             pstmt.setString(4, wareHouse.getWarehouseType());
             pstmt.setInt(5, wareHouse.getMemberSeq());
+            System.out.println(pstmt.toString());
             pstmt.executeUpdate();
             pstmt.close();
         } catch (Exception e) {
