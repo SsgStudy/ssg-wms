@@ -21,10 +21,6 @@ public class WareHouseServiceImpl implements WareHouseService {
     private static Logger logger = Logger.getLogger(WareHouseServiceImpl.class.getName());
 
 
-    public void wareHouseRunner() throws IOException {
-        wareHouseMain();
-    }
-
     public void wareHouseMain() throws IOException {
         System.out.println("--".repeat(25));
         System.out.println("[창고 관리]");
@@ -33,15 +29,12 @@ public class WareHouseServiceImpl implements WareHouseService {
         System.out.println("--".repeat(25));
         System.out.print("메뉴 선택 : ");
         try {
-            int cmd =sc.nextInt();
+            int cmd = Integer.parseInt(br.readLine());
             switch (cmd) {
-                case 1 -> {
-                    registerWareHouse();
-                }
-                case 2 -> {
-                    viewWareHouse();
-                }
+                case 1 -> registerWareHouse();
+                case 2 -> viewWareHouse();
             }
+            br.skip(br.lines().count());
         } catch (NumberFormatException e) {
             logger.info("숫자만 입력하세요.");
             e.printStackTrace();
@@ -86,11 +79,12 @@ public class WareHouseServiceImpl implements WareHouseService {
         System.out.printf("창고 종류 지정 : ");
         wareHouse.setWarehouseType(br.readLine());
         System.out.printf("창고관리자 코드 : ");
-        wareHouse.setMemberSeq(sc.nextInt());
+        wareHouse.setMemberSeq(wareHouse.getMemberSeq());
         System.out.printf("[%s의 등록이 완료되었습니다.]\n", wareHouse.getWarehouseName());
         System.out.println("창고관리자 코드 : " + wareHouse.getMemberSeq());
         wareHouseDao.registerWareHouse(wareHouse);
         wareHouseMain();
+        br.skip(br.lines().count());
 
     }
 
@@ -112,26 +106,35 @@ public class WareHouseServiceImpl implements WareHouseService {
                 case 4 -> viewWareHouseByType();
                 case 5 -> wareHouseMain();
             }
-        }catch (NumberFormatException e){
+        } catch (NumberFormatException e) {
             logger.info("숫자만 입력하세요.");
             e.printStackTrace();
             viewWareHouse();
         }
         viewWareHouse();
-
-
     }
 
 
     public void viewWareHouseByName() throws IOException {
-        System.out.println();
+
         System.out.println("--".repeat(25));
-        System.out.print("창고명 검색 : ");
-        String name = br.readLine();
+        System.out.println("[창고 이름별 조회]");
+        wareHouseList = wareHouseDao.viewWareHouseByNameMain();
+        for (int i = 0; i < wareHouseList.size(); i++) {
+            WareHouse wareHouse = wareHouseList.get(i);
+            System.out.printf("%2d | %20s |\n",
+                    i + 1,
+                    wareHouse.getWarehouseName());
+        }
+        System.out.print("창고명 선택 : ");
+        int selectedIndex = Integer.parseInt(br.readLine());
+        WareHouse selectedWareHouse = wareHouseList.get(selectedIndex - 1);
+        System.out.println("선택된 창고 정보:");
+        System.out.println("창고명: " + selectedWareHouse.getWarehouseName());
         System.out.println("--".repeat(25));
         System.out.printf("%7s | %12s | %10s | %6s | %3s\n", "창고코드", "창고명", "창고소재지", "창고종류", "관리자코드");
         System.out.println("--".repeat(25));
-        wareHouseList = wareHouseDao.viewWareHouseByName(name);
+        wareHouseList = wareHouseDao.viewWareHouseByName(selectedWareHouse.getWarehouseName());
         for (WareHouse wareHouse : wareHouseList) {
             System.out.printf("%7s | %12s | %9s | %6s | %3s\n",
                     wareHouse.getWarehouseCode(),
@@ -140,18 +143,29 @@ public class WareHouseServiceImpl implements WareHouseService {
                     wareHouse.getWarehouseType(),
                     wareHouse.getMemberSeq());
         }
-        System.out.println("--".repeat(25));
+
+
     }
 
     public void viewWareHouseByLocation() throws IOException {
-        System.out.println();
         System.out.println("--".repeat(25));
-        System.out.print("소재지 검색 : ");
-        String location = br.readLine();
+        System.out.println("[창고 소재지별 조회]");
+        wareHouseList = wareHouseDao.viewWareHouseByLocationMain();
+        for (int i = 0; i < wareHouseList.size(); i++) {
+            WareHouse wareHouse = wareHouseList.get(i);
+            System.out.printf("%2d | %15s |\n",
+                    i + 1,
+                    wareHouse.getWarehouseLocation());
+        }
+        System.out.print("소재지 선택 : ");
+        int selectedIndex = Integer.parseInt(br.readLine());
+        WareHouse selectedWareHouse = wareHouseList.get(selectedIndex - 1);
+        System.out.println("선택된 창고 정보:");
+        System.out.println("위치: " + selectedWareHouse.getWarehouseLocation());
         System.out.println("--".repeat(25));
         System.out.printf("%7s | %12s | %10s | %6s | %3s\n", "창고코드", "창고명", "창고소재지", "창고종류", "관리자코드");
         System.out.println("--".repeat(25));
-        wareHouseList = wareHouseDao.viewWareHouseByLocation(location);
+        wareHouseList = wareHouseDao.viewWareHouseByLocation(selectedWareHouse.getWarehouseLocation());
         for (WareHouse wareHouse : wareHouseList) {
             System.out.printf("%7s | %12s | %9s | %6s | %3s\n",
                     wareHouse.getWarehouseCode(),
@@ -160,18 +174,29 @@ public class WareHouseServiceImpl implements WareHouseService {
                     wareHouse.getWarehouseType(),
                     wareHouse.getMemberSeq());
         }
-        System.out.println("--".repeat(25));
     }
 
     public void viewWareHouseByType() throws IOException {
-        System.out.println();
+
         System.out.println("--".repeat(25));
-        System.out.print("창고종류 검색 : ");
-        String type = br.readLine();
+        System.out.println("[창고 종류별 조회]");
+        wareHouseList = wareHouseDao.viewWareHouseByTypeMain();
+        for (int i = 0; i < wareHouseList.size(); i++) {
+            WareHouse wareHouse = wareHouseList.get(i);
+            System.out.printf("%2d | %10s |\n",
+                    i + 1,
+                    wareHouse.getWarehouseType());
+        }
+        System.out.println("--".repeat(25));
+        System.out.print("창고종류 선택 : ");
+        int selectedIndex = Integer.parseInt(br.readLine());
+        WareHouse selectedWareHouse = wareHouseList.get(selectedIndex - 1);
+        System.out.println("선택된 창고 정보:");
+        System.out.println("창고종류: " + selectedWareHouse.getWarehouseType());
         System.out.println("--".repeat(25));
         System.out.printf("%7s | %12s | %10s | %6s | %3s\n", "창고코드", "창고명", "창고소재지", "창고종류", "관리자코드");
         System.out.println("--".repeat(25));
-        wareHouseList = wareHouseDao.viewWareHouseByType(type);
+        wareHouseList = wareHouseDao.viewWareHouseByType(selectedWareHouse.getWarehouseType());
         for (WareHouse wareHouse : wareHouseList) {
             System.out.printf("%7s | %12s | %9s | %6s | %3s\n",
                     wareHouse.getWarehouseCode(),
@@ -180,6 +205,6 @@ public class WareHouseServiceImpl implements WareHouseService {
                     wareHouse.getWarehouseType(),
                     wareHouse.getMemberSeq());
         }
-        System.out.println("--".repeat(25));
+
     }
 }
