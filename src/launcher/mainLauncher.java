@@ -1,6 +1,7 @@
 package launcher;
 
 import controller.IncomingController;
+import controller.InventoryController;
 import controller.MemberController;
 import controller.MembrManagemntController;
 import controller.OrderController;
@@ -13,6 +14,9 @@ import dao.OutgoingDAOImpl;
 import dao.ProductManagementDaoImpl;
 import java.util.Scanner;
 import service.IncomingServiceImpl;
+import service.InventoryAdjustmentServiceImpl;
+import service.InventoryMovementServiceImpl;
+import service.InventoryQueryServiceImpl;
 import service.LoginManagementServiceImpl;
 import service.MemberServicelmpl;
 import service.OrderServiceImpl;
@@ -40,6 +44,9 @@ public class mainLauncher {
         LoginManagementServiceImpl loginService = new LoginManagementServiceImpl();
         MemberServicelmpl memberService = new MemberServicelmpl();
         ProductServiceImpl productService = ProductServiceImpl.getInstance();
+        InventoryAdjustmentServiceImpl adjustmentService = new InventoryAdjustmentServiceImpl();
+        InventoryMovementServiceImpl movementService = new InventoryMovementServiceImpl();
+        InventoryQueryServiceImpl queryService = new InventoryQueryServiceImpl();
 
         // 컨트롤러 객체 생성 및 서비스 객체 주입
         IncomingController incomingController = IncomingController.getInstance(incomingService);
@@ -47,6 +54,7 @@ public class mainLauncher {
         MemberController memberController = MemberController.getInstance();
         MembrManagemntController membrManagemntController = MembrManagemntController.getInstance();
         ProductManagementController productManagementController = ProductManagementController.getInstance(); // 수정: 싱글톤 인스턴스 사용
+        InventoryController inventoryController = new InventoryController(adjustmentService, movementService, queryService);
 
         asciiPrinter.printMainTitle();
 
@@ -72,7 +80,8 @@ public class mainLauncher {
                 System.out.println("7. 출고 관리");
                 System.out.println("8. 창고 관리");
                 System.out.println("9. 재고 관리");
-                System.out.println("10. 프로그램 종료");
+                System.out.println("10. 로그 아웃");
+                System.out.println("11. 프로그램 종료");
 
                 System.out.print("선택: ");
                 int choice = scanner.nextInt();
@@ -94,14 +103,12 @@ public class mainLauncher {
                     case 7 -> outgoingController.outgoingProductMenu();
                     //창고 관리
 //                    case 8 -> productManagementController.menu();
-
                     //재고 관리
-                    case 9 -> {
-                        OrderController orderController = new OrderController(orderService);
-                        orderController.printAllOrdersWithDetails();
-
-                    }
-                    case 10 -> menuContinue = false;
+                    case 9 -> inventoryController.menu();
+                    //로그아웃
+//                    case 10 -> logout();
+                    //프로그램 종료
+                    case 11 -> menuContinue = false;
                     default -> System.out.println("옳지 않은 입력입니다.");
                 }
             }
