@@ -66,22 +66,23 @@ public class PurchaseServiceImpl implements PurchaseService{
     public void updatePurchaseToCancel() {
         System.out.println("취소/반품할 주문의 번호를 입력해주세요. (1 2 3)");
         Long purchaseSeq = Long.parseLong(sc.nextLine());
-
         String result = dao.processPurchaseCancelOrReturn(purchaseSeq);
 
         if (result.equals("CANCEL"))
             System.out.println(purchaseSeq + "번 주문이 취소 되었습니다.");
         else if (result.equals("RETURN")) {
-            dao.updatePurchaseStatus(List.of(purchaseSeq), PurchaseEnum.반품완료);
+            dao.createPurchaseCancel(purchaseSeq);
             System.out.println(purchaseSeq + "번 주문이 반품 처리 되었습니다.");
         }
-        else
+        else if (result.equals("INVOICE"))
             System.out.println(purchaseSeq + "번 주문이 반품 처리 중에 있습니다.");
             // 송장 연결 - INVOICE는 어디에??
             // 창고에 재고 증가
             // 주문 상태 - 반품 입고
             // 검수
             // 주문 상태 - 반품 완료
+        else
+            System.out.println("null 값");
     }
 
     @Override
@@ -114,12 +115,15 @@ public class PurchaseServiceImpl implements PurchaseService{
         // 수집
         List<Long> claimSeqList = dao.getClaimByDateAndShopName(dates[0], dates[1], selectedShopNames);
 
+        if (claimSeqList.size() < 1)
+            return;
+
         // 상태 변경
         int result = dao.updatePurchaseStatusCancelOrReturn(claimSeqList);
 
         System.out.println(result + "건의 취소/반품 내역이 있습니다.");
 
-        // 수집 내용 조회
+        // 클레임 수집 내용 조회
         List<PurchaseVO> claimList = dao.getPurchaseListByPurchaseSeq(claimSeqList);
         printClaim(claimList);
     }
