@@ -2,6 +2,7 @@ package launcher;
 
 import controller.IncomingController;
 import controller.MemberController;
+import controller.MembrManagemntController;
 import controller.OrderController;
 import dao.IncomingDAOImpl;
 import dao.LoginManagementDAOImpl;
@@ -33,6 +34,7 @@ public class mainLauncher {
         // 컨트롤러 객체 생성 및 서비스 객체 주입
         IncomingController incomingController = new IncomingController(incomingService);
         MemberController memberController = new MemberController();
+        MembrManagemntController membrManagemntController = MembrManagemntController.getInstance();
 
         asciiPrinter.printMainTitle();
 
