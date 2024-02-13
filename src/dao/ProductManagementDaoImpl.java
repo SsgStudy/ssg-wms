@@ -1,35 +1,44 @@
 package dao;
 
 import util.DbConnection;
+import util.enumcollect.SalesStatus;
 import vo.Category;
+import vo.Member;
 import vo.Product;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
-public class ProductManagementDaoImpl {
-    private static DbConnection instance;
-    static Connection conn;
+public class ProductManagementDaoImpl implements ProductManagementDao {
+
     private PreparedStatement pstmt;
     List<Category> categoryList = new ArrayList<>();
 
-    public ProductManagementDaoImpl(){
+    private static ProductManagementDaoImpl instance;
+    private static Connection conn;
 
-        try{
-
+    private ProductManagementDaoImpl() {
+        try {
             conn = DbConnection.getInstance().getConnection();
-
-        }catch (Exception e){
-
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void productRegistration(Product product){
+    public static synchronized ProductManagementDaoImpl getInstance() {
+        if (instance == null) {
+            instance = new ProductManagementDaoImpl();
+        }
+        return instance;
+    }
+
+
+    private static Logger logger = Logger.getLogger(ProductManagementDaoImpl.class.getName());
+
+    @Override
+    public void insertProduct(Product product) {
 
         String sql = new StringBuilder()
                 .append("INSERT INTO TB_PRODUCT (V_PRODUCT_CD, V_PRODUCT_NM, " +
@@ -37,38 +46,41 @@ public class ProductManagementDaoImpl {
                         "V_PRODUCT_STATUS, D_PRODUCT_MANUFACTOR_DATE, V_CATEGORY_CD)")
                 .append("VALUES (?,?,?,?,?,?,?,?,?)").toString();
 
-
-        try{
+        try {
             pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1,product.getProductCode());
+            pstmt.setString(1, product.getProductCode());
             pstmt.setString(2, product.getProductName());
             pstmt.setInt(3, product.getProductPrice());
-            pstmt.setString(4,product.getProductBrand());
-            pstmt.setString(5,product.getProductOrign());
-            pstmt.setString(6,product.getManufactor());
+            pstmt.setString(4, product.getProductBrand());
+            pstmt.setString(5, product.getProductOrign());
+            pstmt.setString(6, product.getManufactor());
             pstmt.setString(7, "ON_SALE");
-            pstmt.setDate(8,new java.sql.Date(System.currentTimeMillis()));
-            pstmt.setString(9,product.getCategoryCode());
+            pstmt.setDate(8, new java.sql.Date(System.currentTimeMillis()));
+            pstmt.setString(9, product.getCategoryCode());
             pstmt.executeUpdate();
+            System.out.println("상품등록이 완료되었습니다.");
 
-        }catch (SQLException s){
+        } catch (SQLIntegrityConstraintViolationException si) {
+            logger.warning("상품코드가 이미 생성되어 있습니다.");
+            si.printStackTrace();
+        } catch (SQLException s) {
             s.printStackTrace();
         }
 
 
     }
 
-    //대분류
+    @Override
     public List<Category> getMainCategories() {
         List<Category> categoryList = new ArrayList<>();
         String sql = new StringBuilder()
                 .append("SELECT * FROM TB_CATEGORY WHERE V_CATEGORY_PARENT_CD IS NULL").toString();
 
-        try{
+        try {
             pstmt = conn.prepareStatement(sql);
             ResultSet rs = pstmt.executeQuery();
 
-            while(rs.next()){
+            while (rs.next()) {
                 Category category = new Category();
                 category.setCategoryCode(rs.getString("V_CATEGORY_CD"));
                 category.setCategoryName(rs.getString("V_CATEGORY_NM"));
@@ -78,9 +90,9 @@ public class ProductManagementDaoImpl {
 
             pstmt.close();
 
-        }catch (SQLException s){
+        } catch (SQLException s) {
             s.printStackTrace();
-        }finally {
+        } finally {
             if (pstmt != null) {
                 try {
                     pstmt.close();
@@ -92,7 +104,7 @@ public class ProductManagementDaoImpl {
         return categoryList;
     }
 
-    public List<Category> getSubCategoriesByMainCategory(int mainCategoryNumber){
+    public List<Category> getSubCategoriesByMainCategory(int mainCategoryNumber) {
 
         String sql = new StringBuilder().append("SELECT * FROM TB_CATEGORY ")
                 .append("WHERE V_CATEGORY_PARENT_CD LIKE ?")
@@ -110,13 +122,14 @@ public class ProductManagementDaoImpl {
                 categoryList.add(category);
             }
             pstmt.close();
-        }catch (SQLException s){
+        } catch (SQLException s) {
             s.printStackTrace();
         }
 
         return categoryList;
     }
 
+    @Override
     public List<Category> getDetailCategoriesBySubCategory(int mainCategoryNumber, int subCategoryNumber) {
         categoryList.clear();
         String sql = new StringBuilder().append("SELECT * FROM TB_CATEGORY ")
@@ -124,7 +137,7 @@ public class ProductManagementDaoImpl {
                 .toString();
         try {
             pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, "__"+ mainCategoryNumber + "___" + subCategoryNumber);
+            pstmt.setString(1, "__" + mainCategoryNumber + "___" + subCategoryNumber);
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
                 Category category = new Category();
@@ -138,6 +151,107 @@ public class ProductManagementDaoImpl {
             throw new RuntimeException(e);
         }
         return categoryList;
+    }
+
+    @Override
+    public List<Product> getProductList() {
+        List<Product> productList = new ArrayList<>();
+
+        String sql = new StringBuilder().append("SELECT * FROM TB_PRODUCT").toString();
+
+        try {
+
+            pstmt = conn.prepareStatement(sql);
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                Product product = new Product();
+                product.setProductCode(rs.getString("V_PRODUCT_CD"));
+                product.setProductName(rs.getString("V_PRODUCT_NM"));
+                product.setProductPrice(rs.getInt("N_PRODUCT_PRICE"));
+                productList.add(product);
+
+            }
+            rs.close();
+            pstmt.close();
+
+        } catch (SQLException s) {
+            s.printStackTrace();
+        }
+
+        return productList;
+
+    }
+
+    @Override
+    public Product getProductByProductCode(String productcode) {
+        Product product = new Product();
+
+        String sql = new StringBuilder().append("SELECT * FROM TB_PRODUCT ")
+                .append("WHERE V_PRODUCT_CD = ?").toString();
+
+        try {
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, productcode);
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                product.setProductCode(rs.getString("V_PRODUCT_CD"));
+                product.setProductName(rs.getString("V_PRODUCT_NM"));
+                product.setProductPrice(rs.getInt("N_PRODUCT_PRICE"));
+                product.setProductBrand(rs.getString("V_PRODUCT_BRAND"));
+                product.setProductOrign(rs.getString("V_PRODUCT_ORIGIN"));
+                product.setManufactor(rs.getString("V_PRODUCT_MANUFACTOR"));
+                product.setPrductStatus(SalesStatus.valueOf(rs.getString("V_PRODUCT_STATUS")));
+                product.setProductManufactorsDate(rs.getDate("D_PRODUCT_MANUFACTOR_DATE"));
+                product.setCategoryCode(rs.getString("V_CATEGORY_CD"));
+            } else {
+                return null;
+            }
+
+
+        } catch (SQLException s) {
+            s.printStackTrace();
+        }
+
+        return product;
+
+    }
+
+    @Override
+    public int updateProductByProductCode(String productCode, Product product) {
+
+        int row = 0;
+
+        String sql = new StringBuilder().append("UPDATE TB_PRODUCT SET ")
+                .append("V_PRODUCT_NM=?, ")
+                .append("N_PRODUCT_PRICE=?,")
+                .append("V_PRODUCT_BRAND=?,")
+                .append("V_PRODUCT_ORIGIN=?,")
+                .append("V_PRODUCT_MANUFACTOR=?,")
+                .append("V_PRODUCT_STATUS=? ")
+                .append("WHERE V_PRODUCT_CD=? ").toString();
+
+        try {
+
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, product.getProductName());
+            pstmt.setInt(2, product.getProductPrice());
+            pstmt.setString(3, product.getProductBrand());
+            pstmt.setString(4, product.getProductOrign());
+            pstmt.setString(5, product.getManufactor());
+            pstmt.setString(6, product.getPrductStatus().toString());
+            pstmt.setString(7, productCode);
+
+            row = pstmt.executeUpdate();
+            pstmt.close();
+
+        } catch (SQLException s) {
+            s.printStackTrace();
+        }
+
+        return row;
+
     }
 
 

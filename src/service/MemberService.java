@@ -1,14 +1,25 @@
 package service;
 
+import util.enumcollect.MemberEnum;
 import vo.Member;
 
 import java.io.BufferedReader;
+import java.util.List;
 
 public interface MemberService {
 
-    void MemberRead();
-    void MemberUpdate();
+    public List<Member> getMemberList();
 
-   void updateMemberInfo(BufferedReader sc, Member memberToUpdate, int no);
+    public Member getMemberByUserId(String userId);
+
+    public MemberEnum getMemberRoleById(String userId);
+
+    public boolean updateMemberInfo(int no, String newId, String newName);
+
+    public Member getMemberByNo(int no);
+
+    public void getMemberUpdate(int no, String newId, String newName);
+
+
 
 }

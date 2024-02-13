@@ -1,4 +1,4 @@
-package serviceImpl;
+package service;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
@@ -6,11 +6,8 @@ import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
-import daoImpl.InvoiceDaoImpl;
-import service.InvoiceService;
-import util.enumcollect.WaybillTypeEnum;
+import dao.InvoiceDaoImpl;
 import vo.Invoice;
-import vo.WareHouse;
 
 import javax.imageio.ImageIO;
 import javax.sql.rowset.serial.SerialBlob;
