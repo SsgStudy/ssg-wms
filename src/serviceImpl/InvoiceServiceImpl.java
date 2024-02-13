@@ -18,6 +18,7 @@ import javax.sql.rowset.serial.SerialException;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.net.URLEncoder;
 import java.sql.Blob;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -59,10 +60,18 @@ public class InvoiceServiceImpl implements InvoiceService {
         invoice.setInvoiceCode(br.readLine());
         System.out.print("송장 종류 입력 : ");
         invoice.setInvoiceType(br.readLine());
+        System.out.print("주문자 이름 입력 : ");
+        invoice.setCustomerName(br.readLine());
+        System.out.print("주문자 주소 입력 : ");
+        invoice.setCustomerAddress(br.readLine());
+        System.out.print("상품 이름 입력 : ");
+        invoice.setProductName(br.readLine());
+        System.out.print("상품 개수 입력 : ");
+        invoice.setQuantityOrdered(Integer.parseInt(br.readLine()));
         System.out.print("주문 번호 입력 : ");
         try {
             invoice.setPurchaseCode(Integer.parseInt(br.readLine().trim()));
-            Blob qrCodeImage = createQRCode2(invoice.getInvoiceCode(), String.valueOf(invoice.getInvoiceType()), invoice.getPurchaseCode());
+            Blob qrCodeImage = createQRCode2(invoice.getInvoiceCode(), String.valueOf(invoice.getInvoiceType()), invoice.getPurchaseCode(), invoice.getSenderName(), invoice.getCustomerName(), invoice.getProductName(), invoice.getQuantityOrdered(),invoice.getCustomerAddress());
             invoice.setQrCode(qrCodeImage);
             System.out.println("[택배사 선택]");
             System.out.println("--".repeat(25));
@@ -145,8 +154,9 @@ public class InvoiceServiceImpl implements InvoiceService {
         }
         invoiceMain();
     }
-    public Blob createQRCode2(String invoiceCode, String invoiceType, int purchaseCode) throws IOException, SQLException {
-        String text = "Invoice Code: " + invoiceCode + "\nInvoice Type: " + invoiceType + "\nPurchase Code: " + purchaseCode;
+    public Blob createQRCode2(String invoiceCode, String invoiceType, int purchaseCode, String senderName, String customerName, String productName, int quantityOrdered, String customerAddress) throws IOException, SQLException {
+
+        String text = "InvoiceCode: " + invoiceCode + "\nInvoiceType: " + invoiceType + "\nPurchaseCode: " + purchaseCode + "\nSender: " + senderName + "\nCustomer: " + customerName + "\nProductName" + productName + "\n..." + quantityOrdered + "ea" + "\nAddress: " + customerAddress;
         int width = 300;
         int height = 300;
         try {
