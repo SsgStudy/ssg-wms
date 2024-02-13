@@ -5,7 +5,7 @@ import vo.InventoryVO;
 import java.util.List;
 
 public interface InventoryMovementDAO {
-    List<InventoryVO> getInventory();
+    List<InventoryVO> getInventoryInformation();
     List<String> getWarehouseCode();
     List<String> getZoneCode(String wareHouseCode);
     int updateInventoryForMovement(InventoryVO inventory);

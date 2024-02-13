@@ -27,7 +27,6 @@ public class InventoryQueryDAOImpl implements InventoryQueryDAO {
     private PreparedStatement pstmt;
     private List<CategoryVO> categoryList = new ArrayList<>();
     private List<ProductInventoryCategoryVO> productInventoryCategoryList = new ArrayList<>();
-
     private List<String> warehouseCodeList = new ArrayList<>();
     private List<ProductInventoryWarehouseVO> productInventoryWarehouseList = new ArrayList<>();
 

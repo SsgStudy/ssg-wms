@@ -27,7 +27,7 @@ public class InventoryMovementDAOImpl implements InventoryMovementDAO {
     private List<String> zoneCodeList = new ArrayList<>();
 
     @Override
-    public List<InventoryVO> getInventory() {
+    public List<InventoryVO> getInventoryInformation() {
         String sql = new StringBuilder()
                 .append("SELECT * FROM TB_INVENTORY")
                 .toString();

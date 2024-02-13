@@ -24,9 +24,9 @@ public class InventoryAdjustmentDAOImpl implements InventoryAdjustmentDAO{
     private PreparedStatement pstmt;
     private List<InventoryVO> inventoryList = new ArrayList<>();
 
-    //inventory리스트 가져오기
+
     @Override
-    public List<InventoryVO> getInventory() {
+    public List<InventoryVO> getInventoryInformation() {
         String sql = new StringBuilder()
                 .append("SELECT * FROM TB_INVENTORY")
                 .toString();
@@ -125,6 +125,4 @@ public class InventoryAdjustmentDAOImpl implements InventoryAdjustmentDAO{
         }
         return inventoryList;
     }
-
-
 }
