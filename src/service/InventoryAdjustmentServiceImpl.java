@@ -8,6 +8,7 @@ import java.util.List;
 
 public class InventoryAdjustmentServiceImpl implements InventoryAdjustmentService {
     private InventoryAdjustmentDAO inventoryAdjustmentDao;
+    private PurchaseServiceImpl purchaseService;
 
     public InventoryAdjustmentServiceImpl() {
         this.inventoryAdjustmentDao = InventoryAdjustmentDAOImpl.getInstance();
@@ -31,5 +32,30 @@ public class InventoryAdjustmentServiceImpl implements InventoryAdjustmentServic
     @Override
     public List<InventoryVO> getUpdatedInventory(int selectedNumber) {
         return inventoryAdjustmentDao.getUpdatedInventory(selectedNumber);
+    }
+
+    @Override
+    public int updateRestoreInventoryQuantity(Long purchaseSeq) {
+        String result = inventoryAdjustmentDao.updateRestoreInventoryQuantity(purchaseSeq);
+
+        if (result.equals("success")) {
+            return 1;
+        }
+        else return 0;
+    }
+
+    public int updateRestoration(Long purchaseSeq) {
+        int quanity = -1;
+
+        List<InventoryVO> inventoryList = inventoryAdjustmentDao.updateInventoryForRestoration(purchaseSeq);
+        // 재고 복원 성공
+        for (InventoryVO inventory : inventoryList) {
+            if (inventory.getInventoryCnt() == 0) {
+                quanity = 1;
+            }
+            else
+                quanity = -1;
+        }
+        return quanity;
     }
 }
