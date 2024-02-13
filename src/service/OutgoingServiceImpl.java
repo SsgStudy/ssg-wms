@@ -10,15 +10,15 @@ import vo.OutgoingVO;
 
 public class OutgoingServiceImpl implements OutgoingService {
 
-    private OutgoingDAO outgoingDAO;
+    private OutgoingDAOImpl outgoingDAO;
+
+    public OutgoingServiceImpl(OutgoingDAOImpl outgoingDAO) {
+        this.outgoingDAO = outgoingDAO;
+    }
 
     @Override
     public void addOutgoingProduct(int shopSeq) throws Exception {
         outgoingDAO.processOutgoingProducts(shopSeq);
-    }
-
-    public OutgoingServiceImpl(OutgoingDAOImpl outgoingDAO) {
-        this.outgoingDAO = outgoingDAO;
     }
 
     @Override

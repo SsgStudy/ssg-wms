@@ -4,16 +4,19 @@ import controller.IncomingController;
 import controller.MemberController;
 import controller.MembrManagemntController;
 import controller.OrderController;
+import controller.OutgoingController;
 import controller.ProductManagementController;
 import dao.IncomingDAOImpl;
 import dao.LoginManagementDAOImpl;
 import dao.OrderDAOImpl;
+import dao.OutgoingDAOImpl;
 import dao.ProductManagementDaoImpl;
 import java.util.Scanner;
 import service.IncomingServiceImpl;
 import service.LoginManagementServiceImpl;
 import service.MemberServicelmpl;
 import service.OrderServiceImpl;
+import service.OutgoingServiceImpl;
 import service.ProductServiceImpl;
 import util.AsciiPrinter;
 
@@ -25,12 +28,14 @@ public class mainLauncher {
 
         // DAO 객체 생성
         IncomingDAOImpl incomingDAO = IncomingDAOImpl.getInstance();
+        OutgoingDAOImpl outgoingDAO = OutgoingDAOImpl.getInstance();
         OrderDAOImpl orderDAO = OrderDAOImpl.getInstance();
         LoginManagementDAOImpl loginDAO = LoginManagementDAOImpl.getInstance();
         ProductManagementDaoImpl productDAO = ProductManagementDaoImpl.getInstance();
 
         // 서비스 객체 생성 및 DAO 객체 주입
         IncomingServiceImpl incomingService = new IncomingServiceImpl(incomingDAO);
+        OutgoingServiceImpl outgoingService = new OutgoingServiceImpl(outgoingDAO);
         OrderServiceImpl orderService = new OrderServiceImpl(orderDAO);
         LoginManagementServiceImpl loginService = new LoginManagementServiceImpl();
         MemberServicelmpl memberService = new MemberServicelmpl();
@@ -38,6 +43,7 @@ public class mainLauncher {
 
         // 컨트롤러 객체 생성 및 서비스 객체 주입
         IncomingController incomingController = IncomingController.getInstance(incomingService);
+        OutgoingController outgoingController = OutgoingController.getInstance(outgoingService);
         MemberController memberController = MemberController.getInstance();
         MembrManagemntController membrManagemntController = MembrManagemntController.getInstance();
         ProductManagementController productManagementController = ProductManagementController.getInstance(); // 수정: 싱글톤 인스턴스 사용
@@ -85,7 +91,7 @@ public class mainLauncher {
                     //입고 관리
                     case 6 -> incomingController.incomingProductMenu();
                     //출고 관리
-//                    case 7 -> productManagementController.menu();
+                    case 7 -> outgoingController.outgoingProductMenu();
                     //창고 관리
 //                    case 8 -> productManagementController.menu();
 
