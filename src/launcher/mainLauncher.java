@@ -1,33 +1,11 @@
 package launcher;
 
-import controller.IncomingController;
-import controller.InventoryController;
-import controller.InvoiceController;
-import controller.MemberController;
-import controller.MembrManagemntController;
-import controller.OrderController;
-import controller.OutgoingController;
-import controller.ProductManagementController;
-import controller.WareHouseController;
-import dao.IncomingDAOImpl;
-import dao.InvoiceDaoImpl;
-import dao.LoginManagementDAOImpl;
-import dao.OrderDAOImpl;
-import dao.OutgoingDAOImpl;
-import dao.ProductManagementDaoImpl;
-import dao.WareHouseDaoImpl;
+import controller.*;
+import dao.*;
+
 import java.util.Scanner;
-import service.IncomingServiceImpl;
-import service.InventoryAdjustmentServiceImpl;
-import service.InventoryMovementServiceImpl;
-import service.InventoryQueryServiceImpl;
-import service.InvoiceServiceImpl;
-import service.LoginManagementServiceImpl;
-import service.MemberServicelmpl;
-import service.OrderServiceImpl;
-import service.OutgoingServiceImpl;
-import service.ProductServiceImpl;
-import service.WareHouseServiceImpl;
+
+import service.*;
 import util.AsciiPrinter;
 
 public class mainLauncher {
@@ -44,6 +22,7 @@ public class mainLauncher {
         LoginManagementDAOImpl loginDAO = LoginManagementDAOImpl.getInstance();
         ProductManagementDaoImpl productDAO = ProductManagementDaoImpl.getInstance();
         InvoiceDaoImpl invoiceDao = InvoiceDaoImpl.getInstance();
+        PurchaseDAOImpl purchaseDAO = PurchaseDAOImpl.getInstance();
 
         // 서비스 객체 생성 및 DAO 객체 주입
         WareHouseServiceImpl warehouseService = new WareHouseServiceImpl();
@@ -57,6 +36,7 @@ public class mainLauncher {
         InventoryMovementServiceImpl movementService = new InventoryMovementServiceImpl();
         InventoryQueryServiceImpl queryService = new InventoryQueryServiceImpl();
         InvoiceServiceImpl invoiceService = new InvoiceServiceImpl(invoiceDao);
+        PurchaseServiceImpl purchaseService = new PurchaseServiceImpl(purchaseDAO);
 
         // 컨트롤러 객체 생성 및 서비스 객체 주입
         WareHouseController wareHouseController = WareHouseController.getInstance(warehouseService);
@@ -67,6 +47,7 @@ public class mainLauncher {
         ProductManagementController productManagementController = ProductManagementController.getInstance(); // 수정: 싱글톤 인스턴스 사용
         InventoryController inventoryController = new InventoryController(adjustmentService, movementService, queryService);
         InvoiceController invoiceController = InvoiceController.getInstance(invoiceService);
+        PurchaseController purchaseController = PurchaseController.getInstance(purchaseService);
 
         asciiPrinter.printMainTitle();
 
@@ -104,7 +85,7 @@ public class mainLauncher {
                     //상품 관리
                     case 2 -> productManagementController.menu();
                     //주문 관리
-//                    case 3 -> productManagementController.menu();
+                    case 3 -> purchaseController.menu();
                     //송장 관리
                     case 4 -> invoiceController.menu();
                     //발주 관리

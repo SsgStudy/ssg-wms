@@ -2,7 +2,6 @@ package test;
 
 import controller.OutgoingController;
 import dao.OutgoingDAOImpl;
-import service.OutgoingService;
 import service.OutgoingServiceImpl;
 import util.AsciiPrinter;
 

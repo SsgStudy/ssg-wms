@@ -5,7 +5,6 @@ import java.time.LocalDate;
 import java.util.List;
 import vo.DetailedIncomingVO;
 import vo.IncomingVO;
-import vo.OrderVO;
 
 public interface IncomingDAO {
     List<IncomingVO> getAllIncomingProductsWithDetails();

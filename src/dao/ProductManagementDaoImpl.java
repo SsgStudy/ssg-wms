@@ -3,7 +3,6 @@ package dao;
 import util.DbConnection;
 import util.enumcollect.SalesStatus;
 import vo.Category;
-import vo.Member;
 import vo.Product;
 
 import java.sql.*;

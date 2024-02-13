@@ -1,9 +1,8 @@
 package dao;
 
-import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
-import vo.IncomingVO;
+
 import vo.InventoryVO;
 import vo.OutgoingInstVO;
 import vo.OutgoingVO;
