@@ -44,7 +44,7 @@ public class InvoiceServiceImpl implements InvoiceService {
                 case 1 -> registerInvoice();
                 case 2 -> viewInvoice();
             }
-        }catch (NumberFormatException e){
+        } catch (NumberFormatException e) {
             logger.info("숫자로 입력하세요.");
             e.printStackTrace();
             invoiceMain();
@@ -53,25 +53,26 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     public void registerInvoice() throws IOException, SQLException {
-        Invoice invoice = new Invoice();
-        System.out.println("[송장 등록]");
-        System.out.println("--".repeat(25));
-        System.out.print("송장 코드 입력 : ");
-        invoice.setInvoiceCode(br.readLine());
-        System.out.print("송장 종류 입력 : ");
-        invoice.setInvoiceType(br.readLine());
-        System.out.print("주문자 이름 입력 : ");
-        invoice.setCustomerName(br.readLine());
-        System.out.print("주문자 주소 입력 : ");
-        invoice.setCustomerAddress(br.readLine());
-        System.out.print("상품 이름 입력 : ");
-        invoice.setProductName(br.readLine());
-        System.out.print("상품 개수 입력 : ");
-        invoice.setQuantityOrdered(Integer.parseInt(br.readLine()));
-        System.out.print("주문 번호 입력 : ");
         try {
+            Invoice invoice = new Invoice();
+            System.out.println("[송장 등록]");
+            System.out.println("--".repeat(25));
+            System.out.print("송장 코드 입력 : ");
+            invoice.setInvoiceCode(br.readLine());
+            System.out.print("송장 종류 입력 : ");
+            invoice.setInvoiceType(br.readLine());
+            System.out.print("주문자 이름 입력 : ");
+            invoice.setCustomerName(br.readLine());
+            System.out.print("주문자 주소 입력 : ");
+            invoice.setCustomerAddress(br.readLine());
+            System.out.print("상품 이름 입력 : ");
+            invoice.setProductName(br.readLine());
+            System.out.print("상품 개수 입력 : ");
+            invoice.setQuantityOrdered(Integer.parseInt(br.readLine()));
+            System.out.print("주문 번호 입력 : ");
             invoice.setPurchaseCode(Integer.parseInt(br.readLine().trim()));
-            Blob qrCodeImage = createQRCode2(invoice.getInvoiceCode(), String.valueOf(invoice.getInvoiceType()), invoice.getPurchaseCode(), invoice.getSenderName(), invoice.getCustomerName(), invoice.getProductName(), invoice.getQuantityOrdered(),invoice.getCustomerAddress());
+
+            Blob qrCodeImage = createQRCode2(invoice.getInvoiceCode(), String.valueOf(invoice.getInvoiceType()), invoice.getPurchaseCode(), invoice.getSenderName(), invoice.getCustomerName(), invoice.getProductName(), invoice.getQuantityOrdered(), invoice.getCustomerAddress());
             invoice.setQrCode(qrCodeImage);
             System.out.println("[택배사 선택]");
             System.out.println("--".repeat(25));
@@ -79,7 +80,7 @@ public class InvoiceServiceImpl implements InvoiceService {
             System.out.print("택배사 선택 : ");
             invoice.setLogisticCode(Integer.parseInt(br.readLine().trim()));
             invoiceDao.registerInvoice(invoice);
-        }catch (NumberFormatException e){
+        } catch (NumberFormatException e) {
             logger.info("주문 번호는 숫자로 입력하세요.");
             e.printStackTrace();
             registerInvoice();
@@ -87,7 +88,7 @@ public class InvoiceServiceImpl implements InvoiceService {
         invoiceMain();
     }
 
-    public Blob createQRCode(String invoiceCode, String invoiceType, int purchaseCode) {
+    /*public Blob createQRCode(String invoiceCode, String invoiceType, int purchaseCode) {
 
         // QR 코드로 포함될 전체 텍스트
         String text = "Invoice Code : " + invoiceCode + "\n" +
@@ -132,7 +133,7 @@ public class InvoiceServiceImpl implements InvoiceService {
             throw new RuntimeException(e);
         }
         return null;
-    }
+    }*/
 
     @Override
     public void viewInvoice() throws IOException, SQLException {
@@ -154,6 +155,7 @@ public class InvoiceServiceImpl implements InvoiceService {
         }
         invoiceMain();
     }
+
     public Blob createQRCode2(String invoiceCode, String invoiceType, int purchaseCode, String senderName, String customerName, String productName, int quantityOrdered, String customerAddress) throws IOException, SQLException {
 
         String text = "InvoiceCode: " + invoiceCode + "\nInvoiceType: " + invoiceType + "\nPurchaseCode: " + purchaseCode + "\nSender: " + senderName + "\nCustomer: " + customerName + "\nProductName" + productName + "\n..." + quantityOrdered + "ea" + "\nAddress: " + customerAddress;

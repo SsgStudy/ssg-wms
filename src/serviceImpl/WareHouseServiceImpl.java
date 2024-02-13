@@ -15,7 +15,6 @@ import java.util.logging.Logger;
 
 public class WareHouseServiceImpl implements WareHouseService {
     BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-    Scanner sc = new Scanner(System.in);
     WareHouseDaoImpl wareHouseDao = new WareHouseDaoImpl();
     List<WareHouse> wareHouseList = new ArrayList<>();
     private static Logger logger = Logger.getLogger(WareHouseServiceImpl.class.getName());
@@ -78,7 +77,6 @@ public class WareHouseServiceImpl implements WareHouseService {
         wareHouse.setWarehouseLocation(br.readLine());
         System.out.printf("창고 종류 지정 : ");
         wareHouse.setWarehouseType(br.readLine());
-        System.out.printf("창고관리자 코드 : ");
         wareHouse.setMemberSeq(wareHouse.getMemberSeq());
         System.out.printf("[%s의 등록이 완료되었습니다.]\n", wareHouse.getWarehouseName());
         System.out.println("창고관리자 코드 : " + wareHouse.getMemberSeq());

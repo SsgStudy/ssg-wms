@@ -18,6 +18,7 @@ public class Invoice {
     private int quantityOrdered;
 
     public int getQuantityOrdered() {
+
         return quantityOrdered;
     }
 
