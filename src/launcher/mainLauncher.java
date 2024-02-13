@@ -47,31 +47,36 @@ public class mainLauncher {
 
         memberController.logIn(id, password);
         if (loginDAO.getMemberId() != null) { // 로그인 성공 확인
-            System.out.println("SSG WMS SYSTEM MAIN");
-            System.out.println("1. 회원 관리");
-            System.out.println("2. 상품 관리");
-            System.out.println("3. 주문 관리");
-            System.out.println("4. 송장 관리");
-            System.out.println("5. 발주 관리");
-            System.out.println("6. 입고 관리");
-            System.out.println("7. 출고 관리");
-            System.out.println("8. 창고 관리");
-            System.out.println("9. 재고 관리");
-            System.out.println("10. 프로그램 종료");
+            boolean menuContinue = true;
 
-            System.out.print("선택: ");
-            int choice = scanner.nextInt();
+            while (menuContinue) {
+                System.out.println("SSG WMS SYSTEM MAIN");
+                System.out.println("1. 회원 관리");
+                System.out.println("2. 상품 관리");
+                System.out.println("3. 주문 관리");
+                System.out.println("4. 송장 관리");
+                System.out.println("5. 발주 관리");
+                System.out.println("6. 입고 관리");
+                System.out.println("7. 출고 관리");
+                System.out.println("8. 창고 관리");
+                System.out.println("9. 재고 관리");
+                System.out.println("10. 프로그램 종료");
 
-            switch (choice) {
-                //멤버 관리
-                case 1 -> membrManagemntController.menu();
-                //상품 관리
-                case 5 -> {
-                    OrderController orderController = new OrderController(orderService);
-                    orderController.printAllOrdersWithDetails();
+                System.out.print("선택: ");
+                int choice = scanner.nextInt();
 
+                switch (choice) {
+                    //멤버 관리
+                    case 1 -> membrManagemntController.menu();
+                    //상품 관리
+                    case 5 -> {
+                        OrderController orderController = new OrderController(orderService);
+                        orderController.printAllOrdersWithDetails();
+
+                    }
+                    case 10 -> menuContinue =false;
+                    default -> System.out.println("옳지 않은 입력입니다.");
                 }
-                default -> System.out.println("옳지 않은 입력입니다.");
             }
         } else {
             System.out.println("로그인에 실패했습니다. 프로그램을 종료합니다.");
