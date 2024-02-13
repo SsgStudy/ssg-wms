@@ -5,20 +5,38 @@ import util.enumcollect.WaybillTypeEnum;
 import java.sql.Blob;
 import java.util.Date;
 
+
 public class Invoice {
     private String invoiceCode;
     private Date invoicePrintDate;
-    private String invoiceType;
+    private WaybillTypeEnum invoiceType;
     private Blob qrCode;
-    private int logisticCode;
-    private int purchaseCode;
+    private Long logisticSeq;
+    private Long purchaseSeq;
 
-    public int getPurchaseCode() {
-        return purchaseCode;
+
+    public String getInvoiceCode() {
+        return invoiceCode;
     }
 
-    public void setPurchaseCode(int purchaseCode) {
-        this.purchaseCode = purchaseCode;
+    public void setInvoiceCode(String invoiceCode) {
+        this.invoiceCode = invoiceCode;
+    }
+
+    public Date getInvoicePrintDate() {
+        return invoicePrintDate;
+    }
+
+    public void setInvoicePrintDate(Date invoicePrintDate) {
+        this.invoicePrintDate = invoicePrintDate;
+    }
+
+    public WaybillTypeEnum getInvoiceType() {
+        return invoiceType;
+    }
+
+    public void setInvoiceType(WaybillTypeEnum invoiceType) {
+        this.invoiceType = invoiceType;
     }
 
     public Blob getQrCode() {
@@ -29,37 +47,20 @@ public class Invoice {
         this.qrCode = qrCode;
     }
 
-
-    public int getLogisticCode() {
-        return logisticCode;
+    public Long getLogisticSeq() {
+        return logisticSeq;
     }
 
-    public void setLogisticCode(int logisticCode) {
-        this.logisticCode = logisticCode;
+    public void setLogisticSeq(Long logisticSeq) {
+        this.logisticSeq = logisticSeq;
     }
 
-    public String getInvoiceCode() {
-        return invoiceCode;
+    public Long getPurchaseSeq() {
+        return purchaseSeq;
     }
 
-    public void setInvoiceCode(String invoiceCode) {
-        this.invoiceCode = invoiceCode;
-    }
-
-    public java.sql.Date getInvoicePrintDate() {
-        return (java.sql.Date) invoicePrintDate;
-    }
-
-    public void setInvoicePrintDate(Date invoicePrintDate) {
-        this.invoicePrintDate = invoicePrintDate;
-    }
-
-    public String getInvoiceType() {
-        return invoiceType;
-    }
-
-    public void setInvoiceType(String invoiceType) {
-        this.invoiceType = invoiceType;
+    public void setPurchaseSeq(Long purchaseSeq) {
+        this.purchaseSeq = purchaseSeq;
     }
 
     @Override
