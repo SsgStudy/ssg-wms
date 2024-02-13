@@ -21,11 +21,10 @@ public class InvoiceDaoImpl implements InvoiceDao {
         InvoiceServiceImpl invoiceService = new InvoiceServiceImpl();
         try {
             conn = DbConnection.getInstance().getConnection();
-            String sql = "INSERT INTO `TB_INVOICE` (V_INVOICE_CD, DT_INVOICE_PRINT_DATE, V_INVOICE_TYPE, B_INVOICE_QR_CD, PK_LOGISTIC_SEQ, PK_SHOP_PURCHASE_SEQ) VALUES\n"
-                    + "(?,?,?,?,?,?)";
+            String sql = "INSERT INTO `TB_INVOICE` (V_INVOICE_CD, DT_INVOICE_PRINT_DATE, V_INVOICE_TYPE, B_INVOICE_QR_CD, PK_LOGISTIC_SEQ, PK_SHOP_PURCHASE_SEQ) VALUES (?, ?, ?, ?, ?, ?)";
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, invoice.getInvoiceCode());
-            pstmt.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
+            pstmt.setDate(2, new java.sql.Date(System.currentTimeMillis()));
             pstmt.setString(3, String.valueOf(invoice.getInvoiceType()));
             pstmt.setBlob(4, invoice.getQrCode());
             pstmt.setInt(5, invoice.getLogisticCode());
@@ -50,7 +49,7 @@ public class InvoiceDaoImpl implements InvoiceDao {
         List<Invoice> invoices = new ArrayList<>();
         try {
             conn = DbConnection.getInstance().getConnection();
-            String sql = new StringBuilder().append("SELECT * FROM TB_INVOICE").toString();
+            String sql = new StringBuilder().append("SELECT V_INVOICE_CD, DATE_FORMAT(DT_INVOICE_PRINT_DATE, '%Y-%m-%d'), V_INVOICE_TYPE, B_INVOICE_QR_CD, PK_LOGISTIC_SEQ, PK_SHOP_PURCHASE_SEQ FROM TB_INVOICE").toString();
 
             PreparedStatement pstmt = conn.prepareStatement(sql);
             ResultSet rs = pstmt.executeQuery();
@@ -58,7 +57,7 @@ public class InvoiceDaoImpl implements InvoiceDao {
             while (rs.next()) {
                 Invoice invoice = new Invoice();
                 invoice.setInvoiceCode(rs.getString("V_INVOICE_CD"));
-                invoice.setInvoicePrintDate(rs.getDate("DT_INVOICE_PRINT_DATE"));
+                invoice.setInvoicePrintDate(rs.getDate("DATE_FORMAT(DT_INVOICE_PRINT_DATE, '%Y-%m-%d')"));
                 invoice.setInvoiceType(rs.getString("V_INVOICE_TYPE"));
                 invoice.setQrCode(rs.getBlob("B_INVOICE_QR_CD"));
                 invoice.setLogisticCode(rs.getInt("PK_LOGISTIC_SEQ"));
