@@ -12,6 +12,52 @@ public class Invoice {
     private Blob qrCode;
     private int logisticCode;
     private int purchaseCode;
+    private String customerName;
+    private String customerAddress;
+    private String productName;
+    private int quantityOrdered;
+
+    public int getQuantityOrdered() {
+        return quantityOrdered;
+    }
+
+    public void setQuantityOrdered(int quantityOrdered) {
+        this.quantityOrdered = quantityOrdered;
+    }
+
+    private String senderName = "SSGBACK-INTERNATIONAL";
+
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
+    }
+
+    public String getCustomerAddress() {
+        return customerAddress;
+    }
+
+    public void setCustomerAddress(String customerAddress) {
+        this.customerAddress = customerAddress;
+    }
+
+    public String getProductName() {
+        return productName;
+    }
+
+    public void setProductName(String productName) {
+        this.productName = productName;
+    }
+
+    public String getSenderName() {
+        return senderName;
+    }
+
+    public void setSenderName(String senderName) {
+        this.senderName = senderName;
+    }
 
     public int getPurchaseCode() {
         return purchaseCode;
