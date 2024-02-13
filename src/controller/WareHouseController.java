@@ -12,6 +12,7 @@ public class WareHouseController {
     }
     static WareHouseServiceImpl wareHouseService = new WareHouseServiceImpl();
     private static Logger logger = Logger.getLogger(WareHouseController.class.getName());
+    static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
     static Scanner sc = new Scanner(System.in);
     public static void wareHouseMain() throws IOException {
         System.out.println("--".repeat(25));
@@ -21,7 +22,7 @@ public class WareHouseController {
         System.out.println("--".repeat(25));
         System.out.print("메뉴 선택 : ");
         try {
-            int cmd =sc.nextInt();
+            int cmd =Integer.parseInt(br.readLine());
             switch (cmd) {
                 case 1 -> {
                     wareHouseService.registerWareHouse();
@@ -35,5 +36,6 @@ public class WareHouseController {
             e.printStackTrace();
             wareHouseMain();
         }
+            br.skip(br.lines().count());
     }
 }

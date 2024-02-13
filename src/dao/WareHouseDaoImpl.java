@@ -74,7 +74,7 @@ public class WareHouseDaoImpl implements WareHouseDao {
             conn = DbConnection.getInstance().getConnection();
             String sql = new StringBuilder().append("SELECT * FROM TB_WAREHOUSE WHERE V_WAREHOUSE_NM LIKE ?").toString();
             PreparedStatement pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, "%" + name + "%");
+            pstmt.setString(1, name);
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
                 WareHouse wareHouse = new WareHouse();
@@ -103,13 +103,103 @@ public class WareHouseDaoImpl implements WareHouseDao {
     }
 
     @Override
+    public List<WareHouse> viewWareHouseByNameMain() {
+        List<WareHouse> wareHouseListByName = new ArrayList<>();
+        try{
+            conn = DbConnection.getInstance().getConnection();
+            String sql = new StringBuilder().append("SELECT DISTINCT V_WAREHOUSE_NM FROM TB_WAREHOUSE").toString();
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                WareHouse wareHouse = new WareHouse();
+                wareHouse.setWarehouseName(rs.getString("V_WAREHOUSE_NM"));
+                wareHouseListByName.add(wareHouse);
+            }
+            pstmt.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (conn != null) {
+                try {
+                    DbConnection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return wareHouseListByName;
+    }
+
+    @Override
     public List<WareHouse> viewWareHouseByLocation(String location) {
         List<WareHouse> wareHouses = new ArrayList<>();
         try {
             conn = DbConnection.getInstance().getConnection();
             String sql = new StringBuilder().append("SELECT * FROM TB_WAREHOUSE WHERE V_WAREHOUSE_LOC LIKE ?").toString();
             PreparedStatement pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, "%" + location + "%");
+            pstmt.setString(1, location);
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                WareHouse wareHouse = new WareHouse();
+                wareHouse.setWarehouseCode(rs.getString("V_WAREHOUSE_CD"));
+                wareHouse.setWarehouseName(rs.getString("V_WAREHOUSE_NM"));
+                wareHouse.setWarehouseLocation(rs.getString("V_WAREHOUSE_LOC"));
+                wareHouse.setWarehouseType(rs.getString("S_WAREHOUSE_TYPE"));
+                wareHouse.setMemberSeq(rs.getInt("PK_MEMBER_SEQ"));
+                wareHouses.add(wareHouse);
+            }
+            pstmt.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (conn != null) {
+                try {
+                    DbConnection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return wareHouses;
+    }
+    @Override
+    public List<WareHouse> viewWareHouseByLocationMain(){
+        List<WareHouse> wareHouseListByLocation = new ArrayList<>();
+        try{
+            conn = DbConnection.getInstance().getConnection();
+            String sql = new StringBuilder().append("SELECT DISTINCT V_WAREHOUSE_LOC FROM TB_WAREHOUSE").toString();
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                WareHouse wareHouse = new WareHouse();
+                wareHouse.setWarehouseLocation(rs.getString("V_WAREHOUSE_LOC"));
+                wareHouseListByLocation.add(wareHouse);
+            }
+            pstmt.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (conn != null) {
+                try {
+                    DbConnection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return wareHouseListByLocation;
+    }
+
+
+    @Override
+    public List<WareHouse> viewWareHouseByType(String type) {
+        List<WareHouse> wareHouses = new ArrayList<>();
+        try {
+            conn = DbConnection.getInstance().getConnection();
+            String sql = new StringBuilder().append("SELECT * FROM TB_WAREHOUSE WHERE S_WAREHOUSE_TYPE LIKE ?").toString();
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, type);
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
                 WareHouse wareHouse = new WareHouse();
@@ -137,25 +227,19 @@ public class WareHouseDaoImpl implements WareHouseDao {
     }
 
     @Override
-    public List<WareHouse> viewWareHouseByType(String type) {
-        List<WareHouse> wareHouses = new ArrayList<>();
-        try {
+    public List<WareHouse> viewWareHouseByTypeMain() {
+        List<WareHouse> wareHouseListByType = new ArrayList<>();
+        try{
             conn = DbConnection.getInstance().getConnection();
-            String sql = new StringBuilder().append("SELECT * FROM TB_WAREHOUSE WHERE S_WAREHOUSE_TYPE LIKE ?").toString();
+            String sql = new StringBuilder().append("SELECT DISTINCT S_WAREHOUSE_TYPE FROM TB_WAREHOUSE").toString();
             PreparedStatement pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, "%" + type + "%");
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
                 WareHouse wareHouse = new WareHouse();
-                wareHouse.setWarehouseCode(rs.getString("V_WAREHOUSE_CD"));
-                wareHouse.setWarehouseName(rs.getString("V_WAREHOUSE_NM"));
-                wareHouse.setWarehouseLocation(rs.getString("V_WAREHOUSE_LOC"));
                 wareHouse.setWarehouseType(rs.getString("S_WAREHOUSE_TYPE"));
-                wareHouse.setMemberSeq(rs.getInt("PK_MEMBER_SEQ"));
-                wareHouses.add(wareHouse);
+                wareHouseListByType.add(wareHouse);
             }
             pstmt.close();
-
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -167,6 +251,6 @@ public class WareHouseDaoImpl implements WareHouseDao {
                 }
             }
         }
-        return wareHouses;
+        return wareHouseListByType;
     }
 }
