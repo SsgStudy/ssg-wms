@@ -332,7 +332,6 @@ public class InventoryController {
 
 
 
-
     public void moveInventory() {
         while (true){
             List<InventoryVO> inventoryList = inventoryMovementService.getInventoryInformation();
@@ -354,14 +353,13 @@ public class InventoryController {
                 if (ack == 0) {
                     System.out.println("재고 이동이 실패했습니다.");
                 } else {
-                    printUpdatedInventory(selectedNumber);
+                    getUpdatedInventory(selectedNumber);
                 }
                 break;
             }
         }
 
     }
-
 
     private String selectWarehouseCode() {
         List<String> warehouseCodeList = inventoryMovementService.getWarehouseCode();
@@ -442,7 +440,7 @@ public class InventoryController {
         return selectedInventory;
     }
 
-    private void printUpdatedInventory(int selectedNumber) {
+    private void getUpdatedInventory(int selectedNumber) {
         List<InventoryVO> updatedInventoryList = inventoryMovementService.getUpdatedInventory(selectedNumber);
         printProductInventoryList(updatedInventoryList);
     }

@@ -4,34 +4,33 @@ import dao.InventoryMovementDAOImpl;
 import vo.InventoryVO;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class InventoryMovementServiceImpl implements InventoryMovementService {
 
-    private InventoryMovementDAOImpl warehouseInventoryMovementService = new InventoryMovementDAOImpl();
+    private InventoryMovementDAOImpl warehouseInventoryMovementDao = new InventoryMovementDAOImpl();
 
     @Override
     public List<InventoryVO> getInventoryInformation(){
-        return warehouseInventoryMovementService.getInventoryInformation();
+        return warehouseInventoryMovementDao.getInventoryInformation();
     }
 
     @Override
     public int updateInventoryMovement(InventoryVO selectedInventory){
-        return warehouseInventoryMovementService.updateInventoryForMovement(selectedInventory);
+        return warehouseInventoryMovementDao.updateInventoryForMovement(selectedInventory);
     }
 
     @Override
     public List<String> getWarehouseCode(){
-        return warehouseInventoryMovementService.getWarehouseCode();
+        return warehouseInventoryMovementDao.getWarehouseCode();
     }
 
     @Override
     public List<String> getZoneCode(String selectedWarehouseCode){
-        return warehouseInventoryMovementService.getZoneCode(selectedWarehouseCode);
+        return warehouseInventoryMovementDao.getZoneCode(selectedWarehouseCode);
     }
 
     @Override
     public List<InventoryVO> getUpdatedInventory(int selectedNumber){
-        return warehouseInventoryMovementService.getUpdatedInventory(selectedNumber);
+        return warehouseInventoryMovementDao.getUpdatedInventory(selectedNumber);
     }
 }
