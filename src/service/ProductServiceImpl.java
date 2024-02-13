@@ -4,7 +4,6 @@ import dao.ProductManagementDaoImpl;
 import vo.Category;
 import vo.Product;
 
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
 import java.util.logging.Logger;
 

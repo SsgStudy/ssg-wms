@@ -6,18 +6,15 @@ import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
-import dao.IncomingDAOImpl;
 import dao.InvoiceDaoImpl;
 import util.enumcollect.WaybillTypeEnum;
 import vo.Invoice;
 
 import javax.imageio.ImageIO;
 import javax.sql.rowset.serial.SerialBlob;
-import javax.sql.rowset.serial.SerialException;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.net.URLEncoder;
 import java.sql.Blob;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -29,6 +26,16 @@ public class InvoiceServiceImpl implements InvoiceService {
     private static Logger logger = Logger.getLogger(InvoiceServiceImpl.class.getName());
     private InvoiceDaoImpl invoiceDAO;
 
+    private static InvoiceServiceImpl instance;
+
+    InvoiceServiceImpl(){};
+
+    public static synchronized InvoiceServiceImpl getInstance() {
+        if (instance == null) {
+            instance = new InvoiceServiceImpl();
+        }
+        return instance;
+    }
     public InvoiceServiceImpl(InvoiceDaoImpl invoiceDAO) {
         this.invoiceDAO = invoiceDAO;
     }

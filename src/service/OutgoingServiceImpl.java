@@ -1,6 +1,5 @@
 package service;
 
-import dao.OutgoingDAO;
 import dao.OutgoingDAOImpl;
 import java.time.LocalDateTime;
 import java.util.List;

@@ -3,8 +3,6 @@ package controller;
 import dao.LoginManagementDAOImpl;
 import service.MemberService;
 import service.MemberServicelmpl;
-import service.ProductService;
-import service.ProductServiceImpl;
 import util.enumcollect.MemberEnum;
 import vo.Member;
 

@@ -1,7 +1,6 @@
 package dao;
 
 import util.DbConnection;
-import util.enumcollect.PurchaseEnum;
 import vo.InventoryVO;
 
 import java.sql.*;

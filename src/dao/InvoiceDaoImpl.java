@@ -1,6 +1,5 @@
 package dao;
 
-import service.InvoiceServiceImpl;
 import util.DbConnection;
 import util.enumcollect.WaybillTypeEnum;
 import vo.Invoice;

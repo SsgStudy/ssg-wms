@@ -3,7 +3,6 @@ package dao;
 import util.DbConnection;
 import util.enumcollect.PurchaseClaimEnum;
 import util.enumcollect.PurchaseEnum;
-import vo.OrderVO;
 import vo.PurchaseVO;
 
 import java.sql.*;
@@ -11,6 +10,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PurchaseDAOImpl implements PurchaseDAO{
+
+    private static PurchaseDAOImpl instance;
+
+    public PurchaseDAOImpl() {
+    }
+
+    public static synchronized PurchaseDAOImpl getInstance() {
+        if (instance == null) {
+            instance = new PurchaseDAOImpl();
+        }
+        return instance;
+    }
 
     @Override
     public List<Long> getPurchaseByDateAndShopName(String startDate, String endDate, List<String> shopName) {
