@@ -13,115 +13,76 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class InventoryQueryDAOImpl implements InventoryQueryDAO {
+    private static InventoryQueryDAOImpl instance;
 
-    private Connection conn;
+    private InventoryQueryDAOImpl() {}
 
-    {
-        try {
-            conn = DbConnection.getConnection();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+    public static synchronized InventoryQueryDAOImpl getInstance() {
+        if (instance == null) {
+            instance = new InventoryQueryDAOImpl();
         }
+        return instance;
     }
 
-    private PreparedStatement pstmt;
-    private List<CategoryVO> categoryList = new ArrayList<>();
-    private List<ProductInventoryCategoryVO> productInventoryCategoryList = new ArrayList<>();
-    private List<String> warehouseCodeList = new ArrayList<>();
-    private List<ProductInventoryWarehouseVO> productInventoryWarehouseList = new ArrayList<>();
-
-    //상품별 창고 재고조회
     @Override
-    public List<String> getWarehouseCode(){
-        String sql = new StringBuilder().append("SELECT V_WAREHOUSE_CD FROM TB_WAREHOUSE").toString();
-
-        try {
-            pstmt = conn.prepareStatement(sql);
-            ResultSet rs = pstmt.executeQuery();
+    public List<String> getWarehouseCode() {
+        List<String> warehouseCodeList = new ArrayList<>();
+        String sql = "SELECT V_WAREHOUSE_CD FROM TB_WAREHOUSE";
+        try (Connection conn = DbConnection.getInstance().getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql);
+                ResultSet rs = pstmt.executeQuery()) {
             while (rs.next()) {
                 warehouseCodeList.add(rs.getString("V_WAREHOUSE_CD"));
             }
-            pstmt.close();
         } catch (SQLException e) {
+            throw new RuntimeException("Error getting warehouse codes", e);
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
         return warehouseCodeList;
     }
 
-
     @Override
     public List<ProductInventoryWarehouseVO> getInventoryTotalByWarehouse() {
-        StringBuilder sqlBuilder = new StringBuilder();
-        sqlBuilder.append("SELECT P.V_PRODUCT_CD, ");
-        sqlBuilder.append("P.V_PRODUCT_NM, ");
-        sqlBuilder.append("P.N_PRODUCT_PRICE, ");
-
-        List<String> warehouseCodes = getWarehouseCode();
-        for (String warehouseCode : warehouseCodes) {
-            sqlBuilder.append("    SUM(CASE WHEN T.V_WAREHOUSE_CD = '")
-                    .append(warehouseCode)
-                    .append("' THEN T.N_INVENTORY_CNT ELSE 0 END) AS `")
-                    .append(warehouseCode).append("`,");
-        }
-        sqlBuilder.deleteCharAt(sqlBuilder.length() - 1);
-        sqlBuilder.append(" FROM TB_PRODUCT P LEFT JOIN ");
-        sqlBuilder.append("TB_INVENTORY T ON P.V_PRODUCT_CD = T.V_PRODUCT_CD ");
-        sqlBuilder.append("GROUP BY P.V_PRODUCT_CD");
-
-        String sql = sqlBuilder.toString();
-
-        try {
-            pstmt = conn.prepareStatement(sql);
-            ResultSet rs = pstmt.executeQuery();
-
+        List<ProductInventoryWarehouseVO> productInventoryWarehouseList = new ArrayList<>();
+        String sql = "SELECT P.V_PRODUCT_CD, P.V_PRODUCT_NM, SUM(I.N_INVENTORY_CNT) AS TOTAL_CNT, I.V_WAREHOUSE_CD " +
+                "FROM TB_INVENTORY I INNER JOIN TB_PRODUCT P ON I.V_PRODUCT_CD = P.V_PRODUCT_CD " +
+                "GROUP BY I.V_WAREHOUSE_CD, P.V_PRODUCT_CD";
+        try (Connection conn = DbConnection.getInstance().getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql);
+                ResultSet rs = pstmt.executeQuery()) {
             while (rs.next()) {
-                String productCode = rs.getString("P.V_PRODUCT_CD");
-                String productName = rs.getString("P.V_PRODUCT_NM");
-
-                ProductInventoryWarehouseVO productInventoryWarehouse = new ProductInventoryWarehouseVO();
-                productInventoryWarehouse.setProductCode(productCode);
-                productInventoryWarehouse.setProductName(productName);
-
-                for (String warehouseCode : warehouseCodes) {
-                    int inventoryCnt = rs.getInt(warehouseCode);
-                    productInventoryWarehouse.setInventoryCnt(inventoryCnt);
-                    productInventoryWarehouse.setWarehouseCode(warehouseCode);
-
-                    ProductInventoryWarehouseVO newWarehouse = new ProductInventoryWarehouseVO();
-                    newWarehouse.setProductCode(productCode);
-                    newWarehouse.setProductName(productName);
-                    newWarehouse.setInventoryCnt(inventoryCnt);
-                    newWarehouse.setWarehouseCode(warehouseCode);
-                    productInventoryWarehouseList.add(newWarehouse);
-                }
+                ProductInventoryWarehouseVO piw = new ProductInventoryWarehouseVO();
+                piw.setProductCode(rs.getString("V_PRODUCT_CD"));
+                piw.setProductName(rs.getString("V_PRODUCT_NM"));
+                piw.setInventoryCnt(rs.getInt("TOTAL_CNT"));
+                piw.setWarehouseCode(rs.getString("V_WAREHOUSE_CD"));
+                productInventoryWarehouseList.add(piw);
             }
-
-            pstmt.close();
         } catch (SQLException e) {
+            throw new RuntimeException("Error getting inventory total by warehouse", e);
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
         return productInventoryWarehouseList;
     }
 
-    //카테고리별 상품 재고조회
     @Override
     public List<CategoryVO> getMainCategories() {
-        String sql = new StringBuilder().append("SELECT * FROM TB_CATEGORY WHERE V_CATEGORY_PARENT_CD IS NULL").toString();
-
-        try {
-            pstmt = conn.prepareStatement(sql);
-            ResultSet rs = pstmt.executeQuery();
-
+        List<CategoryVO> categoryList = new ArrayList<>();
+        String sql = "SELECT * FROM TB_CATEGORY WHERE V_CATEGORY_PARENT_CD IS NULL";
+        try (Connection conn = DbConnection.getInstance().getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql);
+                ResultSet rs = pstmt.executeQuery()) {
             while (rs.next()) {
                 CategoryVO category = new CategoryVO();
                 category.setCategoryCode(rs.getString("V_CATEGORY_CD"));
                 category.setCategoryName(rs.getString("V_CATEGORY_NM"));
-                category.setCategoryParentCode(rs.getString("V_CATEGORY_PARENT_CD"));
                 categoryList.add(category);
             }
-
-            pstmt.close();
         } catch (SQLException e) {
+            throw new RuntimeException("Error getting main categories", e);
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
         return categoryList;
@@ -129,27 +90,23 @@ public class InventoryQueryDAOImpl implements InventoryQueryDAO {
 
     @Override
     public List<CategoryVO> getSubCategoriesByMainCategory(int mainCategoryNumber) {
-        categoryList.clear();
-
-        String sql = new StringBuilder().append("SELECT * FROM TB_CATEGORY ")
-                .append("WHERE V_CATEGORY_PARENT_CD LIKE ?")
-                .toString();
-
-        try {
-            pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, "__"+ mainCategoryNumber);
-            ResultSet rs = pstmt.executeQuery();
-
-            while (rs.next()) {
-                CategoryVO category = new CategoryVO();
-                category.setCategoryCode(rs.getString("V_CATEGORY_CD"));
-                category.setCategoryName(rs.getString("V_CATEGORY_NM"));
-                category.setCategoryParentCode(rs.getString("V_CATEGORY_PARENT_CD"));
-                categoryList.add(category);
+        List<CategoryVO> categoryList = new ArrayList<>();
+        String sql = "SELECT * FROM TB_CATEGORY WHERE V_CATEGORY_PARENT_CD = ?";
+        try (Connection conn = DbConnection.getInstance().getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, String.format("%02d", mainCategoryNumber));
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    CategoryVO category = new CategoryVO();
+                    category.setCategoryCode(rs.getString("V_CATEGORY_CD"));
+                    category.setCategoryName(rs.getString("V_CATEGORY_NM"));
+                    category.setCategoryParentCode(rs.getString("V_CATEGORY_PARENT_CD"));
+                    categoryList.add(category);
+                }
             }
-
-            pstmt.close();
         } catch (SQLException e) {
+            throw new RuntimeException("Error getting sub categories by main category", e);
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
         return categoryList;
@@ -157,27 +114,23 @@ public class InventoryQueryDAOImpl implements InventoryQueryDAO {
 
     @Override
     public List<CategoryVO> getDetailCategoriesBySubCategory(int mainCategoryNumber, int subCategoryNumber) {
-        categoryList.clear();
-
-        String sql = new StringBuilder().append("SELECT * FROM TB_CATEGORY ")
-                .append("WHERE V_CATEGORY_PARENT_CD LIKE ?")
-                .toString();
-
-        try {
-            pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, "__"+ mainCategoryNumber + "___" + subCategoryNumber);
-            ResultSet rs = pstmt.executeQuery();
-
-            while (rs.next()) {
-                CategoryVO category = new CategoryVO();
-                category.setCategoryCode(rs.getString("V_CATEGORY_CD"));
-                category.setCategoryName(rs.getString("V_CATEGORY_NM"));
-                category.setCategoryParentCode(rs.getString("V_CATEGORY_PARENT_CD"));
-                categoryList.add(category);
+        List<CategoryVO> categoryList = new ArrayList<>();
+        String sql = "SELECT * FROM TB_CATEGORY WHERE V_CATEGORY_PARENT_CD = ?";
+        try (Connection conn = DbConnection.getInstance().getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, String.format("%02d%02d", mainCategoryNumber, subCategoryNumber));
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    CategoryVO category = new CategoryVO();
+                    category.setCategoryCode(rs.getString("V_CATEGORY_CD"));
+                    category.setCategoryName(rs.getString("V_CATEGORY_NM"));
+                    category.setCategoryParentCode(rs.getString("V_CATEGORY_PARENT_CD"));
+                    categoryList.add(category);
+                }
             }
-
-            pstmt.close();
         } catch (SQLException e) {
+            throw new RuntimeException("Error getting detail categories by sub category", e);
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
         return categoryList;
@@ -185,57 +138,55 @@ public class InventoryQueryDAOImpl implements InventoryQueryDAO {
 
     @Override
     public List<ProductInventoryCategoryVO> getInventoryByMainCategory(int mainCategoryNumber) {
-
-        String sql = buildInventoryQuery();
-
-        try {
-            pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, "__"+ mainCategoryNumber + "%");
-            ResultSet rs = pstmt.executeQuery();
-
-            while (rs.next()) {
-                ProductInventoryCategoryVO productInventory = new ProductInventoryCategoryVO();
-                productInventory.setProductCode(rs.getString("P.V_PRODUCT_CD"));
-                productInventory.setProductName(rs.getString("P.V_PRODUCT_NM"));
-                productInventory.setProductPrice(rs.getInt("P.N_PRODUCT_PRICE"));
-                productInventory.setTotalInventoryCnt(rs.getInt("N_TOTAL_INVENTORY_CNT"));
-                productInventory.setCategoryCode(rs.getString("P.V_CATEGORY_CD"));
-
-                productInventoryCategoryList.add(productInventory);
+        List<ProductInventoryCategoryVO> productInventoryCategoryList = new ArrayList<>();
+        String sql = "SELECT P.V_PRODUCT_CD, P.V_PRODUCT_NM, P.N_PRODUCT_PRICE, SUM(I.N_INVENTORY_CNT) AS TOTAL_CNT, P.V_CATEGORY_CD " +
+                "FROM TB_INVENTORY I INNER JOIN TB_PRODUCT P ON I.V_PRODUCT_CD = P.V_PRODUCT_CD " +
+                "WHERE P.V_CATEGORY_CD LIKE ? GROUP BY P.V_PRODUCT_CD";
+        try (Connection conn = DbConnection.getInstance().getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, String.format("%02d%%", mainCategoryNumber));
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    ProductInventoryCategoryVO pic = new ProductInventoryCategoryVO();
+                    pic.setProductCode(rs.getString("V_PRODUCT_CD"));
+                    pic.setProductName(rs.getString("V_PRODUCT_NM"));
+                    pic.setProductPrice(rs.getInt("N_PRODUCT_PRICE"));
+                    pic.setTotalInventoryCnt(rs.getInt("TOTAL_CNT"));
+                    pic.setCategoryCode(rs.getString("V_CATEGORY_CD"));
+                    productInventoryCategoryList.add(pic);
+                }
             }
-
-            pstmt.close();
         } catch (SQLException e) {
+            throw new RuntimeException("Error getting inventory by main category", e);
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
         return productInventoryCategoryList;
     }
 
-
     @Override
     public List<ProductInventoryCategoryVO> getInventoryBySubCategory(int mainCategoryNumber, int subCategoryNumber) {
-        productInventoryCategoryList.clear();
-
-        String sql = buildInventoryQuery();
-
-        try {
-            pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, "__"+ mainCategoryNumber + "___" + subCategoryNumber + "%");
-            ResultSet rs = pstmt.executeQuery();
-
-            while (rs.next()) {
-                ProductInventoryCategoryVO productInventory = new ProductInventoryCategoryVO();
-                productInventory.setProductCode(rs.getString("P.V_PRODUCT_CD"));
-                productInventory.setProductName(rs.getString("P.V_PRODUCT_NM"));
-                productInventory.setProductPrice(rs.getInt("P.N_PRODUCT_PRICE"));
-                productInventory.setTotalInventoryCnt(rs.getInt("N_TOTAL_INVENTORY_CNT"));
-                productInventory.setCategoryCode(rs.getString("P.V_CATEGORY_CD"));
-
-                productInventoryCategoryList.add(productInventory);
+        List<ProductInventoryCategoryVO> productInventoryCategoryList = new ArrayList<>();
+        String sql = "SELECT P.V_PRODUCT_CD, P.V_PRODUCT_NM, P.N_PRODUCT_PRICE, SUM(I.N_INVENTORY_CNT) AS TOTAL_CNT, P.V_CATEGORY_CD " +
+                "FROM TB_INVENTORY I INNER JOIN TB_PRODUCT P ON I.V_PRODUCT_CD = P.V_PRODUCT_CD " +
+                "WHERE P.V_CATEGORY_CD LIKE ? GROUP BY P.V_PRODUCT_CD";
+        try (Connection conn = DbConnection.getInstance().getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, String.format("%02d%02d%%", mainCategoryNumber, subCategoryNumber));
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    ProductInventoryCategoryVO pic = new ProductInventoryCategoryVO();
+                    pic.setProductCode(rs.getString("V_PRODUCT_CD"));
+                    pic.setProductName(rs.getString("V_PRODUCT_NM"));
+                    pic.setProductPrice(rs.getInt("N_PRODUCT_PRICE"));
+                    pic.setTotalInventoryCnt(rs.getInt("TOTAL_CNT"));
+                    pic.setCategoryCode(rs.getString("V_CATEGORY_CD"));
+                    productInventoryCategoryList.add(pic);
+                }
             }
-
-            pstmt.close();
         } catch (SQLException e) {
+            throw new RuntimeException("Error getting inventory by sub category", e);
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
         return productInventoryCategoryList;
@@ -243,45 +194,29 @@ public class InventoryQueryDAOImpl implements InventoryQueryDAO {
 
     @Override
     public List<ProductInventoryCategoryVO> getInventoryByDetailCategory(int mainCategoryNumber, int subCategoryNumber, int detailCategoryNumber) {
-        productInventoryCategoryList.clear();
-
-        String sql = buildInventoryQuery();
-
-        try {
-            pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, "__"+ mainCategoryNumber + "___" + subCategoryNumber + "___" + detailCategoryNumber);
-            ResultSet rs = pstmt.executeQuery();
-
-            while (rs.next()) {
-                ProductInventoryCategoryVO productInventory = new ProductInventoryCategoryVO();
-                productInventory.setProductCode(rs.getString("P.V_PRODUCT_CD"));
-                productInventory.setProductName(rs.getString("P.V_PRODUCT_NM"));
-                productInventory.setProductPrice(rs.getInt("P.N_PRODUCT_PRICE"));
-                productInventory.setTotalInventoryCnt(rs.getInt("N_TOTAL_INVENTORY_CNT"));
-                productInventory.setCategoryCode(rs.getString("P.V_CATEGORY_CD"));
-
-                productInventoryCategoryList.add(productInventory);
+        List<ProductInventoryCategoryVO> productInventoryCategoryList = new ArrayList<>();
+        String sql = "SELECT P.V_PRODUCT_CD, P.V_PRODUCT_NM, P.N_PRODUCT_PRICE, SUM(I.N_INVENTORY_CNT) AS TOTAL_CNT, P.V_CATEGORY_CD " +
+                "FROM TB_INVENTORY I INNER JOIN TB_PRODUCT P ON I.V_PRODUCT_CD = P.V_PRODUCT_CD " +
+                "WHERE P.V_CATEGORY_CD = ? GROUP BY P.V_PRODUCT_CD";
+        try (Connection conn = DbConnection.getInstance().getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, String.format("%02d%02d%02d", mainCategoryNumber, subCategoryNumber, detailCategoryNumber));
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    ProductInventoryCategoryVO pic = new ProductInventoryCategoryVO();
+                    pic.setProductCode(rs.getString("V_PRODUCT_CD"));
+                    pic.setProductName(rs.getString("V_PRODUCT_NM"));
+                    pic.setProductPrice(rs.getInt("N_PRODUCT_PRICE"));
+                    pic.setTotalInventoryCnt(rs.getInt("TOTAL_CNT"));
+                    pic.setCategoryCode(rs.getString("V_CATEGORY_CD"));
+                    productInventoryCategoryList.add(pic);
+                }
             }
-
-            pstmt.close();
         } catch (SQLException e) {
+            throw new RuntimeException("Error getting inventory by detail category", e);
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
         return productInventoryCategoryList;
-    }
-
-    private String buildInventoryQuery() {
-        return new StringBuilder()
-                .append("SELECT P.V_PRODUCT_CD, ")
-                .append("P.V_PRODUCT_NM, ")
-                .append("P.N_PRODUCT_PRICE, ")
-                .append("SUM(N_INVENTORY_CNT) AS N_TOTAL_INVENTORY_CNT, ")
-                .append("P.V_CATEGORY_CD ")
-                .append("FROM TB_PRODUCT P ")
-                .append("LEFT JOIN TB_INVENTORY T ")
-                .append("ON P.V_PRODUCT_CD = T.V_PRODUCT_CD ")
-                .append("WHERE V_CATEGORY_CD LIKE ?")
-                .append("GROUP BY V_PRODUCT_CD")
-                .toString();
     }
 }

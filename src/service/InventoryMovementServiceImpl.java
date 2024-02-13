@@ -1,36 +1,40 @@
 package service;
 
+import dao.InventoryMovementDAO;
 import dao.InventoryMovementDAOImpl;
 import vo.InventoryVO;
 
-import java.util.*;
+import java.util.List;
 
 public class InventoryMovementServiceImpl implements InventoryMovementService {
+    private InventoryMovementDAO inventoryMovementDao;
 
-    private InventoryMovementDAOImpl warehouseInventoryMovementDao = new InventoryMovementDAOImpl();
-
-    @Override
-    public List<InventoryVO> getInventoryInformation(){
-        return warehouseInventoryMovementDao.getInventoryInformation();
+    public InventoryMovementServiceImpl() {
+        this.inventoryMovementDao = InventoryMovementDAOImpl.getInstance();
     }
 
     @Override
-    public int updateInventoryMovement(InventoryVO selectedInventory){
-        return warehouseInventoryMovementDao.updateInventoryForMovement(selectedInventory);
+    public List<InventoryVO> getInventoryInformation() {
+        return inventoryMovementDao.getInventoryInformation();
     }
 
     @Override
-    public List<String> getWarehouseCode(){
-        return warehouseInventoryMovementDao.getWarehouseCode();
+    public int updateInventoryMovement(InventoryVO selectedInventory) {
+        return inventoryMovementDao.updateInventoryForMovement(selectedInventory);
     }
 
     @Override
-    public List<String> getZoneCode(String selectedWarehouseCode){
-        return warehouseInventoryMovementDao.getZoneCode(selectedWarehouseCode);
+    public List<String> getWarehouseCode() {
+        return inventoryMovementDao.getWarehouseCode();
     }
 
     @Override
-    public List<InventoryVO> getUpdatedInventory(int selectedNumber){
-        return warehouseInventoryMovementDao.getUpdatedInventory(selectedNumber);
+    public List<String> getZoneCode(String selectedWarehouseCode) {
+        return inventoryMovementDao.getZoneCode(selectedWarehouseCode);
+    }
+
+    @Override
+    public List<InventoryVO> getUpdatedInventory(int selectedNumber) {
+        return inventoryMovementDao.getUpdatedInventory(selectedNumber);
     }
 }

@@ -6,35 +6,30 @@ import vo.InventoryVO;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class InventoryMovementDAOImpl implements InventoryMovementDAO {
-    Connection conn;
+    private static InventoryMovementDAOImpl instance;
 
-    {
-        try {
-            conn = DbConnection.getConnection();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    private InventoryMovementDAOImpl() {
     }
-    private PreparedStatement pstmt;
-    private List<InventoryVO> inventoryList = new ArrayList<>();
 
-    private List<String> warehouseCodeList = new ArrayList<>();
-    private List<String> zoneCodeList = new ArrayList<>();
+    public static synchronized InventoryMovementDAOImpl getInstance() {
+        if (instance == null) {
+            instance = new InventoryMovementDAOImpl();
+        }
+        return instance;
+    }
 
     @Override
     public List<InventoryVO> getInventoryInformation() {
-        String sql = new StringBuilder()
-                .append("SELECT * FROM TB_INVENTORY")
-                .toString();
+        List<InventoryVO> inventoryList = new ArrayList<>();
+        String sql = "SELECT * FROM TB_INVENTORY";
 
-        try {
-            pstmt = conn.prepareStatement(sql);
-            ResultSet rs = pstmt.executeQuery();
+        try (Connection conn = DbConnection.getInstance().getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql);
+                ResultSet rs = pstmt.executeQuery()) {
 
             while (rs.next()) {
                 InventoryVO inventory = new InventoryVO();
@@ -46,7 +41,7 @@ public class InventoryMovementDAOImpl implements InventoryMovementDAO {
                 inventory.setProductCd(rs.getString("V_PRODUCT_CD"));
                 inventoryList.add(inventory);
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
         return inventoryList;
@@ -54,17 +49,17 @@ public class InventoryMovementDAOImpl implements InventoryMovementDAO {
 
     @Override
     public List<String> getWarehouseCode() {
-        String sql = new StringBuilder().append("SELECT V_WAREHOUSE_CD FROM TB_WAREHOUSE").toString();
+        List<String> warehouseCodeList = new ArrayList<>();
+        String sql = "SELECT V_WAREHOUSE_CD FROM TB_WAREHOUSE";
 
-        try {
-            pstmt = conn.prepareStatement(sql);
-            ResultSet rs = pstmt.executeQuery();
+        try (Connection conn = DbConnection.getInstance().getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql);
+                ResultSet rs = pstmt.executeQuery()) {
 
             while (rs.next()) {
                 warehouseCodeList.add(rs.getString("V_WAREHOUSE_CD"));
             }
-            pstmt.close();
-        } catch (SQLException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
         return warehouseCodeList;
@@ -72,75 +67,63 @@ public class InventoryMovementDAOImpl implements InventoryMovementDAO {
 
     @Override
     public List<String> getZoneCode(String wareHouseCode) {
-        String sql = new StringBuilder()
-                .append("SELECT V_ZONE_CD FROM TB_ZONE ")
-                .append("WHERE V_WAREHOUSE_CD = ?")
-                .toString();
+        List<String> zoneCodeList = new ArrayList<>();
+        String sql = "SELECT V_ZONE_CD FROM TB_ZONE WHERE V_WAREHOUSE_CD = ?";
 
-        try {
-            pstmt = conn.prepareStatement(sql);
+        try (Connection conn = DbConnection.getInstance().getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
             pstmt.setString(1, wareHouseCode);
-            ResultSet rs = pstmt.executeQuery();
-
-            while (rs.next()) {
-                zoneCodeList.add(rs.getString("V_ZONE_CD"));
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    zoneCodeList.add(rs.getString("V_ZONE_CD"));
+                }
             }
-            pstmt.close();
-        } catch (SQLException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
         return zoneCodeList;
     }
 
     @Override
-    public int updateInventoryForMovement(InventoryVO inventory){
-        int ack = 0;
+    public int updateInventoryForMovement(InventoryVO inventory) {
+        String sql = "UPDATE TB_INVENTORY SET V_ZONE_CD = ?, V_WAREHOUSE_CD = ? WHERE PK_INVENTORY_SEQ = ?";
 
-        String sql = new StringBuilder()
-                .append("UPDATE TB_INVENTORY ")
-                .append("SET V_ZONE_CD = ?, ")
-                .append("V_WAREHOUSE_CD = ? ")
-                .append("WHERE PK_INVENTORY_SEQ = ?")
-                .toString();
+        try (Connection conn = DbConnection.getInstance().getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-        try {
-            pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, inventory.getZoneCd());
             pstmt.setString(2, inventory.getWarehouseCd());
             pstmt.setInt(3, inventory.getInventorySeq());
-            ack = pstmt.executeUpdate();
-            pstmt.close();
-        } catch (SQLException e) {
+            return pstmt.executeUpdate();
+
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        return ack;
     }
 
     @Override
     public List<InventoryVO> getUpdatedInventory(int selectedNumber) {
-        inventoryList.clear();
-        InventoryVO inventory = new InventoryVO();
-        inventoryList.clear();
-        String sql = new StringBuilder()
-                .append("SELECT * FROM TB_INVENTORY ")
-                .append("WHERE PK_INVENTORY_SEQ = ?")
-                .toString();
+        List<InventoryVO> inventoryList = new ArrayList<>();
+        String sql = "SELECT * FROM TB_INVENTORY WHERE PK_INVENTORY_SEQ = ?";
 
-        try {
-            pstmt = conn.prepareStatement(sql);
+        try (Connection conn = DbConnection.getInstance().getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
             pstmt.setInt(1, selectedNumber);
-            ResultSet rs = pstmt.executeQuery();
-
-            if (rs.next()) {
-                inventory.setInventorySeq(rs.getInt("PK_INVENTORY_SEQ"));
-                inventory.setInventorySlipDate(rs.getString("DT_INVENTORY_SLIP_DATE"));
-                inventory.setInventoryCnt(rs.getInt("N_INVENTORY_CNT"));
-                inventory.setZoneCd(rs.getString("V_ZONE_CD"));
-                inventory.setWarehouseCd(rs.getString("V_WAREHOUSE_CD"));
-                inventory.setProductCd(rs.getString("V_PRODUCT_CD"));
-                inventoryList.add(inventory);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    InventoryVO inventory = new InventoryVO();
+                    inventory.setInventorySeq(rs.getInt("PK_INVENTORY_SEQ"));
+                    inventory.setInventorySlipDate(rs.getString("DT_INVENTORY_SLIP_DATE"));
+                    inventory.setInventoryCnt(rs.getInt("N_INVENTORY_CNT"));
+                    inventory.setZoneCd(rs.getString("V_ZONE_CD"));
+                    inventory.setWarehouseCd(rs.getString("V_WAREHOUSE_CD"));
+                    inventory.setProductCd(rs.getString("V_PRODUCT_CD"));
+                    inventoryList.add(inventory);
+                }
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
         return inventoryList;

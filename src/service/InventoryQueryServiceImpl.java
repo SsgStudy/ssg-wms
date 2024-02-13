@@ -6,33 +6,37 @@ import vo.CategoryVO;
 import vo.ProductInventoryCategoryVO;
 import vo.ProductInventoryWarehouseVO;
 
-import java.util.*;
+import java.util.List;
 
 public class InventoryQueryServiceImpl implements InventoryQueryService {
-    private InventoryQueryDAO inventoryQueryDao = new InventoryQueryDAOImpl();
+    private InventoryQueryDAO inventoryQueryDao;
+
+    public InventoryQueryServiceImpl() {
+        this.inventoryQueryDao = InventoryQueryDAOImpl.getInstance();
+    }
 
     @Override
-    public List<ProductInventoryWarehouseVO> getProductInventoryTotalByWarehouse(){
+    public List<ProductInventoryWarehouseVO> getProductInventoryTotalByWarehouse() {
         return inventoryQueryDao.getInventoryTotalByWarehouse();
     }
 
     @Override
-    public List<CategoryVO> getMainCategories(){
+    public List<CategoryVO> getMainCategories() {
         return inventoryQueryDao.getMainCategories();
     }
 
     @Override
-    public List<CategoryVO>  getSubCategoriesByMainCategory(int mainCategoryNumber){
+    public List<CategoryVO> getSubCategoriesByMainCategory(int mainCategoryNumber) {
         return inventoryQueryDao.getSubCategoriesByMainCategory(mainCategoryNumber);
     }
 
     @Override
-    public List<CategoryVO> getDetailCategoriesBySubCategory(int mainCategoryNumber, int subCategoryNumber){
+    public List<CategoryVO> getDetailCategoriesBySubCategory(int mainCategoryNumber, int subCategoryNumber) {
         return inventoryQueryDao.getDetailCategoriesBySubCategory(mainCategoryNumber, subCategoryNumber);
     }
 
     @Override
-    public List<ProductInventoryCategoryVO> getInventoryByMainCategory(int categoryNumber){
+    public List<ProductInventoryCategoryVO> getInventoryByMainCategory(int categoryNumber) {
         return inventoryQueryDao.getInventoryByMainCategory(categoryNumber);
     }
 
@@ -42,7 +46,7 @@ public class InventoryQueryServiceImpl implements InventoryQueryService {
     }
 
     @Override
-    public List<ProductInventoryCategoryVO> getInventoryByDetailCategory(int mainCategoryNumber, int subCategoryNumber, int detailCategoryNumber){
+    public List<ProductInventoryCategoryVO> getInventoryByDetailCategory(int mainCategoryNumber, int subCategoryNumber, int detailCategoryNumber) {
         return inventoryQueryDao.getInventoryByDetailCategory(mainCategoryNumber, subCategoryNumber, detailCategoryNumber);
     }
 }
