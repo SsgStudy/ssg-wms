@@ -1,9 +1,8 @@
 package service;
 
 import dao.PurchaseDAOImpl;
-import daoImpl.InvoiceDaoImpl;
-import serviceImpl.InvoiceServiceImpl;
 import util.enumcollect.PurchaseEnum;
+import vo.InventoryVO;
 import vo.PurchaseVO;
 
 import java.io.IOException;
@@ -16,6 +15,7 @@ public class PurchaseServiceImpl implements PurchaseService{
     static Scanner sc = new Scanner(System.in);
     private PurchaseDAOImpl dao = new PurchaseDAOImpl();
     private InvoiceServiceImpl invoiceService = new InvoiceServiceImpl();
+    private InventoryAdjustmentServiceImpl inventoryAdjustmentService = new InventoryAdjustmentServiceImpl();
 
     @Override
     public void integrateShopPurchases(String startDate, String endDate, List<String> shopName) {
@@ -73,26 +73,45 @@ public class PurchaseServiceImpl implements PurchaseService{
         Long purchaseSeq = Long.parseLong(sc.nextLine());
         String result = dao.processPurchaseCancelOrReturn(purchaseSeq);
 
-        if (result.equals("CANCEL"))
+        if (result.equals("CANCEL")) {
             System.out.println(purchaseSeq + "번 주문이 취소 되었습니다.");
+            // 상태 변경은 프로시저 안에서 처리됨
+        }
         else if (result.equals("RETURN")) {
             dao.createPurchaseCancel(purchaseSeq);
+            dao.updatePurchaseCancelStatus(purchaseSeq, PurchaseEnum.반품완료);
             System.out.println(purchaseSeq + "번 주문이 반품 처리 되었습니다.");
         }
         else if (result.equals("INVOICE")) {
             System.out.println(purchaseSeq + "번 주문이 반품 처리 중에 있습니다.");
 
-            // 송장 연결
-            try {
-                invoiceService.registerInvoice(purchaseSeq);
-            } catch (Exception e) {
-                System.out.println();
-            }
-            // 창고에 재고 증가
+            int ch = Integer.parseInt(sc.nextLine());
+            System.out.println("1.송장 접수 | 2.입고 확인 | 3.검수");
 
-            // 주문 상태 - 반품 입고
-            // 검수
-            // 주문 상태 - 반품 완료
+            switch (ch) {
+                case 1 -> {
+                    try {
+                        invoiceService.registerInvoice(purchaseSeq);
+                    } catch (Exception e) {
+                        System.out.println();
+                    }
+                }
+                case 2 -> {
+                    // 창고에 재고 증가
+                    inventoryAdjustmentService.updateRestoreInventoryQuantity(purchaseSeq);
+                    // 주문 상태 - 반품 입고
+                    dao.updatePurchaseCancelStatus(purchaseSeq, PurchaseEnum.반품입고);
+                }
+                case 3 -> {
+                    // 검수 - 출고 select by purchaseSeq 상품 일련 번호 -> 창고구역 tb join 재고 변경 이력
+                    int quantity = inventoryAdjustmentService.updateRestoration(purchaseSeq);
+                    // 주문 상태 - 반품 완료
+                    if (quantity==1)
+                        dao.updatePurchaseCancelStatus(purchaseSeq, PurchaseEnum.반품완료);
+                    else
+                        System.out.println("반품 실패");
+                }
+            }
         }
 
         else

@@ -9,11 +9,24 @@ import java.util.List;
 import java.sql.*;
 
 public class InvoiceDaoImpl implements InvoiceDao {
-    Connection conn = null;
+
+    private static InvoiceDaoImpl instance;
+
+    private InvoiceDaoImpl() {
+    }
+
+    public static synchronized InvoiceDaoImpl getInstance() {
+        if (instance == null) {
+            instance = new InvoiceDaoImpl();
+        }
+        return instance;
+    }
+
 
     @Override
     public void registerInvoice(Invoice invoice) {//송장코드, 송장출력날짜, 송장종류, qr이미지파일, 택배사코드, 주문번호
-        InvoiceServiceImpl invoiceService = new InvoiceServiceImpl();
+        Connection conn = null;
+
         try {
             conn = DbConnection.getInstance().getConnection();
 
@@ -39,7 +52,6 @@ public class InvoiceDaoImpl implements InvoiceDao {
                 System.out.println("[송장 등록 완료]");
             }else{
                 System.out.println("[다시 시도하세요]");
-                invoiceService.invoiceMain();
             }
             pstmt.close();
             DbConnection.close();
@@ -52,12 +64,15 @@ public class InvoiceDaoImpl implements InvoiceDao {
     @Override
     public List<Invoice> viewInvoice() {
         List<Invoice> invoices = new ArrayList<>();
+        Connection conn;
+        ResultSet rs;
+
         try {
             conn = DbConnection.getInstance().getConnection();
             String sql = new StringBuilder().append("SELECT V_INVOICE_CD, DATE_FORMAT(DT_INVOICE_PRINT_DATE, '%Y-%m-%d'), V_INVOICE_TYPE, B_INVOICE_QR_CD, PK_LOGISTIC_SEQ, PK_SHOP_PURCHASE_SEQ FROM TB_INVOICE").toString();
 
             PreparedStatement pstmt = conn.prepareStatement(sql);
-            ResultSet rs = pstmt.executeQuery();
+            rs = pstmt.executeQuery();
 
             while (rs.next()) {
                 Invoice invoice = new Invoice();
@@ -83,6 +98,7 @@ public class InvoiceDaoImpl implements InvoiceDao {
 
     public int putInvoiceCode(Long invoiceSeq) {
         int status = 0;
+        Connection conn;
 
         try {
             conn = DbConnection.getInstance().getConnection();
