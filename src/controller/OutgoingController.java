@@ -5,6 +5,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Scanner;
+import service.IncomigService;
 import service.OutgoingService;
 import vo.InventoryVO;
 import vo.OutgoingInstVO;
@@ -12,12 +13,19 @@ import vo.OutgoingVO;
 
 public class OutgoingController {
 
-
+    private static OutgoingController instance;
     private Scanner scanner = new Scanner(System.in);
     private OutgoingService outgoingService;
 
     public OutgoingController(OutgoingService outgoingService) {
         this.outgoingService = outgoingService;
+    }
+
+    public static OutgoingController getInstance(OutgoingService outgoingService) {
+        if (instance == null) {
+            instance = new OutgoingController(outgoingService);
+        }
+        return instance;
     }
 
     public void outgoingProductMenu() {
@@ -149,12 +157,16 @@ public class OutgoingController {
             } else {
                 System.out.printf("\n%-10s %-20s %-30s %-10s %-15s %-15s %-15s\n", "ID", "상태", "출고일", "수량", "상품코드", "창고코드", "구역코드");
                 for (OutgoingVO outgoing : outgoings) {
+                    String formattedDate = outgoing.getOutgoingDate() != null ?
+                            outgoing.getOutgoingDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")) : "N/A";
+
                     System.out.printf("%-10d %-20s %-30s %-10d %-15s %-15s %-15s\n",
                             outgoing.getOutgoingId(), outgoing.getOutgoingStatus(),
-                            outgoing.getOutgoingDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")),
+                            formattedDate,
                             outgoing.getOutgoingCnt(), outgoing.getProductCd(),
                             outgoing.getWarehouseCd(), outgoing.getZoneCd());
                 }
+
             }
         } catch (Exception e) {
             System.out.println("출고 현황 조회 중 오류가 발생했습니다: " + e.getMessage());

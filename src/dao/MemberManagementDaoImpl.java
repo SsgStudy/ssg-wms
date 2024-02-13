@@ -12,22 +12,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MemberManagementDaoImpl implements MemberManagementDao {
-    private static DbConnection instance;
-    static Connection conn;
     private PreparedStatement pstmt;
+    private static MemberManagementDaoImpl instance;
+    static Connection conn;
 
-
-    public MemberManagementDaoImpl() {
-
-        try{
-
+    private MemberManagementDaoImpl() {
+        try {
             conn = DbConnection.getInstance().getConnection();
-
-        }catch (Exception e){
-
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
+    public static synchronized MemberManagementDaoImpl getInstance() {
+        if (instance == null) {
+            instance = new MemberManagementDaoImpl();
+        }
+        return instance;
+    }
+
 
     public List<Member> getMemberList() {
         List<Member> members = new ArrayList<>();

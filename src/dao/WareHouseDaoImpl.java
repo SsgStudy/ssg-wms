@@ -1,4 +1,4 @@
-package daoImpl;
+package dao;
 
 import dao.WareHouseDao;
 import util.DbConnection;

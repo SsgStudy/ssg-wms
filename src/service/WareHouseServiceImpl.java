@@ -1,13 +1,11 @@
-package serviceImpl;
+package service;
 
-import daoImpl.WareHouseDaoImpl;
-import service.WareHouseService;
+import dao.WareHouseDaoImpl;
 import vo.WareHouse;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;

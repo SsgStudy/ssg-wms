@@ -1,5 +1,6 @@
 package controller;
 
+import dao.LoginManagementDAOImpl;
 import service.MemberService;
 import service.MemberServicelmpl;
 import service.ProductService;
@@ -14,14 +15,34 @@ import java.util.List;
 import java.util.Scanner;
 
 public class MembrManagemntController {
-    private MemberService memberService = new MemberServicelmpl();
+    private static MembrManagemntController instance;
+    private MemberService memberService = MemberServicelmpl.getInstance();
+    private LoginManagementDAOImpl loginDao = LoginManagementDAOImpl.getInstance();
+    private MemberEnum loginMemberRole;
+    private String loginMemberId;
     BufferedReader sc = new BufferedReader(new InputStreamReader(System.in));
     Scanner scanner = new Scanner(System.in);
 
+    private MembrManagemntController() {
+        updateLoginInfo(); // 로그인 정보 초기화
+    }
+
+    public void updateLoginInfo() {
+        this.loginMemberRole = loginDao.getMemberRole();
+        this.loginMemberId = loginDao.getMemberId();
+        System.out.println("로그인 유지 정보 업데이트: ID = " + loginMemberId + ", Role = " + loginMemberRole);
+    }
+
+    public static synchronized MembrManagemntController getInstance() {
+        if (instance == null) {
+            instance = new MembrManagemntController();
+        }
+        return instance;
+    }
+
     private String getCurrentUserId() {
-        // 이 메소드는 현재 로그인한 사용자의 ID를 반환합니다.
-        // 실제 시나리오에서는 사용자 인증 시스템과 통합하여 사용자의 실제 ID를 반환해야 합니다.
-        return "admin002";
+        // 현재 로그인한 사용자의 ID를 반환합니다.
+        return loginMemberId; // loginDao를 통해 실제 로그인한 사용자 ID를 반환하도록 수정
     }
 
     public void menu() throws IOException {
@@ -29,6 +50,8 @@ public class MembrManagemntController {
 
         while (continueMenu) {
 
+            System.out.println("loginId : " + loginMemberId);
+            System.out.println("loginRole : " + loginMemberRole);
             System.out.println("1. 회원정보 수정\n 2. 메뉴 나가기");
             System.out.print("선택: ");
             int manageChoice = scanner.nextInt();
@@ -49,12 +72,14 @@ public class MembrManagemntController {
         if (currentUserRole == MemberEnum.ADMIN) {
             List<Member> members = memberService.getMemberList();
             for (Member member : members) {
-                System.out.printf("%-4d %-20s %-16s %s\n", member.getMemberSeq(), member.getMemberId(), member.getMemberName(), member.getMemberRole());
+                System.out.printf("%-4d %-20s %-16s %s\n", member.getMemberSeq(), member.getMemberId(), member.getMemberName(),
+                        member.getMemberRole());
             }
         } else {
             Member member = memberService.getMemberByUserId(currentUserId);
             if (member != null) {
-                System.out.printf("%-4d %-20s %-16s %s\n", member.getMemberSeq(), member.getMemberId(), member.getMemberName(), member.getMemberRole());
+                System.out.printf("%-4d %-20s %-16s %s\n", member.getMemberSeq(), member.getMemberId(), member.getMemberName(),
+                        member.getMemberRole());
             } else {
                 System.out.println("회원 정보를 찾을 수 없습니다.");
             }
@@ -68,13 +93,13 @@ public class MembrManagemntController {
         try {
             memberRead();
             int no;
-            if(currentUserRole == MemberEnum.ADMIN){
+            if (currentUserRole == MemberEnum.ADMIN) {
                 System.out.println("수정 원하는 회원 번호를 입력하세요:");
                 no = Integer.parseInt(sc.readLine());
             } else {
 
                 Member member = memberService.getMemberByUserId(currentUserId);
-                if(member == null){
+                if (member == null) {
                     System.out.println("회원정보를 찾을 수 없습니다.");
                     return;
                 }

@@ -1,17 +1,12 @@
-package daoImpl;
+package dao;
 
-import dao.InvoiceDao;
-import serviceImpl.InvoiceServiceImpl;
+import service.InvoiceServiceImpl;
 import util.DbConnection;
 import vo.Invoice;
-import vo.WareHouse;
 import java.util.ArrayList;
 import java.util.List;
 
 import java.sql.*;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class InvoiceDaoImpl implements InvoiceDao {
     Connection conn = null;

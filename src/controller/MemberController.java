@@ -6,11 +6,17 @@ import service.LoginManagementServiceImpl;
 
 public class MemberController {
     private final LoginManagementService loginService;
+    private static MemberController instance;
 
     public MemberController() {
         this.loginService = new LoginManagementServiceImpl();
     }
-
+    public static synchronized MemberController getInstance() {
+        if (instance == null) {
+            instance = new MemberController();
+        }
+        return instance;
+    }
     public void logIn(String id, String password) {
         int loginResult = loginService.logIn(id, password);
         if (loginResult == 1) {
@@ -19,6 +25,9 @@ public class MemberController {
             LoginManagementDAOImpl loginDao = LoginManagementDAOImpl.getInstance();
             System.out.println("로그인한 사용자 ID: " + loginDao.getMemberId());
             System.out.println("로그인한 사용자 권한: " + loginDao.getMemberRole());
+
+            // 로그인 정보 업데이트
+            MembrManagemntController.getInstance().updateLoginInfo();
         } else if (loginResult == 0) {
             System.out.println("로그인 실패");
         } else {

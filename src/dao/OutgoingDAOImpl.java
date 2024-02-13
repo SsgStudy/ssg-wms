@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -17,8 +18,9 @@ import vo.OutgoingVO;
 
 public class OutgoingDAOImpl implements OutgoingDAO {
 
-    private static Logger log = Logger.getLogger(OutgoingDAOImpl.class.getName());
     private static OutgoingDAOImpl instance;
+
+    private static Logger log = Logger.getLogger(OutgoingDAOImpl.class.getName());
 
     public OutgoingDAOImpl() {
     }
@@ -59,21 +61,20 @@ public class OutgoingDAOImpl implements OutgoingDAO {
             conn = DbConnection.getInstance().getConnection();
             conn.setAutoCommit(false);
 
-            String sql = "INSERT INTO TB_OUTGOING_PRODUCT (V_OUTGOING_STATUS, DT_OUTGOING_DATE, N_OUTGOING_CNT, PK_SHOP_PURCHASE_DETAIL_SEQ, PK_SHOP_PURCHASE_SEQ, V_PRODUCT_CD) VALUES (?, ?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO TB_OUTGOING_PRODUCT (V_OUTGOING_STATUS, N_OUTGOING_CNT, PK_SHOP_PURCHASE_DETAIL_SEQ, PK_SHOP_PURCHASE_SEQ, V_PRODUCT_CD) VALUES (?, ?, ?, ?, ?)";
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, outgoingVO.getOutgoingStatus());
-            pstmt.setString(2, outgoingVO.getOutgoingDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-            pstmt.setInt(3, outgoingVO.getOutgoingCnt());
-            pstmt.setLong(4, outgoingVO.getShopPurchaseDetailSeq());
-            pstmt.setLong(5, outgoingVO.getShopPurchaseSeq());
-            pstmt.setString(6, outgoingVO.getProductCd());
+            pstmt.setInt(2, outgoingVO.getOutgoingCnt());
+            pstmt.setLong(3, outgoingVO.getShopPurchaseDetailSeq());
+            pstmt.setLong(4, outgoingVO.getShopPurchaseSeq());
+            pstmt.setString(5, outgoingVO.getProductCd());
 
             int affectedRows = pstmt.executeUpdate();
             if (affectedRows == 0) {
                 throw new SQLException("출고 등록 실패");
             }
 
-            String updateStatusSql = "UPDATE TB_OUTGOING_INST SET V_OUTGOING_INTS_STATUS = 'COMPLETE' WHERE PK_SHOP_PURCHASE_SEQ = ?";
+            String updateStatusSql = "UPDATE TB_OUTGOING_INST SET V_OUTGOING_INTS_STATUS = 'PROGRESS' WHERE PK_SHOP_PURCHASE_SEQ = ?";
             try (PreparedStatement updatePstmt = conn.prepareStatement(updateStatusSql)) {
                 updatePstmt.setLong(1, outgoingVO.getShopPurchaseSeq());
                 updatePstmt.executeUpdate();
@@ -259,7 +260,12 @@ public class OutgoingDAOImpl implements OutgoingDAO {
                 OutgoingVO outgoing = new OutgoingVO();
                 outgoing.setOutgoingId(rs.getLong("PK_OUTGOING_ID"));
                 outgoing.setOutgoingStatus(rs.getString("V_OUTGOING_STATUS"));
-                outgoing.setOutgoingDate(rs.getTimestamp("DT_OUTGOING_DATE").toLocalDateTime());
+                Timestamp outgoingDateTimestamp = rs.getTimestamp("DT_OUTGOING_DATE");
+                if (outgoingDateTimestamp != null) {
+                    outgoing.setOutgoingDate(outgoingDateTimestamp.toLocalDateTime());
+                } else {
+                    outgoing.setOutgoingDate(null);
+                }
                 outgoing.setOutgoingCnt(rs.getInt("N_OUTGOING_CNT"));
                 outgoing.setProductCd(rs.getString("V_PRODUCT_CD"));
                 outgoing.setWarehouseCd(rs.getString("V_WAREHOUSE_CD"));
