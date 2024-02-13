@@ -21,10 +21,11 @@ public class InvoiceController {
         System.out.println("--".repeat(25));
         System.out.println("1.송장 등록 | 2.송장 조회");
         System.out.print("메뉴 선택 : ");
+        Long test=0L;
         try {
             int cmd = Integer.parseInt(br.readLine().trim());
             switch (cmd) {
-                case 1 -> invoiceService.registerInvoice();
+                case 1 -> invoiceService.registerInvoice(test);
                 case 2 -> invoiceService.viewInvoice();
             }
         }catch (NumberFormatException e){
