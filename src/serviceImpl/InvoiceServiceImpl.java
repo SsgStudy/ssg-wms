@@ -10,7 +10,6 @@ import daoImpl.InvoiceDaoImpl;
 import service.InvoiceService;
 import util.enumcollect.WaybillTypeEnum;
 import vo.Invoice;
-import vo.WareHouse;
 
 import javax.imageio.ImageIO;
 import javax.sql.rowset.serial.SerialBlob;
@@ -29,7 +28,6 @@ public class InvoiceServiceImpl implements InvoiceService {
     private static Logger logger = Logger.getLogger(InvoiceServiceImpl.class.getName());
     InvoiceDaoImpl invoiceDao = new InvoiceDaoImpl();
     BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-    Invoice invoice = new Invoice();
     List<Invoice> invoiceList = new ArrayList<>();
 
     public void invoiceMain() throws IOException, SQLException {
@@ -40,7 +38,7 @@ public class InvoiceServiceImpl implements InvoiceService {
         try {
             int cmd = Integer.parseInt(br.readLine().trim());
             switch (cmd) {
-                case 1 -> registerInvoice();
+                case 1 -> registerInvoice(1L);
                 case 2 -> viewInvoice();
             }
         }catch (NumberFormatException e){
@@ -51,34 +49,49 @@ public class InvoiceServiceImpl implements InvoiceService {
     }
 
     @Override
-    public void registerInvoice() throws IOException, SQLException {
+    public void registerInvoice(Long seq) throws IOException, SQLException {
         Invoice invoice = new Invoice();
-        System.out.println("[송장 등록]");
+
+        System.out.println("[송장 출력]");
         System.out.println("--".repeat(25));
-        System.out.print("송장 코드 입력 : ");
-        invoice.setInvoiceCode(br.readLine());
-        System.out.print("송장 종류 입력 : ");
-        invoice.setInvoiceType(br.readLine());
-        System.out.print("주문 번호 입력 : ");
+
+        /* 송장 종류 선택 */
+        // 송장 종류 출력 dao
+        System.out.print("송장 종류 입력 (1.일반 | 2.특급 | 3.국제 | 4.등기) ");
+        int ch = Integer.parseInt(br.readLine());
+
+        switch (ch) {
+            case 1 -> invoice.setInvoiceType(WaybillTypeEnum.STANDARD);
+            case 2 -> invoice.setInvoiceType(WaybillTypeEnum.EXPRESS);
+            case 3 -> invoice.setInvoiceType(WaybillTypeEnum.INTERNATIONAL);
+            case 4 -> invoice.setInvoiceType(WaybillTypeEnum.REGISTERED);
+        }
+
+        invoice.setPurchaseSeq(seq);
+
+
         try {
-            invoice.setPurchaseCode(Integer.parseInt(br.readLine().trim()));
-            Blob qrCodeImage = createQRCode2(invoice.getInvoiceCode(), String.valueOf(invoice.getInvoiceType()), invoice.getPurchaseCode());
-            invoice.setQrCode(qrCodeImage);
             System.out.println("[택배사 선택]");
             System.out.println("--".repeat(25));
-            System.out.println("1.한진택배 | 2.CJ대한통운 | 3.우체국택배 | 4.롯데택배 | 5.로젠택배");
+            System.out.println("1. 한진택배 | 2.CJ대한통운 | 3.우체국택배 | 4.롯데택배 | 5.로젠택배");
             System.out.print("택배사 선택 : ");
-            invoice.setLogisticCode(Integer.parseInt(br.readLine().trim()));
+            invoice.setLogisticSeq(Long.parseLong(br.readLine()));
+            Blob qrCodeImage = createQRCode2(invoice.getInvoiceCode(), String.valueOf(invoice.getInvoiceType()), invoice.getPurchaseSeq());
+            invoice.setQrCode(qrCodeImage);
+
             invoiceDao.registerInvoice(invoice);
-        }catch (NumberFormatException e){
-            logger.info("주문 번호는 숫자로 입력하세요.");
+        } catch (NumberFormatException e){
+            logger.info("숫자로 입력하세요.");
             e.printStackTrace();
-            registerInvoice();
+//            registerInvoice();
         }
+
+
+
         invoiceMain();
     }
 
-    public Blob createQRCode(String invoiceCode, String invoiceType, int purchaseCode) {
+    public Blob createQRCode(String invoiceCode, WaybillTypeEnum invoiceType, int purchaseCode) {
 
         // QR 코드로 포함될 전체 텍스트
         String text = "Invoice Code : " + invoiceCode + "\n" +
@@ -140,13 +153,14 @@ public class InvoiceServiceImpl implements InvoiceService {
                     invoice.getInvoicePrintDate(),
                     invoice.getInvoiceType(),
                     invoice.getQrCode(),
-                    invoice.getLogisticCode(),
-                    invoice.getPurchaseCode());
+                    invoice.getLogisticSeq(),
+                    invoice.getPurchaseSeq());
         }
         invoiceMain();
     }
-    public Blob createQRCode2(String invoiceCode, String invoiceType, int purchaseCode) throws IOException, SQLException {
-        String text = "Invoice Code: " + invoiceCode + "\nInvoice Type: " + invoiceType + "\nPurchase Code: " + purchaseCode;
+
+    public Blob createQRCode2(String invoiceCode, String invoiceType, Long purchaseSeq) throws IOException, SQLException {
+        String text = "Invoice Code: " + invoiceCode + "\nInvoice Type: " + invoiceType + "\nPurchase Code: " + purchaseSeq;
         int width = 300;
         int height = 300;
         try {
