@@ -6,6 +6,7 @@ import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
+import dao.IncomingDAOImpl;
 import dao.InvoiceDaoImpl;
 import util.enumcollect.WaybillTypeEnum;
 import vo.Invoice;
@@ -26,7 +27,11 @@ import java.util.logging.Logger;
 
 public class InvoiceServiceImpl implements InvoiceService {
     private static Logger logger = Logger.getLogger(InvoiceServiceImpl.class.getName());
-    InvoiceDaoImpl invoiceDao = new InvoiceDaoImpl();
+    private InvoiceDaoImpl invoiceDAO;
+
+    public InvoiceServiceImpl(InvoiceDaoImpl invoiceDAO) {
+        this.invoiceDAO = invoiceDAO;
+    }
     BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
     List<Invoice> invoiceList = new ArrayList<>();
 
@@ -79,7 +84,7 @@ public class InvoiceServiceImpl implements InvoiceService {
             Blob qrCodeImage = createQRCode2(invoice.getInvoiceCode(), String.valueOf(invoice.getInvoiceType()), invoice.getPurchaseSeq());
             invoice.setQrCode(qrCodeImage);
 
-            invoiceDao.registerInvoice(invoice);
+            invoiceDAO.registerInvoice(invoice);
         } catch (NumberFormatException e){
             logger.info("숫자로 입력하세요.");
 
@@ -101,7 +106,7 @@ public class InvoiceServiceImpl implements InvoiceService {
         System.out.println("--".repeat(25));
         System.out.printf("%4s | %8s | %5s | %20s \t| %4s | %4s\n", "송장코드", "송장날짜", "송장종류", "QR코드", "택배사코드", "발주코드");
         System.out.println("--".repeat(25));
-        invoiceList = invoiceDao.viewInvoice();
+        invoiceList = invoiceDAO.viewInvoice();
         for (Invoice invoice : invoiceList) {
             System.out.printf("%7s | %10s | %7s | %20s |%4s | %4s\n",
                     invoice.getInvoiceCode(),
