@@ -1,5 +1,6 @@
 package controller;
 
+import dao.LoginManagementDAOImpl;
 import service.MemberService;
 import service.MemberServicelmpl;
 import service.ProductService;
@@ -15,12 +16,22 @@ import java.util.Scanner;
 
 public class MembrManagemntController {
     private static MembrManagemntController instance;
-
     private MemberService memberService = MemberServicelmpl.getInstance();
-
+    private LoginManagementDAOImpl loginDao = LoginManagementDAOImpl.getInstance();
+    private MemberEnum loginMemberRole;
+    private String loginMemberId;
     BufferedReader sc = new BufferedReader(new InputStreamReader(System.in));
     Scanner scanner = new Scanner(System.in);
-    private MembrManagemntController() {}
+
+    private MembrManagemntController() {
+        updateLoginInfo(); // 로그인 정보 초기화
+    }
+
+    public void updateLoginInfo() {
+        this.loginMemberRole = loginDao.getMemberRole();
+        this.loginMemberId = loginDao.getMemberId();
+        System.out.println("로그인 유지 정보 업데이트: ID = " + loginMemberId + ", Role = " + loginMemberRole);
+    }
 
     public static synchronized MembrManagemntController getInstance() {
         if (instance == null) {
@@ -28,10 +39,10 @@ public class MembrManagemntController {
         }
         return instance;
     }
+
     private String getCurrentUserId() {
-        // 이 메소드는 현재 로그인한 사용자의 ID를 반환합니다.
-        // 실제 시나리오에서는 사용자 인증 시스템과 통합하여 사용자의 실제 ID를 반환해야 합니다.
-        return "admin002";
+        // 현재 로그인한 사용자의 ID를 반환합니다.
+        return loginMemberId; // loginDao를 통해 실제 로그인한 사용자 ID를 반환하도록 수정
     }
 
     public void menu() throws IOException {
@@ -39,6 +50,8 @@ public class MembrManagemntController {
 
         while (continueMenu) {
 
+            System.out.println("loginId : " + loginMemberId);
+            System.out.println("loginRole : " + loginMemberRole);
             System.out.println("1. 회원정보 수정\n 2. 메뉴 나가기");
             System.out.print("선택: ");
             int manageChoice = scanner.nextInt();

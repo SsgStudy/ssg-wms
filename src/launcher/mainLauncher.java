@@ -38,7 +38,7 @@ public class mainLauncher {
 
         // 컨트롤러 객체 생성 및 서비스 객체 주입
         IncomingController incomingController = new IncomingController(incomingService);
-        MemberController memberController = new MemberController();
+        MemberController memberController = MemberController.getInstance();
         MembrManagemntController membrManagemntController = MembrManagemntController.getInstance();
         ProductManagementController productManagementController = ProductManagementController.getInstance(); // 수정: 싱글톤 인스턴스 사용
 
@@ -57,7 +57,7 @@ public class mainLauncher {
 
             while (menuContinue) {
                 System.out.println("SSG WMS SYSTEM MAIN");
-                System.out.println("1. 회원 관리");
+                System.out.println("1. 멤버 관리");
                 System.out.println("2. 상품 관리");
                 System.out.println("3. 주문 관리");
                 System.out.println("4. 송장 관리");
@@ -76,12 +76,26 @@ public class mainLauncher {
                     case 1 -> membrManagemntController.menu();
                     //상품 관리
                     case 2 -> productManagementController.menu();
-                    case 5 -> {
+                    //주문 관리
+//                    case 3 -> productManagementController.menu();
+                    //송장 관리
+//                    case 4 -> productManagementController.menu();
+                    //발주 관리
+//                    case 5 -> productManagementController.menu();
+                    //입고 관리
+//                    case 6 -> productManagementController.menu();
+                    //출고 관리
+//                    case 7 -> productManagementController.menu();
+                    //창고 관리
+//                    case 8 -> productManagementController.menu();
+
+                    //재고 관리
+                    case 9 -> {
                         OrderController orderController = new OrderController(orderService);
                         orderController.printAllOrdersWithDetails();
 
                     }
-                    case 10 -> menuContinue =false;
+                    case 10 -> menuContinue = false;
                     default -> System.out.println("옳지 않은 입력입니다.");
                 }
             }
