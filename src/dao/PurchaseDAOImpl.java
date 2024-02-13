@@ -242,7 +242,8 @@ public class PurchaseDAOImpl implements PurchaseDAO{
             while (rs.next()) {
                 PurchaseVO purchase = new PurchaseVO();
                 purchase.setShopPurchaseStatus(PurchaseEnum.valueOf(rs.getString("V_SHOP_PURCHASE_STATUS")));
-                purchase.setShopPurchaseClaim(PurchaseClaimEnum.valueOf(rs.getString("V_SHOP_PURCHASE_CLAIM")));
+                if (rs.getString("V_SHOP_PURCHASE_CLAIM") != null)
+                    purchase.setShopPurchaseClaim(PurchaseClaimEnum.valueOf(rs.getString("V_SHOP_PURCHASE_CLAIM")));
                 purchase.setShopPurchaseDate(rs.getDate("DT_SHOP_PURCHASE_DATE"));
                 purchase.setShopPurchaseSeq(rs.getLong("PK_SHOP_PURCHASE_SEQ"));
                 purchase.setShopName(rs.getString("V_SHOP_NM"));

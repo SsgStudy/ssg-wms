@@ -1,9 +1,13 @@
 package service;
 
 import dao.PurchaseDAOImpl;
+import daoImpl.InvoiceDaoImpl;
+import serviceImpl.InvoiceServiceImpl;
 import util.enumcollect.PurchaseEnum;
 import vo.PurchaseVO;
 
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -11,6 +15,7 @@ import java.util.stream.IntStream;
 public class PurchaseServiceImpl implements PurchaseService{
     static Scanner sc = new Scanner(System.in);
     private PurchaseDAOImpl dao = new PurchaseDAOImpl();
+    private InvoiceServiceImpl invoiceService = new InvoiceServiceImpl();
 
     @Override
     public void integrateShopPurchases(String startDate, String endDate, List<String> shopName) {
@@ -74,13 +79,22 @@ public class PurchaseServiceImpl implements PurchaseService{
             dao.createPurchaseCancel(purchaseSeq);
             System.out.println(purchaseSeq + "번 주문이 반품 처리 되었습니다.");
         }
-        else if (result.equals("INVOICE"))
+        else if (result.equals("INVOICE")) {
             System.out.println(purchaseSeq + "번 주문이 반품 처리 중에 있습니다.");
-            // 송장 연결 - INVOICE는 어디에??
+
+            // 송장 연결
+            try {
+                invoiceService.registerInvoice(purchaseSeq);
+            } catch (Exception e) {
+                System.out.println();
+            }
             // 창고에 재고 증가
+
             // 주문 상태 - 반품 입고
             // 검수
             // 주문 상태 - 반품 완료
+        }
+
         else
             System.out.println("null 값");
     }
