@@ -37,7 +37,7 @@ public class mainLauncher {
         ProductServiceImpl productService = ProductServiceImpl.getInstance();
 
         // 컨트롤러 객체 생성 및 서비스 객체 주입
-        IncomingController incomingController = new IncomingController(incomingService);
+        IncomingController incomingController = IncomingController.getInstance(incomingService);
         MemberController memberController = MemberController.getInstance();
         MembrManagemntController membrManagemntController = MembrManagemntController.getInstance();
         ProductManagementController productManagementController = ProductManagementController.getInstance(); // 수정: 싱글톤 인스턴스 사용
@@ -83,7 +83,7 @@ public class mainLauncher {
                     //발주 관리
 //                    case 5 -> productManagementController.menu();
                     //입고 관리
-//                    case 6 -> productManagementController.menu();
+                    case 6 -> incomingController.incomingProductMenu();
                     //출고 관리
 //                    case 7 -> productManagementController.menu();
                     //창고 관리

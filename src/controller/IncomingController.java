@@ -10,13 +10,21 @@ import vo.DetailedIncomingVO;
 import vo.IncomingVO;
 
 public class IncomingController {
-
-    Scanner scanner = new Scanner(System.in);
+    private static IncomingController instance;
     private IncomigService incomingService;
+    Scanner scanner = new Scanner(System.in);
 
     public IncomingController(IncomigService incomingService) {
         this.incomingService = incomingService;
     }
+
+    public static IncomingController getInstance(IncomigService incomingService) {
+        if (instance == null) {
+            instance = new IncomingController(incomingService);
+        }
+        return instance;
+    }
+
 
     public List<IncomingVO> getAllIncomingProductsWithDetails() {
         return incomingService.getAllIncomingProductsWithDetails();
