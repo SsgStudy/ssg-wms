@@ -434,5 +434,43 @@ public class PurchaseDAOImpl implements PurchaseDAO{
 
     }
 
+    public int updatePurchaseCancelStatus(Long purchaseSeq, PurchaseEnum status) {
+        Connection conn;
+        PreparedStatement pstmt = null;
+        int updatedRows = 0;
+
+        try {
+            conn = DbConnection.getInstance().getConnection();
+
+            String sql = new StringBuilder("UPDATE TB_SHOP_PURCHASE ")
+                    .append("SET V_SHOP_PURCHASE_STATUS = CASE ")
+                    .append("WHEN V_SHOP_PURCHASE_CLAIM = '취소' THEN ? ")
+                    .append(" ELSE V_SHOP_PURCHASE_STATUS END ")
+                    .append("WHERE PK_SHOP_PURCHASE_SEQ IN ( ? )").toString();
+
+
+
+            pstmt = conn.prepareStatement(sql.toString());
+            pstmt.setString(1, PurchaseEnum.주문취소접수.toString());
+
+            pstmt.setLong(2, purchaseSeq);
+
+
+            updatedRows = pstmt.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (pstmt != null) pstmt.close();
+                DbConnection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return updatedRows;
+
+    }
+
 
 }
