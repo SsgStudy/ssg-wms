@@ -7,11 +7,13 @@ import controller.MembrManagemntController;
 import controller.OrderController;
 import controller.OutgoingController;
 import controller.ProductManagementController;
+import controller.WareHouseController;
 import dao.IncomingDAOImpl;
 import dao.LoginManagementDAOImpl;
 import dao.OrderDAOImpl;
 import dao.OutgoingDAOImpl;
 import dao.ProductManagementDaoImpl;
+import dao.WareHouseDaoImpl;
 import java.util.Scanner;
 import service.IncomingServiceImpl;
 import service.InventoryAdjustmentServiceImpl;
@@ -22,6 +24,7 @@ import service.MemberServicelmpl;
 import service.OrderServiceImpl;
 import service.OutgoingServiceImpl;
 import service.ProductServiceImpl;
+import service.WareHouseServiceImpl;
 import util.AsciiPrinter;
 
 public class mainLauncher {
@@ -31,6 +34,7 @@ public class mainLauncher {
         AsciiPrinter asciiPrinter = new AsciiPrinter();
 
         // DAO 객체 생성
+        WareHouseDaoImpl wareHouseDao = WareHouseDaoImpl.getInstance();
         IncomingDAOImpl incomingDAO = IncomingDAOImpl.getInstance();
         OutgoingDAOImpl outgoingDAO = OutgoingDAOImpl.getInstance();
         OrderDAOImpl orderDAO = OrderDAOImpl.getInstance();
@@ -38,6 +42,7 @@ public class mainLauncher {
         ProductManagementDaoImpl productDAO = ProductManagementDaoImpl.getInstance();
 
         // 서비스 객체 생성 및 DAO 객체 주입
+        WareHouseServiceImpl warehouseService = new WareHouseServiceImpl();
         IncomingServiceImpl incomingService = new IncomingServiceImpl(incomingDAO);
         OutgoingServiceImpl outgoingService = new OutgoingServiceImpl(outgoingDAO);
         OrderServiceImpl orderService = new OrderServiceImpl(orderDAO);
@@ -49,6 +54,7 @@ public class mainLauncher {
         InventoryQueryServiceImpl queryService = new InventoryQueryServiceImpl();
 
         // 컨트롤러 객체 생성 및 서비스 객체 주입
+        WareHouseController wareHouseController = WareHouseController.getInstance(warehouseService);
         IncomingController incomingController = IncomingController.getInstance(incomingService);
         OutgoingController outgoingController = OutgoingController.getInstance(outgoingService);
         MemberController memberController = MemberController.getInstance();
@@ -102,11 +108,11 @@ public class mainLauncher {
                     //출고 관리
                     case 7 -> outgoingController.outgoingProductMenu();
                     //창고 관리
-//                    case 8 -> productManagementController.menu();
+                    case 8 -> wareHouseController.menu();
                     //재고 관리
                     case 9 -> inventoryController.menu();
                     //로그아웃
-//                    case 10 -> logout();
+                    case 10 -> memberController.logOut();
                     //프로그램 종료
                     case 11 -> menuContinue = false;
                     default -> System.out.println("옳지 않은 입력입니다.");
