@@ -14,12 +14,24 @@ import java.util.Scanner;
 
 public class ProductManagementController {
 
-    private ProductService productService = new ProductServiceImpl();
-    BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-
-    Scanner scanner = new Scanner(System.in);
+    private static ProductManagementController instance;
+    private ProductService productService;
+    private BufferedReader br;
+    private Scanner scanner;
     private String selectedCategoryCode;
 
+    private ProductManagementController() {
+        this.productService = ProductServiceImpl.getInstance();
+        this.br = new BufferedReader(new InputStreamReader(System.in));
+        this.scanner = new Scanner(System.in);
+    }
+
+    public static synchronized ProductManagementController getInstance() {
+        if (instance == null) {
+            instance = new ProductManagementController();
+        }
+        return instance;
+    }
     public void menu(){
         boolean continueMenu = true;
         while (continueMenu) {

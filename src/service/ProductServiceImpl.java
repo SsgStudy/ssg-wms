@@ -9,11 +9,21 @@ import java.util.List;
 import java.util.logging.Logger;
 
 public class ProductServiceImpl implements ProductService {
-    private ProductManagementDaoImpl productDao = new ProductManagementDaoImpl();
+
+    private static ProductServiceImpl instance;
+    private ProductManagementDaoImpl productDao;
 
     public ProductServiceImpl() {
-        this.productDao = new ProductManagementDaoImpl();
+        this.productDao = ProductManagementDaoImpl.getInstance();
     }
+
+    public static synchronized ProductServiceImpl getInstance() {
+        if (instance == null) {
+            instance = new ProductServiceImpl();
+        }
+        return instance;
+    }
+
 
     private static Logger logger = Logger.getLogger(ProductServiceImpl.class.getName());
 

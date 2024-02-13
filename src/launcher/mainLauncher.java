@@ -4,14 +4,17 @@ import controller.IncomingController;
 import controller.MemberController;
 import controller.MembrManagemntController;
 import controller.OrderController;
+import controller.ProductManagementController;
 import dao.IncomingDAOImpl;
 import dao.LoginManagementDAOImpl;
 import dao.OrderDAOImpl;
+import dao.ProductManagementDaoImpl;
 import java.util.Scanner;
 import service.IncomingServiceImpl;
 import service.LoginManagementServiceImpl;
 import service.MemberServicelmpl;
 import service.OrderServiceImpl;
+import service.ProductServiceImpl;
 import util.AsciiPrinter;
 
 public class mainLauncher {
@@ -24,17 +27,20 @@ public class mainLauncher {
         IncomingDAOImpl incomingDAO = IncomingDAOImpl.getInstance();
         OrderDAOImpl orderDAO = OrderDAOImpl.getInstance();
         LoginManagementDAOImpl loginDAO = LoginManagementDAOImpl.getInstance();
+        ProductManagementDaoImpl productDAO = ProductManagementDaoImpl.getInstance();
 
         // 서비스 객체 생성 및 DAO 객체 주입
         IncomingServiceImpl incomingService = new IncomingServiceImpl(incomingDAO);
         OrderServiceImpl orderService = new OrderServiceImpl(orderDAO);
         LoginManagementServiceImpl loginService = new LoginManagementServiceImpl();
         MemberServicelmpl memberService = new MemberServicelmpl();
+        ProductServiceImpl productService = ProductServiceImpl.getInstance();
 
         // 컨트롤러 객체 생성 및 서비스 객체 주입
         IncomingController incomingController = new IncomingController(incomingService);
         MemberController memberController = new MemberController();
         MembrManagemntController membrManagemntController = MembrManagemntController.getInstance();
+        ProductManagementController productManagementController = ProductManagementController.getInstance(); // 수정: 싱글톤 인스턴스 사용
 
         asciiPrinter.printMainTitle();
 
@@ -46,7 +52,7 @@ public class mainLauncher {
         String password = scanner.nextLine();
 
         memberController.logIn(id, password);
-        if (loginDAO.getMemberId() != null) { // 로그인 성공 확인
+        if (loginDAO.getMemberId() != null) {
             boolean menuContinue = true;
 
             while (menuContinue) {
@@ -69,6 +75,7 @@ public class mainLauncher {
                     //멤버 관리
                     case 1 -> membrManagemntController.menu();
                     //상품 관리
+                    case 2 -> productManagementController.menu();
                     case 5 -> {
                         OrderController orderController = new OrderController(orderService);
                         orderController.printAllOrdersWithDetails();
