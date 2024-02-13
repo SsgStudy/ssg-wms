@@ -13,6 +13,8 @@ public interface PurchaseDAO {
     List<String> findShopName();
     List<PurchaseVO> findAll();
     int updatePurchaseStatusCancelOrReturn(List<Long> purchaseSeqList);
+    String processPurchaseCancelOrReturn(Long purchaseSeq);
+    int createPurchaseCancel(Long purchaseSeq);
 
 
 }

@@ -317,7 +317,7 @@ public class PurchaseDAOImpl implements PurchaseDAO{
         return purchaseList;
     }
 
-    // 반품, 취소 접수
+    // 클레임 수집 시 상태 변경
     @Override
     public int updatePurchaseStatusCancelOrReturn(List<Long> purchaseSeqList) {
         Connection conn;
@@ -330,7 +330,6 @@ public class PurchaseDAOImpl implements PurchaseDAO{
             StringBuilder sql = new StringBuilder("UPDATE TB_SHOP_PURCHASE ")
                     .append("SET V_SHOP_PURCHASE_STATUS = CASE ")
                     .append("WHEN V_SHOP_PURCHASE_CLAIM = '취소' THEN ? ")
-                    .append(" WHEN V_SHOP_PURCHASE_CLAIM = '반품' THEN ? ")
                     .append(" ELSE V_SHOP_PURCHASE_STATUS END ")
                     .append("WHERE PK_SHOP_PURCHASE_SEQ IN ( ");
 
@@ -344,11 +343,9 @@ public class PurchaseDAOImpl implements PurchaseDAO{
             sql.append(" )");
 
             pstmt = conn.prepareStatement(sql.toString());
-
             pstmt.setString(1, PurchaseEnum.주문취소접수.toString());
-            pstmt.setString(2, PurchaseEnum.반품접수.toString());
 
-            int idx = 3;
+            int idx = 2;
             for (Long seq : purchaseSeqList) {
                 pstmt.setLong(idx++, seq);
             }
@@ -367,5 +364,74 @@ public class PurchaseDAOImpl implements PurchaseDAO{
         }
         return updatedRows;
     }
+
+    public String processPurchaseCancelOrReturn(Long purchaseSeq) {
+        Connection conn;
+        CallableStatement cstmt = null;
+        String result = "";
+
+        try {
+            conn = DbConnection.getInstance().getConnection();
+
+            String procedure = "{call PROCESS_ORDER_CLAIM(?, ?)}";
+            cstmt = conn.prepareCall(procedure);
+            cstmt.setLong(1, purchaseSeq);
+            
+            cstmt.registerOutParameter(2, Types.VARCHAR);
+            cstmt.execute();
+            result = cstmt.getString(2);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (cstmt != null) cstmt.close();
+                DbConnection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return result;
+    }
+
+    // 반품 승인 시, 주문 테이블에 주문 반품건 하나 생성함
+    @Override
+    public int createPurchaseCancel(Long purchaseSeq) {
+        Connection conn;
+        CallableStatement cstmt = null;
+        int updatedRows = 0;
+
+        try {
+            conn = DbConnection.getInstance().getConnection();
+
+            String procedure = "{call CREATE_PURCHASE_CLAIM(?, ?)}";
+
+            cstmt = conn.prepareCall(procedure);
+            cstmt.setLong(1, purchaseSeq);
+            cstmt.setString(2, PurchaseEnum.반품접수.toString());
+//            cstmt.registerOutParameter(3, Types.VARCHAR);
+            cstmt.execute();
+
+//            String uuid = cstmt.getString(3);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (cstmt != null) cstmt.close();
+                DbConnection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return updatedRows;
+    }
+
+    public int create() {
+
+        return 0;
+
+    }
+
 
 }
