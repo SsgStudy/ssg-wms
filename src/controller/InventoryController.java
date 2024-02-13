@@ -112,6 +112,7 @@ public class InventoryController {
         });
         System.out.println();
         System.out.println("-".repeat(300));
+        System.exit(0);
     }
 
     public void getProductInventoryByCategory() {
@@ -226,15 +227,15 @@ public class InventoryController {
     }
 
     private void printCategoryNameList(List<String> categoryNameList) {
-        System.out.println("-".repeat(50));
+        System.out.println("-".repeat(300));
         for (int i = 1; i <= categoryNameList.size(); i++) {
             System.out.print(i + ". " + categoryNameList.get(i - 1) + " ".repeat(5));
         }
-        System.out.println("\n" + "-".repeat(50));
+        System.out.println("\n" + "-".repeat(300));
     }
 
     private void printProductInventoryCategoryList(List<ProductInventoryCategoryVO> productInventoryCategoryListList) {
-        System.out.println("-".repeat(100));
+        System.out.println("-".repeat(300));
         System.out.printf("%-25s%-17s%-13s%-13s%s\n",
                 "상품 번호", "상품 이름", "상품 가격", "재고 수량", "카테고리 코드");
         System.out.println("-".repeat(100));
@@ -246,9 +247,9 @@ public class InventoryController {
                     productInventory.getTotalInventoryCnt(),
                     productInventory.getCategoryCode());
         }
-        System.out.println("-".repeat(100));
+        System.out.println("-".repeat(300));
         System.out.printf("%-60s%d%n", "총 재고 수량", productInventoryCategoryListList.stream().mapToInt(ProductInventoryCategoryVO::getTotalInventoryCnt).sum());
-        System.out.println("-".repeat(100));
+        System.out.println("-".repeat(300));
     }
 
 
@@ -331,9 +332,8 @@ public class InventoryController {
     }
 
 
-
     public void moveInventory() {
-        while (true){
+        while (true) {
             List<InventoryVO> inventoryList = inventoryMovementService.getInventoryInformation();
             printProductInventoryList(inventoryList);
             System.out.print("번호 선택 : ");
@@ -373,11 +373,11 @@ public class InventoryController {
         while (true) {
             System.out.println("\n**이동 창고 선택**");
 
-            System.out.println("-".repeat(150));
+            System.out.println("-".repeat(300));
             for (Map.Entry<Integer, String> warehouseNumberCode : warehouseCodeMap.entrySet()) {
                 System.out.print(warehouseNumberCode.getKey() + ". " + warehouseNumberCode.getValue() + " ".repeat(5));
             }
-            System.out.println("\n" + "-".repeat(150));
+            System.out.println("\n" + "-".repeat(300));
 
             System.out.print("번호 선택 : ");
             int warehouseCodeChoice = Integer.parseInt(sc.nextLine()); //번호만 저장
@@ -404,11 +404,11 @@ public class InventoryController {
         while (true) {
             System.out.println("\n** 이동 창고 구역 선택**");
 
-            System.out.println("-".repeat(150));
+            System.out.println("-".repeat(300));
             for (Map.Entry<Integer, String> warehouseNumberCode : zoneCodeMap.entrySet()) {
                 System.out.print(warehouseNumberCode.getKey() + ". " + warehouseNumberCode.getValue() + " ".repeat(5));
             }
-            System.out.println("\n" + "-".repeat(150));
+            System.out.println("\n" + "-".repeat(300));
 
             System.out.print("번호 선택 : ");
             int zoneCodeChoice = Integer.parseInt(sc.nextLine()); //번호만 저장
@@ -448,10 +448,10 @@ public class InventoryController {
 
     //조정, 이동 출력
     private void printProductInventoryList(List<InventoryVO> inventoryList) {
-        System.out.println("-".repeat(100));
+        System.out.println("-".repeat(300));
         System.out.printf("%-20s%-15s%-15s%-13s%-13s%s\n",
                 "번호", "상품 번호", "재고 수량", "날짜", "창고", "창고 구역");
-        System.out.println("-".repeat(100));
+        System.out.println("-".repeat(300));
         for (InventoryVO inventory : inventoryList) {
             System.out.printf("%-15s%-25s%-15d%-13s%-13s%s\n",
                     inventory.getInventorySeq(),
@@ -461,8 +461,7 @@ public class InventoryController {
                     inventory.getWarehouseCd(),
                     inventory.getZoneCd());
         }
-        System.out.println("-".repeat(100));
+        System.out.println("-".repeat(300));
     }
-
 
 }
