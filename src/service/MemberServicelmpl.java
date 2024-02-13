@@ -13,8 +13,19 @@ import java.util.Scanner;
 
 public class MemberServicelmpl implements MemberService {
 
-    private MemberManagementDao memberDao = new MemberManagementDaoImpl();
+    private static MemberServicelmpl instance;
+    private MemberManagementDao memberDao;
 
+    public MemberServicelmpl() {
+        this.memberDao = MemberManagementDaoImpl.getInstance();
+    }
+
+    public static synchronized MemberServicelmpl getInstance() {
+        if (instance == null) {
+            instance = new MemberServicelmpl();
+        }
+        return instance;
+    }
 @Override
     public List<Member> getMemberList() {
 

@@ -1,7 +1,6 @@
-package daoImpl;
+package dao;
 
-import dao.InvoiceDao;
-import serviceImpl.InvoiceServiceImpl;
+import service.InvoiceServiceImpl;
 import util.DbConnection;
 import util.enumcollect.WaybillTypeEnum;
 import vo.Invoice;
@@ -17,6 +16,7 @@ public class InvoiceDaoImpl implements InvoiceDao {
         InvoiceServiceImpl invoiceService = new InvoiceServiceImpl();
         try {
             conn = DbConnection.getInstance().getConnection();
+
             String sql = "INSERT INTO `TB_INVOICE` (V_INVOICE_TYPE, B_INVOICE_QR_CD, PK_LOGISTIC_SEQ, PK_SHOP_PURCHASE_SEQ) VALUES "
                     + "(?,?,?,?)";
             PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
@@ -54,7 +54,7 @@ public class InvoiceDaoImpl implements InvoiceDao {
         List<Invoice> invoices = new ArrayList<>();
         try {
             conn = DbConnection.getInstance().getConnection();
-            String sql = new StringBuilder().append("SELECT * FROM TB_INVOICE").toString();
+            String sql = new StringBuilder().append("SELECT V_INVOICE_CD, DATE_FORMAT(DT_INVOICE_PRINT_DATE, '%Y-%m-%d'), V_INVOICE_TYPE, B_INVOICE_QR_CD, PK_LOGISTIC_SEQ, PK_SHOP_PURCHASE_SEQ FROM TB_INVOICE").toString();
 
             PreparedStatement pstmt = conn.prepareStatement(sql);
             ResultSet rs = pstmt.executeQuery();
@@ -62,8 +62,8 @@ public class InvoiceDaoImpl implements InvoiceDao {
             while (rs.next()) {
                 Invoice invoice = new Invoice();
                 invoice.setInvoiceCode(rs.getString("V_INVOICE_CD"));
-                invoice.setInvoicePrintDate(rs.getDate("DT_INVOICE_PRINT_DATE"));
                 invoice.setInvoiceType(WaybillTypeEnum.valueOf(rs.getString("V_INVOICE_TYPE")));
+                invoice.setInvoicePrintDate(rs.getDate("DATE_FORMAT(DT_INVOICE_PRINT_DATE, '%Y-%m-%d')"));
                 invoice.setQrCode(rs.getBlob("B_INVOICE_QR_CD"));
                 invoice.setLogisticSeq(rs.getLong("PK_LOGISTIC_SEQ"));
                 invoice.setPurchaseSeq(rs.getLong("PK_SHOP_PURCHASE_SEQ"));

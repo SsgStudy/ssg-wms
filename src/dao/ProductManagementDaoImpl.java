@@ -11,27 +11,34 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-public class ProductManagementDaoImpl implements ProductManagementDao{
-    private static DbConnection instance;
-    static Connection conn;
+public class ProductManagementDaoImpl implements ProductManagementDao {
+
     private PreparedStatement pstmt;
     List<Category> categoryList = new ArrayList<>();
 
-    private static Logger logger = Logger.getLogger(ProductManagementDaoImpl.class.getName());
+    private static ProductManagementDaoImpl instance;
+    private static Connection conn;
 
-    public ProductManagementDaoImpl(){
-
-        try{
-
+    private ProductManagementDaoImpl() {
+        try {
             conn = DbConnection.getInstance().getConnection();
-
-        }catch (Exception e){
-
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
-@Override
-    public void insertProduct(Product product){
+
+    public static synchronized ProductManagementDaoImpl getInstance() {
+        if (instance == null) {
+            instance = new ProductManagementDaoImpl();
+        }
+        return instance;
+    }
+
+
+    private static Logger logger = Logger.getLogger(ProductManagementDaoImpl.class.getName());
+
+    @Override
+    public void insertProduct(Product product) {
 
         String sql = new StringBuilder()
                 .append("INSERT INTO TB_PRODUCT (V_PRODUCT_CD, V_PRODUCT_NM, " +
@@ -39,25 +46,24 @@ public class ProductManagementDaoImpl implements ProductManagementDao{
                         "V_PRODUCT_STATUS, D_PRODUCT_MANUFACTOR_DATE, V_CATEGORY_CD)")
                 .append("VALUES (?,?,?,?,?,?,?,?,?)").toString();
 
-
-        try{
+        try {
             pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1,product.getProductCode());
+            pstmt.setString(1, product.getProductCode());
             pstmt.setString(2, product.getProductName());
             pstmt.setInt(3, product.getProductPrice());
-            pstmt.setString(4,product.getProductBrand());
-            pstmt.setString(5,product.getProductOrign());
-            pstmt.setString(6,product.getManufactor());
+            pstmt.setString(4, product.getProductBrand());
+            pstmt.setString(5, product.getProductOrign());
+            pstmt.setString(6, product.getManufactor());
             pstmt.setString(7, "ON_SALE");
-            pstmt.setDate(8,new java.sql.Date(System.currentTimeMillis()));
-            pstmt.setString(9,product.getCategoryCode());
+            pstmt.setDate(8, new java.sql.Date(System.currentTimeMillis()));
+            pstmt.setString(9, product.getCategoryCode());
             pstmt.executeUpdate();
             System.out.println("상품등록이 완료되었습니다.");
 
-        }catch(SQLIntegrityConstraintViolationException si){
+        } catch (SQLIntegrityConstraintViolationException si) {
             logger.warning("상품코드가 이미 생성되어 있습니다.");
             si.printStackTrace();
-        } catch (SQLException s){
+        } catch (SQLException s) {
             s.printStackTrace();
         }
 
@@ -70,11 +76,11 @@ public class ProductManagementDaoImpl implements ProductManagementDao{
         String sql = new StringBuilder()
                 .append("SELECT * FROM TB_CATEGORY WHERE V_CATEGORY_PARENT_CD IS NULL").toString();
 
-        try{
+        try {
             pstmt = conn.prepareStatement(sql);
             ResultSet rs = pstmt.executeQuery();
 
-            while(rs.next()){
+            while (rs.next()) {
                 Category category = new Category();
                 category.setCategoryCode(rs.getString("V_CATEGORY_CD"));
                 category.setCategoryName(rs.getString("V_CATEGORY_NM"));
@@ -84,9 +90,9 @@ public class ProductManagementDaoImpl implements ProductManagementDao{
 
             pstmt.close();
 
-        }catch (SQLException s){
+        } catch (SQLException s) {
             s.printStackTrace();
-        }finally {
+        } finally {
             if (pstmt != null) {
                 try {
                     pstmt.close();
@@ -98,7 +104,7 @@ public class ProductManagementDaoImpl implements ProductManagementDao{
         return categoryList;
     }
 
-    public List<Category> getSubCategoriesByMainCategory(int mainCategoryNumber){
+    public List<Category> getSubCategoriesByMainCategory(int mainCategoryNumber) {
 
         String sql = new StringBuilder().append("SELECT * FROM TB_CATEGORY ")
                 .append("WHERE V_CATEGORY_PARENT_CD LIKE ?")
@@ -116,7 +122,7 @@ public class ProductManagementDaoImpl implements ProductManagementDao{
                 categoryList.add(category);
             }
             pstmt.close();
-        }catch (SQLException s){
+        } catch (SQLException s) {
             s.printStackTrace();
         }
 
@@ -131,7 +137,7 @@ public class ProductManagementDaoImpl implements ProductManagementDao{
                 .toString();
         try {
             pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, "__"+ mainCategoryNumber + "___" + subCategoryNumber);
+            pstmt.setString(1, "__" + mainCategoryNumber + "___" + subCategoryNumber);
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
                 Category category = new Category();
@@ -148,17 +154,17 @@ public class ProductManagementDaoImpl implements ProductManagementDao{
     }
 
     @Override
-    public List<Product> getProductList(){
+    public List<Product> getProductList() {
         List<Product> productList = new ArrayList<>();
 
         String sql = new StringBuilder().append("SELECT * FROM TB_PRODUCT").toString();
 
-        try{
+        try {
 
             pstmt = conn.prepareStatement(sql);
             ResultSet rs = pstmt.executeQuery();
 
-            while(rs.next()){
+            while (rs.next()) {
                 Product product = new Product();
                 product.setProductCode(rs.getString("V_PRODUCT_CD"));
                 product.setProductName(rs.getString("V_PRODUCT_NM"));
@@ -169,26 +175,27 @@ public class ProductManagementDaoImpl implements ProductManagementDao{
             rs.close();
             pstmt.close();
 
-        }catch (SQLException s){
+        } catch (SQLException s) {
             s.printStackTrace();
         }
 
         return productList;
 
     }
+
     @Override
-    public Product getProductByProductCode(String productcode){
+    public Product getProductByProductCode(String productcode) {
         Product product = new Product();
 
         String sql = new StringBuilder().append("SELECT * FROM TB_PRODUCT ")
                 .append("WHERE V_PRODUCT_CD = ?").toString();
 
-        try{
+        try {
             pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1,productcode);
+            pstmt.setString(1, productcode);
             ResultSet rs = pstmt.executeQuery();
 
-            if(rs.next()){
+            if (rs.next()) {
                 product.setProductCode(rs.getString("V_PRODUCT_CD"));
                 product.setProductName(rs.getString("V_PRODUCT_NM"));
                 product.setProductPrice(rs.getInt("N_PRODUCT_PRICE"));
@@ -198,22 +205,23 @@ public class ProductManagementDaoImpl implements ProductManagementDao{
                 product.setPrductStatus(SalesStatus.valueOf(rs.getString("V_PRODUCT_STATUS")));
                 product.setProductManufactorsDate(rs.getDate("D_PRODUCT_MANUFACTOR_DATE"));
                 product.setCategoryCode(rs.getString("V_CATEGORY_CD"));
-            }else{
+            } else {
                 return null;
             }
 
 
-        }catch (SQLException s){
+        } catch (SQLException s) {
             s.printStackTrace();
         }
 
         return product;
 
     }
-    @Override
-    public int updateProductByProductCode(String productCode, Product product){
 
-        int row=0;
+    @Override
+    public int updateProductByProductCode(String productCode, Product product) {
+
+        int row = 0;
 
         String sql = new StringBuilder().append("UPDATE TB_PRODUCT SET ")
                 .append("V_PRODUCT_NM=?, ")
@@ -224,21 +232,21 @@ public class ProductManagementDaoImpl implements ProductManagementDao{
                 .append("V_PRODUCT_STATUS=? ")
                 .append("WHERE V_PRODUCT_CD=? ").toString();
 
-        try{
+        try {
 
             pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1,product.getProductName());
-            pstmt.setInt(2,product.getProductPrice());
-            pstmt.setString(3,product.getProductBrand());
-            pstmt.setString(4,product.getProductOrign());
-            pstmt.setString(5,product.getManufactor());
-            pstmt.setString(6,product.getPrductStatus().toString());
-            pstmt.setString(7,productCode);
+            pstmt.setString(1, product.getProductName());
+            pstmt.setInt(2, product.getProductPrice());
+            pstmt.setString(3, product.getProductBrand());
+            pstmt.setString(4, product.getProductOrign());
+            pstmt.setString(5, product.getManufactor());
+            pstmt.setString(6, product.getPrductStatus().toString());
+            pstmt.setString(7, productCode);
 
             row = pstmt.executeUpdate();
             pstmt.close();
 
-        }catch (SQLException s){
+        } catch (SQLException s) {
             s.printStackTrace();
         }
 

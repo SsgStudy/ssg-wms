@@ -1,6 +1,6 @@
 package controller;
 
-import serviceImpl.InvoiceServiceImpl;
+import service.InvoiceServiceImpl;
 
 import java.io.BufferedReader;
 import java.io.IOException;
