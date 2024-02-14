@@ -59,10 +59,12 @@ public class mainLauncher {
         while (isRunning) {
             // 로그인 절차 수행
             System.out.println("LOG IN\n");
-            System.out.print("아이디: ");
-            String id = scanner.nextLine().trim();
-            System.out.print("비밀번호: ");
-            String password = scanner.nextLine().trim();
+            System.out.print("➔ 아이디 : ");
+            String id = "test";
+//            String id = scanner.nextLine().trim();
+            System.out.print("➔ 비밀번호 : ");
+            String password = "xptmxm";
+//            String password = scanner.nextLine().trim();
 
             memberController.logIn(id, password);
             if (loginDAO.getMemberId() != null) {
@@ -70,17 +72,17 @@ public class mainLauncher {
 
                 while (menuContinue) {
                     String[] menuItems = {
-                            "1. 멤버 관리",
-                            "2. 상품 관리",
-                            "3. 주문 관리",
-                            "4. 송장 관리",
-                            "5. 발주 관리",
-                            "6. 입고 관리",
-                            "7. 출고 관리",
-                            "8. 창고 관리",
-                            "9. 재고 관리",
-                            "10. 로그 아웃",
-                            "11. 프로그램 종료"
+                            "1. 멤버 관리\t",
+                            "2. 상품 관리\t",
+                            "3. 주문 관리\t",
+                            "4. 송장 관리\t",
+                            "5. 발주 관리\t",
+                            "6. 입고 관리\t",
+                            "7. 출고 관리\t",
+                            "8. 창고 관리\t",
+                            "9. 재고 관리\t",
+                            "10. 로그 아웃\t\t",
+                            "11. WMS 종료"
                     };
                     MenuBoxPrinter.printMenuBoxWithTitle("SSG WMS SYSTEM MAIN", menuItems);
 
