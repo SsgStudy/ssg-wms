@@ -41,7 +41,7 @@ public class mainLauncher {
         // 컨트롤러 객체 생성 및 서비스 객체 주입
         WareHouseController wareHouseController = WareHouseController.getInstance(warehouseService);
         IncomingController incomingController = IncomingController.getInstance(incomingService);
-        OutgoingController outgoingController = OutgoingController.getInstance(outgoingService,invoiceService);
+        OutgoingController outgoingController = OutgoingController.getInstance(outgoingService, invoiceService);
         MemberController memberController = MemberController.getInstance();
         MembrManagemntController membrManagemntController = MembrManagemntController.getInstance();
         ProductManagementController productManagementController = ProductManagementController.getInstance(); // 수정: 싱글톤 인스턴스 사용
@@ -50,63 +50,72 @@ public class mainLauncher {
         PurchaseController purchaseController = PurchaseController.getInstance(purchaseService);
 
         asciiPrinter.printMainTitle();
+        boolean isRunning = true;
 
-        // 로그인 절차 수행
-        System.out.println("로그인이 필요합니다.");
-        System.out.print("아이디: ");
-        String id = scanner.nextLine();
-        System.out.print("비밀번호: ");
-        String password = scanner.nextLine();
+        while (isRunning) {
+            // 로그인 절차 수행
+            System.out.println("로그인이 필요합니다.");
+            System.out.print("아이디: ");
+            String id = scanner.nextLine();
+            System.out.print("비밀번호: ");
+            String password = scanner.nextLine();
 
-        memberController.logIn(id, password);
-        if (loginDAO.getMemberId() != null) {
-            boolean menuContinue = true;
+            memberController.logIn(id, password);
+            if (loginDAO.getMemberId() != null) {
+                boolean menuContinue = true;
 
-            while (menuContinue) {
-                System.out.println("SSG WMS SYSTEM MAIN");
-                System.out.println("1. 멤버 관리");
-                System.out.println("2. 상품 관리");
-                System.out.println("3. 주문 관리");
-                System.out.println("4. 송장 관리");
-                System.out.println("5. 발주 관리");
-                System.out.println("6. 입고 관리");
-                System.out.println("7. 출고 관리");
-                System.out.println("8. 창고 관리");
-                System.out.println("9. 재고 관리");
-                System.out.println("10. 로그 아웃");
-                System.out.println("11. 프로그램 종료");
+                while (menuContinue) {
+                    System.out.println("SSG WMS SYSTEM MAIN");
+                    System.out.println("1. 멤버 관리");
+                    System.out.println("2. 상품 관리");
+                    System.out.println("3. 주문 관리");
+                    System.out.println("4. 송장 관리");
+                    System.out.println("5. 발주 관리");
+                    System.out.println("6. 입고 관리");
+                    System.out.println("7. 출고 관리");
+                    System.out.println("8. 창고 관리");
+                    System.out.println("9. 재고 관리");
+                    System.out.println("10. 로그 아웃");
+                    System.out.println("11. 프로그램 종료");
 
-                System.out.print("선택: ");
-                int choice = scanner.nextInt();
+                    System.out.print("선택: ");
+                    int choice = scanner.nextInt();
 
-                switch (choice) {
-                    //멤버 관리
-                    case 1 -> membrManagemntController.menu();
-                    //상품 관리
-                    case 2 -> productManagementController.menu();
-                    //주문 관리
-                    case 3 -> purchaseController.menu();
-                    //송장 관리
-                    case 4 -> invoiceController.menu();
-                    //발주 관리
-//                    case 5 -> productManagementController.menu();
-                    //입고 관리
-                    case 6 -> incomingController.incomingProductMenu();
-                    //출고 관리
-                    case 7 -> outgoingController.outgoingProductMenu();
-                    //창고 관리
-                    case 8 -> wareHouseController.menu();
-                    //재고 관리
-                    case 9 -> inventoryController.menu();
-                    //로그아웃
-                    case 10 -> memberController.logOut();
-                    //프로그램 종료
-                    case 11 -> menuContinue = false;
-                    default -> System.out.println("옳지 않은 입력입니다.");
+                    switch (choice) {
+                        //멤버 관리
+                        case 1 -> membrManagemntController.menu();
+                        //상품 관리
+                        case 2 -> productManagementController.menu();
+                        //주문 관리
+                        case 3 -> purchaseController.menu();
+                        //송장 관리
+                        case 4 -> invoiceController.menu();
+                        //발주 관리
+                        case 5 -> productManagementController.menu();
+                        //입고 관리
+                        case 6 -> incomingController.incomingProductMenu();
+                        //출고 관리
+                        case 7 -> outgoingController.outgoingProductMenu();
+                        //창고 관리
+                        case 8 -> wareHouseController.menu();
+                        //재고 관리
+                        case 9 -> inventoryController.menu();
+                        //로그아웃
+                        case 10 -> {
+                            memberController.logOut();
+                            menuContinue = false;
+                        }
+                        //프로그램 종료
+                        case 11 -> {
+                            menuContinue = false;
+                            isRunning = false;
+                        }
+                        default -> System.out.println("옳지 않은 입력입니다.");
+                    }
                 }
+            } else {
+                System.out.println("로그인에 실패했습니다. 프로그램을 종료합니다.");
             }
-        } else {
-            System.out.println("로그인에 실패했습니다. 프로그램을 종료합니다.");
         }
 
         scanner.close();
