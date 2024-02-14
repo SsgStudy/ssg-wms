@@ -6,6 +6,7 @@ import vo.OutgoingProductVO;
 import vo.PurchaseVO;
 
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -34,6 +35,7 @@ public class PurchaseServiceImpl implements PurchaseService {
     public void integrateShopPurchases(String startDate, String endDate, List<String> shopName) {
         System.out.println("주문 수집 일자를 입력해주세요 (YYYY-mm-DD YYYY-mm-DD)");
         String date = sc.nextLine();
+        date = getDateFormatCheck(date);
         String[] dates = date.split(" ");
 
         System.out.println("쇼핑몰 리스트");
@@ -82,6 +84,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         print(resultList);
     }
 
+    // 한 건의 주문 취소 또는 반품
     @Override
     public void updatePurchaseToCancel() {
         System.out.println("취소/반품할 주문의 번호를 입력해주세요. (1 2 3)");
@@ -91,43 +94,19 @@ public class PurchaseServiceImpl implements PurchaseService {
         if (result.equals("CANCEL")) {
             System.out.println(purchaseSeq + "번 주문이 취소 되었습니다.");
             // 상태 변경은 프로시저 안에서 처리됨
-        } else if (result.equals("RETURN")) {
-            purchaseDAO.createPurchaseCancel(purchaseSeq);
-            purchaseDAO.updatePurchaseCancelStatus(purchaseSeq, PurchaseEnum.반품완료);
-            System.out.println(purchaseSeq + "번 주문이 반품 처리 되었습니다.");
-        } else if (result.equals("INVOICE")) {
-            System.out.println(purchaseSeq + "번 주문이 반품 처리 중에 있습니다.");
-            OutgoingProductVO outgoingProduct = new OutgoingProductVO();
-            outgoingProduct.setShopPurchaseSeq(purchaseSeq);
-            int ch = Integer.parseInt(sc.nextLine());
-            System.out.println("1.송장 접수 | 2.입고 확인 | 3.검수");
+        } else {
+            // 반품 주문 생성
+            purchaseDAO.createPurchaseReturn(purchaseSeq);
 
-            switch (ch) {
-                case 1 -> {
-                    try {
-                        invoiceService.registerInvoice(outgoingProduct);
-                    } catch (Exception e) {
-                        System.out.println();
-                    }
-                }
-                case 2 -> {
-                    // 창고에 재고 증가
-                    inventoryAdjustmentService.updateRestoreInventoryQuantity(purchaseSeq);
-                    // 주문 상태 - 반품 입고
-                    purchaseDAO.updatePurchaseCancelStatus(purchaseSeq, PurchaseEnum.반품입고);
-                }
-                case 3 -> {
-                    // 검수 - 출고 select by purchaseSeq 상품 일련 번호 -> 창고구역 tb join 재고 변경 이력
-                    int quantity = inventoryAdjustmentService.updateRestoration(purchaseSeq);
-                    // 주문 상태 - 반품 완료
-                    if (quantity == 1)
-                        purchaseDAO.updatePurchaseCancelStatus(purchaseSeq, PurchaseEnum.반품완료);
-                    else
-                        System.out.println("반품 실패");
-                }
-            }
-        } else
-            System.out.println("null 값");
+            if (result.equals("RETURN")) {
+                purchaseDAO.updatePurchaseCancelStatus(purchaseSeq, PurchaseEnum.반품완료);
+                System.out.println(purchaseSeq + "번 주문이 반품 처리 되었습니다.");
+            } else if (result.equals("INVOICE")) {
+                System.out.println(purchaseSeq + "번 주문이 반품 처리 중에 있습니다.");
+                purchaseReturnMenu(purchaseSeq);
+            } else
+                System.out.println("null 값");
+        }
     }
 
     @Override
@@ -140,6 +119,8 @@ public class PurchaseServiceImpl implements PurchaseService {
     public void integrateShopClaims() {
         System.out.println("클레임 수집 일자를 입력해주세요 (YYYY-mm-DD YYYY-mm-DD)");
         String date = sc.nextLine();
+        date = getDateFormatCheck(date);
+
         String[] dates = date.split(" ");
 
         System.out.println("쇼핑몰 리스트");
@@ -169,7 +150,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         System.out.println(result + "건의 취소/반품 내역이 있습니다.");
 
         // 클레임 수집 내용 조회
-        List<PurchaseVO> claimList = purchaseDAO.getPurchaseListByPurchaseSeq(claimSeqList);
+        List<PurchaseVO> claimList = purchaseDAO.getPurchaseClaimListByPurchaseSeq(claimSeqList);
         printClaim(claimList);
     }
 
@@ -219,5 +200,60 @@ public class PurchaseServiceImpl implements PurchaseService {
         });
 
         System.out.println("----------------------------------------------------------------------------------------------------------------");
+    }
+
+    public void purchaseReturnMenu(Long purchaseSeq) {
+        OutgoingProductVO outgoingProduct = new OutgoingProductVO();
+        outgoingProduct.setShopPurchaseSeq(purchaseSeq);
+        System.out.println("1.송장 접수 | 2.입고 확인 | 3.검수 | 4.돌아가기");
+        int ch = Integer.parseInt(sc.nextLine());
+        switch (ch) {
+            case 1 -> {
+                try {
+                    invoiceService.registerInvoice(outgoingProduct);
+                } catch (Exception e) {
+                    System.out.println();
+                }
+                purchaseReturnMenu(purchaseSeq);
+            }
+            case 2 -> {
+                // 창고에 재고 증가
+                inventoryAdjustmentService.updateRestoreInventoryQuantity(purchaseSeq);
+                // 주문 상태 - 반품 입고
+                purchaseDAO.updatePurchaseCancelStatus(purchaseSeq, PurchaseEnum.반품입고);
+                purchaseReturnMenu(purchaseSeq);
+            }
+            case 3 -> {
+                // 검수 - 출고 select by purchaseSeq 상품 일련 번호 -> 창고구역 tb join 재고 변경 이력
+                int quantity = inventoryAdjustmentService.updateRestoration(purchaseSeq);
+                // 주문 상태 - 반품 완료
+                if (quantity == 1)
+                    purchaseDAO.updatePurchaseCancelStatus(purchaseSeq, PurchaseEnum.반품완료);
+                else
+                    System.out.println("반품 실패");
+                purchaseReturnMenu(purchaseSeq);
+            }
+            case 4-> {
+                return;
+            }
+            default -> {
+                System.out.println("다시 입력하세요");
+            }
+        }
+
+    }
+
+    public String getDateFormatCheck(String date) {
+        Scanner scanner = new Scanner(System.in);
+        Pattern pattern = Pattern.compile("^\\d{4}-\\d{2}-\\d{2} \\d{4}-\\d{2}-\\d{2}$");
+
+        System.out.println("날짜 범위를 'YYYY-mm-DD YYYY-mm-DD' 형식으로 입력해주세요:");
+
+        while (!pattern.matcher(date).matches()) {
+            System.out.println("입력 형식이 올바르지 않습니다. 다시 입력해주세요:");
+            date = scanner.nextLine();
+        }
+
+        return date;
     }
 }
