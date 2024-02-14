@@ -6,148 +6,59 @@ import vo.WareHouse;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
 public class WareHouseServiceImpl implements WareHouseService {
-    private BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
     private WareHouseDaoImpl wareHouseDao = WareHouseDaoImpl.getInstance();
-    private List<WareHouse> wareHouseList = new ArrayList<>();
     private static Logger logger = Logger.getLogger(WareHouseServiceImpl.class.getName());
 
-    public void wareHouseMain() throws IOException {
-        System.out.println("--".repeat(25));
-        System.out.println("[창고 관리]");
-        System.out.println("--".repeat(25));
-        System.out.println("1.창고 등록 | 2. 창고 조회");
-        System.out.println("--".repeat(25));
-        System.out.print("메뉴 선택 : ");
-        int cmd = Integer.parseInt(br.readLine());
-        switch (cmd) {
-            case 1 -> registerWareHouse();
-            case 2 -> viewWareHouse();
-            default -> System.out.println("잘못된 입력입니다. 다시 시도해주세요.");
-        }
-    }
-
-    public void wareHouseTable() throws IOException { //전체조회
-        System.out.println();
-        System.out.println("--".repeat(25));
-        System.out.println("[창고 목록]");
-        System.out.println("--".repeat(25));
-        System.out.printf("%7s | %12s | %10s | %6s | %3s\n", "창고코드", "창고명", "창고소재지", "창고종류", "관리자코드");
-        System.out.println("--".repeat(25));
-        wareHouseList = wareHouseDao.viewWareHouse();
-        for (WareHouse wareHouse : wareHouseList) {
-            System.out.printf("%7s | %12s | %10s | %6s | %3s\n",
-                    wareHouse.getWarehouseCode(),
-                    wareHouse.getWarehouseName(),
-                    wareHouse.getWarehouseLocation(),
-                    wareHouse.getWarehouseType(),
-                    wareHouse.getMemberSeq());
-        }
-        System.out.println("--".repeat(25));
-    }
-
-    @Override
-    public void registerWareHouse() throws IOException {
-        WareHouse wareHouse = new WareHouse();
-
-        System.out.println("--".repeat(25));
-        System.out.println("[신규 창고 등록]");
-        System.out.print("창고 코드 지정 : ");
-        wareHouse.setWarehouseCode(br.readLine());
-        System.out.print("창고 명 지정 : ");
-        wareHouse.setWarehouseName(br.readLine());
-        System.out.print("창고 소재지(도시 국가) 지정 : ");
-        wareHouse.setWarehouseLocation(br.readLine());
-        System.out.print("창고 종류 지정 : ");
-        wareHouse.setWarehouseType(br.readLine());
-        System.out.print("창고관리자 코드 입력 : ");
-        wareHouse.setMemberSeq(Integer.parseInt(br.readLine()));
+    public void registerWareHouse(WareHouse wareHouse) {
         wareHouseDao.registerWareHouse(wareHouse);
-        System.out.printf("[%s의 등록이 완료되었습니다.]\n", wareHouse.getWarehouseName());
     }
 
-    @Override
-    public void viewWareHouse() throws IOException {
-        System.out.println("--".repeat(25));
-        System.out.println("[창고 조회]");
-        System.out.println("1.전체 조회 | 2.창고명별 조회 | 3.소재지별 조회 | 4.창고종류별 조회 | 5. 돌아가기");
-        System.out.print("메뉴 선택 : ");
-        int cmd = Integer.parseInt(br.readLine().trim());
-        switch (cmd) {
-            case 1 -> wareHouseTable();
-            case 2 -> viewWareHouseByName();
-            case 3 -> viewWareHouseByLocation();
-            case 4 -> viewWareHouseByType();
-            case 5 -> wareHouseMain();
-            default -> System.out.println("잘못된 입력입니다. 다시 시도해주세요.");
-        }
+    public List<WareHouse> viewWareHouse() {
+        return wareHouseDao.viewWareHouse();
     }
 
-    public void viewWareHouseByName() throws IOException {
-        System.out.println("--".repeat(25));
-        System.out.println("[창고 이름별 조회]");
-        System.out.print("창고 이름 입력 : ");
-        String name = br.readLine();
-        wareHouseList = wareHouseDao.viewWareHouseByName(name);
-        if (!wareHouseList.isEmpty()) {
-            for (WareHouse wareHouse : wareHouseList) {
-                System.out.printf("%7s | %12s | %10s | %6s | %3s\n",
-                        wareHouse.getWarehouseCode(),
-                        wareHouse.getWarehouseName(),
-                        wareHouse.getWarehouseLocation(),
-                        wareHouse.getWarehouseType(),
-                        wareHouse.getMemberSeq());
-            }
-        } else {
-            System.out.println("일치하는 창고 정보가 없습니다.");
-        }
-        System.out.println("--".repeat(25));
+    public List<WareHouse> viewWareHouseByName(String name) {
+        return wareHouseDao.viewWareHouseByName(name);
     }
 
-    public void viewWareHouseByLocation() throws IOException {
-        System.out.println("--".repeat(25));
-        System.out.println("[창고 소재지별 조회]");
-        System.out.print("창고 소재지 입력 : ");
-        String location = br.readLine();
-        wareHouseList = wareHouseDao.viewWareHouseByLocation(location);
-        if (!wareHouseList.isEmpty()) {
-            for (WareHouse wareHouse : wareHouseList) {
-                System.out.printf("%7s | %12s | %10s | %6s | %3s\n",
-                        wareHouse.getWarehouseCode(),
-                        wareHouse.getWarehouseName(),
-                        wareHouse.getWarehouseLocation(),
-                        wareHouse.getWarehouseType(),
-                        wareHouse.getMemberSeq());
-            }
-        } else {
-            System.out.println("일치하는 창고 정보가 없습니다.");
-        }
-        System.out.println("--".repeat(25));
+    public List<WareHouse> viewWareHouseByLocation(String location) {
+        return wareHouseDao.viewWareHouseByLocation(location);
     }
 
-    public void viewWareHouseByType() throws IOException {
-        System.out.println("--".repeat(25));
-        System.out.println("[창고 종류별 조회]");
-        System.out.print("창고 종류 입력 : ");
-        String type = br.readLine();
-        wareHouseList = wareHouseDao.viewWareHouseByType(type);
-        if (!wareHouseList.isEmpty()) {
-            for (WareHouse wareHouse : wareHouseList) {
-                System.out.printf("%7s | %12s | %10s | %6s | %3s\n",
-                        wareHouse.getWarehouseCode(),
-                        wareHouse.getWarehouseName(),
-                        wareHouse.getWarehouseLocation(),
-                        wareHouse.getWarehouseType(),
-                        wareHouse.getMemberSeq());
-            }
-        } else {
-            System.out.println("일치하는 창고 정보가 없습니다.");
-        }
-        System.out.println("--".repeat(25));
+    public List<WareHouse> viewWareHouseByType(String type){
+        return wareHouseDao.viewWareHouseByType(type);
     }
+
+    public List<WareHouse> viewWareHouseByNameMain(){
+        return wareHouseDao.viewWareHouseByNameMain();
+    }
+
+    public List<WareHouse> viewWareHouseByLocationMain(){
+        return wareHouseDao.viewWareHouseByLocationMain();
+    }
+
+    public List<WareHouse> viewWareHouseByTypeMain(){
+        return wareHouseDao.viewWareHouseByTypeMain();
+    }
+
+    public WareHouse extractWareHouseFromResultSet(ResultSet rs) throws SQLException {
+        return wareHouseDao.extractWareHouseFromResultSet(rs);
+    }
+
+
+
+
+
+
+
+
+
 
 }

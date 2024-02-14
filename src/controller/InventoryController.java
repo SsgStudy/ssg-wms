@@ -14,15 +14,13 @@ public class InventoryController {
     private final InventoryAdjustmentService adjustmentService;
     private final InventoryMovementService movementService;
     private final InventoryQueryService queryService;
-    private Scanner scanner;
-
     public InventoryController(InventoryAdjustmentService adjustmentService,
                                InventoryMovementService movementService,
                                InventoryQueryService queryService) {
         this.adjustmentService = adjustmentService;
         this.movementService = movementService;
         this.queryService = queryService;
-        this.scanner = new Scanner(System.in);
+        this.sc = new Scanner(System.in);
     }
 
     private List<CategoryVO> categoryList = new ArrayList<>();
@@ -30,14 +28,17 @@ public class InventoryController {
         while (true) {
             System.out.println("[메뉴 선택]");
 
-            System.out.println("1. 재고 조회 | 2. 재고 조정 | 3. 재고 이동");
+            System.out.println("1. 재고 조회 | 2. 재고 조정 | 3. 재고 이동 | 4. 메뉴 나가기");
             System.out.print("번호 입력 : ");
             int manageChoice = Integer.parseInt(sc.nextLine());
             switch (manageChoice) {
                 case 1 -> inventoryQuerySubMenu();
                 case 2 -> adjustInventory();
                 case 3 -> moveInventory();
-                default -> System.out.println("번호를 다시 선택해주세요.");
+                case 4 -> {
+                    return;
+                }
+                default -> System.out.println("옳지 않은 입력입니다.");
             }
         }
     }
@@ -45,12 +46,13 @@ public class InventoryController {
     private void inventoryQuerySubMenu() {
         while (true) {
             System.out.println("\n[재고 조회 메뉴]");
-            System.out.println("1. 창고별 재고 조회 | 2. 카테고리별 재고 조회");
+            System.out.println("1. 창고별 재고 조회 | 2. 카테고리별 재고 조회 | 3. 메뉴 나가기");
             System.out.print("번호 입력 : ");
             int manageChoice = Integer.parseInt(sc.nextLine());
             switch (manageChoice) {
                 case 1 -> getProductInventoryTotalByWarehouse();
                 case 2 -> getProductInventoryByCategory();
+                case 3 -> {return;}
                 default -> System.out.println("번호를 다시 선택해주세요.");
             }
         }
@@ -140,7 +142,7 @@ public class InventoryController {
                 String categoryName = categoryNameList.get(mainCategoryNumber - 1);
                 getInventoryByMainCategory(mainCategoryNumber, categoryName);
 
-                System.out.println("1. 하위 카테고리 선택 | 2. 상위 카테고리 다시 선택 | 3. 조회 종료");
+                System.out.println("1. 하위 카테고리 선택 | 2. 상위 카테고리 다시 선택 | 3. 메뉴 나가기");
                 int menuChoice = Integer.parseInt(sc.nextLine());
                 switch (menuChoice) {
                     case 1 -> getSubCategoriesByMainCategory(mainCategoryNumber);
@@ -148,8 +150,8 @@ public class InventoryController {
                         getProductInventoryByCategory();
                         mainCategoryNumber = 0;
                     }
-                    case 3 -> System.exit(0);
-                    default -> System.out.println("번호를 다시 입력해주세요");
+                    case 3 -> {break;}
+                    default -> System.out.println("옳지 않은 입력입니다.");
 
                 }
             }
@@ -174,13 +176,13 @@ public class InventoryController {
                 String categoryName = categoryNameList.get(subCategoryNumber - 1);
                 getInventoryBySubCategory(mainCategoryNumber, subCategoryNumber, categoryName);
 
-                System.out.println("1. 하위 카테고리 선택 | 2. 상위 카테고리 다시 선택 | 3. 조회 종료 ");
+                System.out.println("1. 하위 카테고리 선택 | 2. 상위 카테고리 다시 선택 | 3. 조회 종료 | 4. 메뉴 나가기");
                 int menuChoice = Integer.parseInt(sc.nextLine());
                 switch (menuChoice) {
                     case 1 -> getDetailCategoriesBySubCategory(mainCategoryNumber, subCategoryNumber);
                     case 2 -> getSubCategoriesByMainCategory(mainCategoryNumber);
-                    case 3 -> System.exit(0);
-                    default -> System.out.println("번호를 다시 입력해주세요");
+                    case 3 -> {return;}
+                    default -> System.out.println("옳지 않은 입력입니다.");
                 }
             }
         }
@@ -204,13 +206,13 @@ public class InventoryController {
                 getInventoryByDetailCategory(mainCategoryNumber, subCategoryNumber, detailCategoryNumber, categoryName);
 
 
-                System.out.println("1. 상위 카테고리 다시 선택 | 2. 카테고리 처음부터 선택 | 3. 조회 종료 ");
+                System.out.println("1. 상위 카테고리 다시 선택 | 2. 카테고리 처음부터 선택 | 3. 메뉴 나가기");
                 int menuChoice = Integer.parseInt(sc.nextLine());
                 switch (menuChoice) {
                     case 1 -> getDetailCategoriesBySubCategory(mainCategoryNumber, subCategoryNumber);
                     case 2 -> getProductInventoryByCategory();
-                    case 3 -> System.exit(0);
-                    default -> System.out.println("번호를 다시 입력해주세요");
+                    case 3 -> {return;}
+                    default -> System.out.println("옳지 않은 입력입니다.");
                 }
             }
         }
@@ -263,7 +265,7 @@ public class InventoryController {
 
         System.out.println("\n**구분 선택**");
         System.out.println("-".repeat(50));
-        System.out.println("1. 입고 조정 | 2. 출고 조정");
+        System.out.println("1. 입고 조정 | 2. 출고 조정 | 3. 메뉴 나가기");
         System.out.println("-".repeat(50));
 
         System.out.print("번호 선택 : ");
@@ -274,6 +276,7 @@ public class InventoryController {
             switch (adjustmentMenuChoice) {
                 case 1 -> increaseInventory();
                 case 2 -> decreaseInventory();
+                case 3 -> {return;}
             }
         } else {
             System.out.println("번호를 다시 입력하세요");

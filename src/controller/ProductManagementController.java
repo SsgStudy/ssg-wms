@@ -17,13 +17,11 @@ public class ProductManagementController {
     private static ProductManagementController instance;
     private ProductService productService;
     private BufferedReader br;
-    private Scanner scanner;
     private String selectedCategoryCode;
 
     private ProductManagementController() {
         this.productService = ProductServiceImpl.getInstance();
         this.br = new BufferedReader(new InputStreamReader(System.in));
-        this.scanner = new Scanner(System.in);
     }
 
     public static synchronized ProductManagementController getInstance() {
@@ -36,16 +34,22 @@ public class ProductManagementController {
         boolean continueMenu = true;
         while (continueMenu) {
 
-            System.out.println("1. 상품 등록\n2. 상품 목록 조회 및 수정\n3. 메뉴 나가기");
+            System.out.println("1. 상품 등록 | 2. 상품 목록 조회 및 수정 | 3. 메뉴 나가기");
             System.out.print("선택: ");
-            int manageChoice = scanner.nextInt();
+            try{
+                int manageChoice = Integer.parseInt(br.readLine().trim());
 
-            switch (manageChoice) {
-                case 1 -> registerProduct();
-                case 2 -> getProductList();
-                case 3 -> continueMenu = false;
-                default -> System.out.println("옳지 않은 입력입니다.");
+                switch (manageChoice) {
+                    case 1 -> registerProduct();
+                    case 2 -> getProductList();
+                    case 3 -> {return;}
+                    default -> System.out.println("옳지 않은 입력입니다.");
+
+                }
+            }catch (IOException i){
+                i.printStackTrace();
             }
+
         }
     }
 
@@ -155,25 +159,27 @@ public class ProductManagementController {
         System.out.println("--".repeat(25));
 
         System.out.println("1. 상품 상세보기 | 2. 메뉴 나가기");
-        int selectednum = scanner.nextInt();
 
-        switch (selectednum){
-            case 1 -> {
-                System.out.println("상품번호 : ");
-                try{
-                    String productcode = br.readLine().trim();
-                    getProductByProductCode(productcode);
-                }catch (IOException e){
-                    e.printStackTrace();
+        try{
+            int selectednum = Integer.parseInt(br.readLine().trim());
+            switch (selectednum){
+                case 1 -> {
+                    System.out.println("상품번호 : ");
+                    try{
+                        String productcode = br.readLine().trim();
+                        getProductByProductCode(productcode);
+                    }catch (IOException e){
+                        e.printStackTrace();
+                    }
                 }
+                case 2 -> {
+                    return;
+                }
+                default -> System.out.println("잘못입력하였습니다.");
             }
-            case 2 -> {
-                return;
-            }
-            default -> System.out.println("잘못입력하였습니다.");
+        }catch (IOException i){
+            i.printStackTrace();
         }
-
-
     }
 
     public void getProductByProductCode(String productCode) {
@@ -198,13 +204,16 @@ public class ProductManagementController {
             System.out.println("1. 상품정보 수정 | 2. 상품목록으로 돌아가기");
 
             try{
-                String cmd = br.readLine();
+                int cmd = Integer.parseInt(br.readLine().trim());
 
                 switch (cmd) {
-                    case "1" ->  updateProductByProductCode(productCode);
-                    case "2" -> getProductList();
+                    case 1 ->  updateProductByProductCode(productCode);
+                    case 2 -> getProductList();
                 }
-            } catch(IOException i){ i.printStackTrace();}
+            }catch (IOException i){
+                i.printStackTrace();
+            }
+
     }
 
     public int updateProductByProductCode(String productCode){
@@ -231,9 +240,10 @@ public class ProductManagementController {
             System.out.println("-------------------------------------------------------------");
             System.out.println("보조 메뉴 : 1.Ok | 2.Cancel");
             System.out.print("메뉴 선택 : ");
-            String menuNum = br.readLine();
 
-            if(menuNum.equals("1")){
+            int menuNum = Integer.parseInt(br.readLine().trim());
+
+            if(menuNum == 1){
                 state = productService.updateProductByProductCode(productCode,updateProduct);
                 System.out.println("상품 정보 수정 완료");
 
@@ -257,7 +267,6 @@ public class ProductManagementController {
             i.printStackTrace();
         }
         return state;
-
 
 
     }
