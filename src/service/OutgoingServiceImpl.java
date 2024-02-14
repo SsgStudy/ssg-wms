@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import vo.InventoryVO;
 import vo.OutgoingInstVO;
+import vo.OutgoingProductVO;
 import vo.OutgoingVO;
 
 public class OutgoingServiceImpl implements OutgoingService {
@@ -53,5 +54,10 @@ public class OutgoingServiceImpl implements OutgoingService {
     @Override
     public List<OutgoingVO> getAllOutgoings() throws Exception {
         return outgoingDAO.getAllOutgoings();
+    }
+
+    @Override
+    public OutgoingProductVO getOutgoingProductRowByOutgoingId(Long pkOutgoingId) throws Exception {
+        return outgoingDAO.getOutgoingRowByOutgoingId(pkOutgoingId);
     }
 }

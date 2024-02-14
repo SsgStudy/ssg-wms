@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import vo.InventoryVO;
 import vo.OutgoingInstVO;
+import vo.OutgoingProductVO;
 import vo.OutgoingVO;
 
 public interface OutgoingService {
@@ -31,5 +32,7 @@ public interface OutgoingService {
 
     //출고 리스트 전체 조회
     List<OutgoingVO> getAllOutgoings() throws Exception;
+
+    OutgoingProductVO getOutgoingProductRowByOutgoingId(Long pkOutgoingId) throws Exception;
 
 }
