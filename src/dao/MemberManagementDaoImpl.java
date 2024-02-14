@@ -113,28 +113,52 @@ public class MemberManagementDaoImpl implements MemberManagementDao {
         return member;
     }
 
-    public MemberEnum getMemberRoleById(String userId) {
-        MemberEnum userRole = null;
-        String sql = new StringBuilder().append("SELECT V_MEMBER_AUTH ")
-                .append("FROM TB_MEMBER WHERE V_MEMBER_ID = ?").toString();
-
-        try{
-            pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, userId);
-            ResultSet rs = pstmt.executeQuery();
-
-            if(rs.next()){
-                String roleStr = rs.getString("V_MEMBER_AUTH");
-                userRole = MemberEnum.valueOf(roleStr);
-            }
-
-        }catch (SQLException s){
-            s.printStackTrace();
+//    public MemberEnum getMemberRoleById(String userId) {
+//        MemberEnum userRole = null;
+//        String sql = new StringBuilder().append("SELECT V_MEMBER_AUTH ")
+//                .append("FROM TB_MEMBER WHERE V_MEMBER_ID = ?").toString();
+//
+//        try{
+//            pstmt = conn.prepareStatement(sql);
+//            pstmt.setString(1, userId);
+//            ResultSet rs = pstmt.executeQuery();
+//
+//            if(rs.next()){
+//                String roleStr = rs.getString("V_MEMBER_AUTH");
+//                userRole = MemberEnum.valueOf(roleStr);
+//            }
+//
+//        }catch (SQLException s){
+//            s.printStackTrace();
+//        }
+//
+//        return userRole;
+//
+//    }
+public MemberEnum getMemberRoleById(String userId) {
+    MemberEnum userRole = null;
+    String sql = "SELECT V_MEMBER_AUTH FROM TB_MEMBER WHERE V_MEMBER_ID = ?";
+    try {
+        if (conn == null || conn.isClosed()) {
+            conn = DbConnection.getInstance().getConnection();
         }
-
-        return userRole;
-
+        pstmt = conn.prepareStatement(sql);
+        pstmt.setString(1, userId);
+        ResultSet rs = pstmt.executeQuery();
+        if (rs.next()) {
+            String roleStr = rs.getString("V_MEMBER_AUTH");
+            userRole = MemberEnum.valueOf(roleStr);
+        }
+        rs.close();
+        pstmt.close();
+    } catch (SQLException s) {
+        s.printStackTrace();
+    } catch (Exception e) {
+        throw new RuntimeException(e);
     }
+    return userRole;
+}
+
     public int updateMemberByNo(int no, Member member){
         int row=0;
 
