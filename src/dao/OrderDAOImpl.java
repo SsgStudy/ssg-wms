@@ -9,6 +9,7 @@ import java.util.Map;
 import util.DbConnection;
 import util.enumcollect.OrderCollectionTypeEnum;
 import util.enumcollect.OrderStatusEnum;
+import util.enumcollect.PurchaseEnum;
 import vo.OrderVO;
 import vo.Product;
 
@@ -48,6 +49,56 @@ public class OrderDAOImpl implements OrderDAO {
                     order.setOrderCompletionDate(completionTimestamp.toLocalDateTime());
                 }
                 order.setOrderDetailSeq(rs.getLong("PK_ORDER_DETAIL_SEQ"));
+                order.setOrderCnt(rs.getInt("N_ORDER_CNT"));
+                order.setProductCode(rs.getString("V_PRODUCT_CD"));
+                order.setWarehouseCode(rs.getString("V_WAREHOUSE_CD"));
+                orders.add(order);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            // 자원 해제
+            try {
+                if (rs != null) rs.close();
+                if (stmt != null) stmt.close();
+                DbConnection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return orders;
+    }
+
+    @Override
+    public List<OrderVO> getAllOrdersStatusProgress() {
+        List<OrderVO> orders = new ArrayList<>();
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+
+        try {
+            conn = DbConnection.getInstance().getConnection();
+            String sql = "SELECT O.PK_ORDER_SEQ, O.V_ORDER_STATUS, O.V_INCOMING_PRODUCT_SUPPLIER_NM, O.DT_DELIVERY_DATE, O.DT_ORDER_COMPLETION_DATE, " +
+                    "OD.PK_ORDER_DETAIL_SEQ, OD.N_ORDER_CNT, OD.V_ORDER_STATUS AS V_ORDER_DETAIL_STATUS, OD.V_PRODUCT_CD, OD.V_WAREHOUSE_CD " +
+                    "FROM TB_ORDER O JOIN TB_ORDER_DETAIL OD ON O.PK_ORDER_SEQ = OD.PK_ORDER_SEQ " +
+                    "WHERE O.V_ORDER_STATUS LIKE ? ";
+            stmt = conn.prepareStatement(sql);
+            stmt.setString(1, OrderStatusEnum.PROGRESS.toString());
+            rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                OrderVO order = new OrderVO();
+                order.setOrderSeq(rs.getLong("PK_ORDER_SEQ"));
+                order.setOrderStatus(rs.getString("V_ORDER_STATUS"));
+                order.setIncomingProductSupplierName(rs.getString("V_INCOMING_PRODUCT_SUPPLIER_NM"));
+                order.setDeliveryDate(rs.getTimestamp("DT_DELIVERY_DATE").toLocalDateTime());
+                Timestamp completionTimestamp = rs.getTimestamp("DT_ORDER_COMPLETION_DATE");
+                if (completionTimestamp != null) {
+                    order.setOrderCompletionDate(completionTimestamp.toLocalDateTime());
+                }
+                order.setOrderDetailSeq(rs.getLong("PK_ORDER_DETAIL_SEQ"));
+                order.setOrderDetailStatus(OrderStatusEnum.valueOf(rs.getString("V_ORDER_DETAIL_STATUS")));
                 order.setOrderCnt(rs.getInt("N_ORDER_CNT"));
                 order.setProductCode(rs.getString("V_PRODUCT_CD"));
                 order.setWarehouseCode(rs.getString("V_WAREHOUSE_CD"));
@@ -190,4 +241,35 @@ public class OrderDAOImpl implements OrderDAO {
         return order;
     }
 
+    // 발주 상태 변경
+    @Override
+    public int updateOrderStatus(Long orderSeq) {
+        Connection conn;
+        PreparedStatement pstmt = null;
+        int updatedRows = 0;
+
+        try {
+            conn = DbConnection.getInstance().getConnection();
+
+            String sql = new StringBuilder("UPDATE TB_ORDER ")
+                    .append("SET V_ORDER_STATUS = ? ")
+                    .append("WHERE PK_ORDER_SEQ IN ( ? )").toString();
+
+            pstmt = conn.prepareStatement(sql.toString());
+            pstmt.setString(1, OrderStatusEnum.COMPLETE.name());
+            pstmt.setLong(2, orderSeq);
+            updatedRows = pstmt.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (pstmt != null) pstmt.close();
+                DbConnection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return updatedRows;
+    }
 }

@@ -19,6 +19,13 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public List<OrderVO> getAllOrdersStatusProgress() {
+        List<OrderVO> orderList = orderDAO.getAllOrdersStatusProgress();
+        printOrderProgressList(orderList);
+        return orderList;
+    }
+
+    @Override
     public List<Product> getProductInventoryList() {
         List<Product> productList = orderDAO.getAllProductQuantity();
         printProductList(productList);
@@ -36,6 +43,11 @@ public class OrderServiceImpl implements OrderService {
         OrderVO order = orderDAO.getOneOrderInformation(orderSeq);
         printOrderInfo(order);
         return order;
+    }
+
+    @Override
+    public int updateOrderStauts(Long orderSeq) {
+        return orderDAO.updateOrderStatus(orderSeq);
     }
 
     public void printProductList(List<Product> productList) {
@@ -58,6 +70,17 @@ public class OrderServiceImpl implements OrderService {
         System.out.printf("%-4d %-12s %-20s %tF %<tT%n \n",
                 order.getOrderSeq(), order.getOrderStatus(), order.getIncomingProductSupplierName(),
                 order.getDeliveryDate());
+    }
+
+    public void printOrderProgressList(List<OrderVO> orderList) {
+        System.out.printf("%-4s %-12s %-20s %-10s  \n",
+                "발주 번호", "발주 상태", "공급 업체", "납품 일자");
+
+        for (OrderVO order : orderList) {
+            System.out.printf("%-4d %-12s %-20s %tF %<tT%n",
+                    order.getOrderSeq(), order.getOrderStatus(), order.getIncomingProductSupplierName(),
+                    order.getDeliveryDate());
+        }
     }
 
 }

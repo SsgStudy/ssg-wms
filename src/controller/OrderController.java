@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import service.OrderService;
 import service.PurchaseService;
 import util.enumcollect.MemberEnum;
+import util.enumcollect.OrderStatusEnum;
 import vo.OrderVO;
 import vo.Product;
 
@@ -76,11 +77,32 @@ public class OrderController {
                 menu();
                 break;
             case "2":
-                // 발주 확정 - 여기서는 발주건 하나에 대한 세부발주건 상태가 모두 입고 완료인 경우 확정할 수 있도록 함. 상태 COMPLETE으로 변경
+                // 발주 확정
+                List<OrderVO> orderList = orderService.getAllOrdersStatusProgress();
+                System.out.print("확정할 발주 번호를 입력하세요. ");
+                Long orderProgressSeq = Long.parseLong(sc.nextLine());
+
+                boolean flag = false;
+
+                for (OrderVO o : orderList) {
+                    if (o.getOrderSeq()==orderProgressSeq) {
+                        if (o.getOrderDetailStatus().equals(OrderStatusEnum.COMPLETE)) {
+                            flag = true;
+                        } else flag = false;
+                    }
+                }
+                if (flag) {
+                    orderService.updateOrderStauts(orderProgressSeq);
+                    System.out.println(orderProgressSeq + "번의 발주가 확정되었습니다.");
+                }
+                else {
+                    System.out.println("발주 실패 - 미입고 상태입니다.");
+                }
                 menu();
                 break;
             case "3":
-                // 발주 상태 조회
+                // 발주 조회
+                printAllOrdersWithDetails();
                 menu();
                 break;
             case "4":
