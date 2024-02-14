@@ -37,7 +37,7 @@ public class PurchaseDAOImpl implements PurchaseDAO{
                             .append("FROM TB_SHOP_PURCHASE sp " +
                                     "JOIN TB_SHOP s ON sp.PK_SHOP_CD = s.PK_SHOP_CD ")
                             .append("WHERE sp.DT_SHOP_PURCHASE_DATE BETWEEN ? AND ? ")
-//                            .append("AND sp.V_SHOP_PURCHASE_STATUS IS NULL ")
+                            .append("AND sp.V_SHOP_PURCHASE_STATUS IS NULL ")
                             .append("AND s.V_SHOP_NM IN (");
 
             for (int i=0; i<shopName.size(); i++) {
@@ -146,7 +146,8 @@ public class PurchaseDAOImpl implements PurchaseDAO{
             conn = DbConnection.getInstance().getConnection();
             StringBuilder sql = new StringBuilder("UPDATE TB_SHOP_PURCHASE ")
                     .append("SET V_SHOP_PURCHASE_STATUS = ? ")
-                    .append("WHERE PK_SHOP_PURCHASE_SEQ IN ( ");
+                    .append("WHERE V_SHOP_PURCHASE_CLAIM IS NULL " )
+                    .append("AND PK_SHOP_PURCHASE_SEQ IN ( ");
 
             for (int i = 0; i < purchaseDetailSeq.size(); i++) {
                 sql.append("?");
@@ -439,12 +440,6 @@ public class PurchaseDAOImpl implements PurchaseDAO{
         return updatedRows;
     }
 
-    public int create() {
-
-        return 0;
-
-    }
-
     public int updatePurchaseCancelStatus(Long purchaseSeq, PurchaseEnum status) {
         Connection conn;
         PreparedStatement pstmt = null;
@@ -459,14 +454,9 @@ public class PurchaseDAOImpl implements PurchaseDAO{
                     .append(" ELSE V_SHOP_PURCHASE_STATUS END ")
                     .append("WHERE PK_SHOP_PURCHASE_SEQ IN ( ? )").toString();
 
-
-
             pstmt = conn.prepareStatement(sql.toString());
             pstmt.setString(1, PurchaseEnum.주문취소접수.toString());
-
             pstmt.setLong(2, purchaseSeq);
-
-
             updatedRows = pstmt.executeUpdate();
 
         } catch (Exception e) {
@@ -480,8 +470,5 @@ public class PurchaseDAOImpl implements PurchaseDAO{
             }
         }
         return updatedRows;
-
     }
-
-
 }
