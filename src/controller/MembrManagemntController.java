@@ -18,8 +18,7 @@ public class MembrManagemntController {
     private LoginManagementDAOImpl loginDao = LoginManagementDAOImpl.getInstance();
     private MemberEnum loginMemberRole;
     private String loginMemberId;
-    BufferedReader sc = new BufferedReader(new InputStreamReader(System.in));
-    Scanner scanner = new Scanner(System.in);
+    BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
     private MembrManagemntController() {
         updateLoginInfo(); // 로그인 정보 초기화
@@ -50,13 +49,15 @@ public class MembrManagemntController {
 
             System.out.println("loginId : " + loginMemberId);
             System.out.println("loginRole : " + loginMemberRole);
-            System.out.println("1. 회원정보 수정\n 2. 메뉴 나가기");
+            System.out.println("1. 회원정보 수정 | 2. 메뉴 나가기");
             System.out.print("선택: ");
-            int manageChoice = scanner.nextInt();
+            int manageChoice = Integer.parseInt(br.readLine());
 
             switch (manageChoice) {
                 case 1 -> memberUpdate();
-                case 2 -> continueMenu = false;
+                case 2 -> {
+                    return;
+                }
                 default -> System.out.println("옳지 않은 입력입니다.");
             }
         }
@@ -67,14 +68,14 @@ public class MembrManagemntController {
         String currentUserId = getCurrentUserId();
         MemberEnum currentUserRole = memberService.getMemberRoleById(currentUserId);
 
-        if (currentUserRole == MemberEnum.ADMIN) {
+        if (loginMemberRole == MemberEnum.ADMIN) {
             List<Member> members = memberService.getMemberList();
             for (Member member : members) {
                 System.out.printf("%-4d %-20s %-16s %s\n", member.getMemberSeq(), member.getMemberId(), member.getMemberName(),
                         member.getMemberRole());
             }
         } else {
-            Member member = memberService.getMemberByUserId(currentUserId);
+            Member member = memberService.getMemberByUserId(loginMemberId);
             if (member != null) {
                 System.out.printf("%-4d %-20s %-16s %s\n", member.getMemberSeq(), member.getMemberId(), member.getMemberName(),
                         member.getMemberRole());
@@ -91,14 +92,19 @@ public class MembrManagemntController {
         try {
             memberRead();
             int no;
-            if (currentUserRole == MemberEnum.ADMIN) {
+            if (loginMemberRole == MemberEnum.ADMIN) {
                 System.out.println("수정 원하는 회원 번호를 입력하세요:");
-                no = Integer.parseInt(sc.readLine());
+                no = Integer.parseInt(br.readLine());
+                System.out.println("no = " + no);
+
             } else {
 
-                Member member = memberService.getMemberByUserId(currentUserId);
+                System.out.println(loginMemberId);
+                Member member = memberService.getMemberByUserId(loginMemberId);
                 if (member == null) {
-                    System.out.println("회원정보를 찾을 수 없습니다.");
+                    System.out.println("muR : "+loginMemberRole);
+                    System.out.println("muI : "+loginMemberId);
+                    System.out.println("(member update)회원정보를 찾을 수 없습니다.");
                     return;
                 }
                 no = member.getMemberSeq();
@@ -107,9 +113,9 @@ public class MembrManagemntController {
             }
 
             System.out.println("새로운 아이디:");
-            String newId = sc.readLine();
+            String newId = br.readLine();
             System.out.println("새로운 이름:");
-            String newName = sc.readLine();
+            String newName = br.readLine();
 
             boolean isUpdated = memberService.updateMemberInfo(no, newId, newName);
             if (isUpdated) {

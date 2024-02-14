@@ -162,7 +162,7 @@ public class WareHouseDaoImpl implements WareHouseDao {
         return wareHouseListByType;
     }
 
-    private WareHouse extractWareHouseFromResultSet(ResultSet rs) throws SQLException {
+    public WareHouse extractWareHouseFromResultSet(ResultSet rs) throws SQLException {
         WareHouse wareHouse = new WareHouse();
         wareHouse.setWarehouseCode(rs.getString("V_WAREHOUSE_CD"));
         wareHouse.setWarehouseName(rs.getString("V_WAREHOUSE_NM"));

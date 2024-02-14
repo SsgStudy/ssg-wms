@@ -32,7 +32,7 @@ public class InvoiceController {
     public static void menu() throws IOException, SQLException {
         System.out.println("[송장 관리]");
         System.out.println("--".repeat(25));
-        System.out.println("1.송장 등록 | 2.송장 조회 | 3.나가기");
+        System.out.println("1.송장 등록 | 2.송장 조회 | 3.메뉴 나가기");
         System.out.print("메뉴 선택 : ");
         Long test=0L;
 

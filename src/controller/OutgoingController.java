@@ -11,6 +11,7 @@ import dao.InvoiceDaoImpl;
 import service.IncomigService;
 import service.InvoiceService;
 import service.InvoiceServiceImpl;
+
 import service.OutgoingService;
 import vo.InventoryVO;
 import vo.OutgoingInstVO;
@@ -20,7 +21,7 @@ import vo.OutgoingVO;
 public class OutgoingController {
 
     private static OutgoingController instance;
-    private Scanner scanner = new Scanner(System.in);
+    private Scanner sc = new Scanner(System.in);
     private OutgoingService outgoingService;
     private InvoiceService invoiceService;
 
@@ -39,15 +40,17 @@ public class OutgoingController {
     public void outgoingProductMenu() {
         boolean continueMenu = true;
         while (continueMenu) {
-            System.out.println("\n1. 출고 지시 목록 조회\n2. 출고 수정 및 승인\n3. 메뉴 나가기");
+            System.out.println("\n1. 출고 지시 목록 조회 | 2. 출고 수정 및 승인 | 3. 메뉴 나가기");
             System.out.print("선택: ");
-            int choice = scanner.nextInt();
+            int choice = sc.nextInt();
 
             switch (choice) {
                 case 1 -> printAllOutgoingInsts();
                 case 2 -> updateOutgoingProductMenu();
-                case 3 -> continueMenu = false;
-                default -> System.out.println("잘못된 입력입니다. 다시 입력해주세요.");
+                case 3 -> {
+                    return;
+                }
+                default -> System.out.println("잘못된 입력입니다.");
             }
         }
     }
@@ -55,14 +58,14 @@ public class OutgoingController {
     public void outgoingProductSubMenu() {
         boolean continueMenu = true;
         while (continueMenu) {
-            System.out.println("\n1. 출고 등록\n2. 서브 메뉴 나가기");
+            System.out.println("\n1. 출고 등록 | 2. 서브 메뉴 나가기");
             System.out.print("선택: ");
-            int choice = scanner.nextInt();
+            int choice = sc.nextInt();
 
             switch (choice) {
                 case 1 -> addOutgoingProductList();
-                case 2 -> continueMenu = false;
-                default -> System.out.println("잘못된 입력입니다. 다시 입력해주세요.");
+                case 2 -> {return;}
+                default -> System.out.println("잘못된 입력입니다.");
             }
         }
     }
@@ -85,7 +88,7 @@ public class OutgoingController {
     public void addOutgoingProductList() {
         try {
             System.out.print("출고 등록할 지시 번호 선택: ");
-            String input = scanner.next();
+            String input = sc.next();
             int choice;
 
             try {
@@ -104,7 +107,7 @@ public class OutgoingController {
         printAllOutgoings();
         try {
             System.out.print("수정할 출고 상품의 ID를 입력하세요: ");
-            Long pkOutgoingId = scanner.nextLong();
+            Long pkOutgoingId = sc.nextLong();
 
             // 출고 상품에 대한 상품 코드 자동 조회
             String productCd = outgoingService.getProductCodeByOutgoingId(pkOutgoingId);
@@ -112,13 +115,13 @@ public class OutgoingController {
             // 출고 수량 조회
             int currentQuantity = outgoingService.getOutgoingProductQuantity(pkOutgoingId);
             System.out.println("현재 출고 수량: " + currentQuantity + ". 수정할 수량을 입력하세요 (최대 " + currentQuantity + "): ");
-            int newQuantity = scanner.nextInt();
+            int newQuantity = sc.nextInt();
 
             // 출고 일자 입력
             LocalDateTime outgoingDate = null;
             while (outgoingDate == null) {
                 System.out.print("출고 일자를 입력하세요 (예: 202401301400): ");
-                String outgoingDateInput = scanner.next(); // 문자열로 입력 받음
+                String outgoingDateInput = sc.nextLine(); // 문자열로 입력 받음
                 try {
                     outgoingDate = LocalDateTime.parse(outgoingDateInput, DateTimeFormatter.ofPattern("yyyyMMddHHmm"));
                 } catch (DateTimeParseException e) {
@@ -141,7 +144,7 @@ public class OutgoingController {
                                 + inventory.getInventoryCnt());
             }
             System.out.print("선택: ");
-            int inventoryChoice = scanner.nextInt();
+            int inventoryChoice = sc.nextInt();
             InventoryVO selectedInventory = inventories.get(inventoryChoice - 1);
 
             // 출고 상품 업데이트 및 출고 상태 WAIT로 변경, 출고 일자 업데이트

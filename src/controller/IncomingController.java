@@ -12,7 +12,7 @@ import vo.IncomingVO;
 public class IncomingController {
     private static IncomingController instance;
     private IncomigService incomingService;
-    Scanner scanner = new Scanner(System.in);
+    Scanner sc = new Scanner(System.in);
 
     public IncomingController(IncomigService incomingService) {
         this.incomingService = incomingService;
@@ -37,23 +37,25 @@ public class IncomingController {
 
         while (continueMenu) {
 
-            System.out.println("1. 조회 필터 선택\n2. 수정\n3. 승인\n4. 메뉴 나가기");
+            System.out.println("1. 조회 필터 선택 | 2. 수정 | 3. 승인 | 4. 메뉴 나가기");
             System.out.print("선택: ");
-            int manageChoice = scanner.nextInt();
+            int manageChoice = sc.nextInt();
 
             switch (manageChoice) {
                 case 1 -> selectFilterOption();
                 case 2 -> {
                     System.out.println("수정할 입고 상품의 번호를 입력하세요:");
-                    long seqToUpdate = scanner.nextLong();
+                    long seqToUpdate = sc.nextLong();
                     updateIncomingProduct(seqToUpdate);
                 }
                 case 3 -> {
                     System.out.println("승인할 입고 상품의 번호를 입력하세요:");
-                    long seqToApprove = scanner.nextLong();
+                    long seqToApprove = sc.nextLong();
                     approveIncomingProduct(seqToApprove);
                 }
-                case 4 -> continueMenu = false;
+                case 4 -> {
+                    return;
+                }
                 default -> System.out.println("옳지 않은 입력입니다.");
             }
         }
@@ -62,15 +64,16 @@ public class IncomingController {
     //조회 필터 메뉴
     private void selectFilterOption() throws Exception {
         System.out.println("조회 필터 선택");
-        System.out.println("1. 전체 조회 \t2. 년 월 조회 \t3. 기간 별 조회 \t4. 상세 조회");
+        System.out.println("1. 전체 조회 | 2. 년 월 조회 | 3. 기간 별 조회 | 4. 상세 조회 | 5. 메뉴 나가기");
         System.out.print("선택: ");
-        int filterChoice = scanner.nextInt();
+        int filterChoice = sc.nextInt();
 
         switch (filterChoice) {
             case 1 -> printAllIncomingProductsWithDetails();
             case 2 -> promptForMonthlyIncomingProducts();
             case 3 -> promptForIncomingProductsByDateRange();
             case 4 -> promptForDetailedIncomingProduct();
+            case 5 -> {return;}
             default -> System.out.println("옳지 않은 입력입니다.");
         }
     }
@@ -79,9 +82,9 @@ public class IncomingController {
     //기능 프롬프트
     public void updateIncomingProduct(long seq) throws Exception {
         System.out.println("수정할 ZONE 코드, 수량, 가격을 입력하세요 (공백으로 구분):");
-        String zoneCode = scanner.next();
-        int count = scanner.nextInt();
-        int price = scanner.nextInt();
+        String zoneCode = sc.next();
+        int count = sc.nextInt();
+        int price = sc.nextInt();
 
         incomingService.updateIncomingProductDetails(seq, zoneCode, count, price);
         printAllIncomingProductsWithDetails();
@@ -94,8 +97,8 @@ public class IncomingController {
 
     private void promptForMonthlyIncomingProducts() throws Exception {
         System.out.println("년도와 월을 입력하세요 (예: 2023 5):");
-        int year = scanner.nextInt();
-        int month = scanner.nextInt();
+        int year = sc.nextInt();
+        int month = sc.nextInt();
         if (year > 0 && month >= 1 && month <= 12) {
             printIncomingProductsByMonth(year, month);
         } else {
@@ -106,8 +109,8 @@ public class IncomingController {
 
     private void promptForIncomingProductsByDateRange() throws Exception {
         System.out.println("시작 날짜와 종료 날짜를 입력하세요 (예: 2023-01-01 2023-01-31):");
-        String startDateStr = scanner.next();
-        String endDateStr = scanner.next();
+        String startDateStr = sc.next();
+        String endDateStr = sc.next();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
         try {
@@ -126,7 +129,7 @@ public class IncomingController {
 
     private void promptForDetailedIncomingProduct() throws Exception {
         System.out.println("조회할 입고 상품의 번호를 입력하세요:");
-        long seq = scanner.nextLong();
+        long seq = sc.nextLong();
         DetailedIncomingVO detailedIncomingProduct = incomingService.getIncomingProductDetailsWithProductInfo(seq);
         printDetailedIncomingProduct(detailedIncomingProduct);
     }
