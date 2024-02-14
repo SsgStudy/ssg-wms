@@ -11,9 +11,11 @@ import java.util.stream.Collectors;
 
 public class InventoryController {
     private Scanner sc = new Scanner(System.in);
+    private boolean categoryContinue = true;
     private final InventoryAdjustmentService adjustmentService;
     private final InventoryMovementService movementService;
     private final InventoryQueryService queryService;
+
     public InventoryController(InventoryAdjustmentService adjustmentService,
                                InventoryMovementService movementService,
                                InventoryQueryService queryService) {
@@ -24,6 +26,7 @@ public class InventoryController {
     }
 
     private List<CategoryVO> categoryList = new ArrayList<>();
+
     public void menu() {
         while (true) {
             System.out.println("[메뉴 선택]");
@@ -44,15 +47,18 @@ public class InventoryController {
     }
 
     private void inventoryQuerySubMenu() {
-        while (true) {
-            System.out.println("\n[재고 조회 메뉴]");
+        categoryContinue = true;
+        while (categoryContinue) {
+            System.out.println("\n**재고 조회 메뉴**");
             System.out.println("1. 창고별 재고 조회 | 2. 카테고리별 재고 조회 | 3. 메뉴 나가기");
             System.out.print("번호 입력 : ");
             int manageChoice = Integer.parseInt(sc.nextLine());
             switch (manageChoice) {
                 case 1 -> getProductInventoryTotalByWarehouse();
                 case 2 -> getProductInventoryByCategory();
-                case 3 -> {return;}
+                case 3 -> {
+                    return;
+                }
                 default -> System.out.println("번호를 다시 선택해주세요.");
             }
         }
@@ -74,11 +80,11 @@ public class InventoryController {
 
         Collections.sort(uniqueWarehouseCodes);
 
-        System.out.println("-".repeat(300));
+        System.out.println("-" .repeat(300));
         System.out.printf("%-20s  %-17s  %-8s  ", "상품 번호", "상품 이름", "총 수량");
         uniqueWarehouseCodes.forEach(warehouseCode -> System.out.printf("%-12s  ", warehouseCode));
         System.out.println();
-        System.out.println("-".repeat(300));
+        System.out.println("-" .repeat(300));
 
         Map<String, Integer> productTotalMap = new HashMap<>();
         for (String productCode : uniqueProductCodes) {
@@ -107,7 +113,7 @@ public class InventoryController {
             }
             System.out.println();
         }
-        System.out.println("-".repeat(300));
+        System.out.println("-" .repeat(300));
 
         System.out.printf("%-45s%-10d  ", "합계",
                 productTotalMap.values().stream().mapToInt(Integer::intValue).sum());
@@ -119,12 +125,12 @@ public class InventoryController {
             System.out.printf("%-12d  ", totalQuantity);
         });
         System.out.println();
-        System.out.println("-".repeat(300));
-        System.exit(0);
+        System.out.println("-" .repeat(300));
+        menu();
     }
 
     public void getProductInventoryByCategory() {
-        while (true) {
+        while (categoryContinue) {
             categoryList.clear();
             System.out.println("\n[대분류별 카테고리 확인]");
             categoryList = queryService.getMainCategories();
@@ -143,6 +149,7 @@ public class InventoryController {
                 getInventoryByMainCategory(mainCategoryNumber, categoryName);
 
                 System.out.println("1. 하위 카테고리 선택 | 2. 상위 카테고리 다시 선택 | 3. 메뉴 나가기");
+                System.out.print("번호 입력 : ");
                 int menuChoice = Integer.parseInt(sc.nextLine());
                 switch (menuChoice) {
                     case 1 -> getSubCategoriesByMainCategory(mainCategoryNumber);
@@ -150,7 +157,7 @@ public class InventoryController {
                         getProductInventoryByCategory();
                         mainCategoryNumber = 0;
                     }
-                    case 3 -> {break;}
+                    case 3 -> categoryContinue = false;
                     default -> System.out.println("옳지 않은 입력입니다.");
 
                 }
@@ -159,7 +166,7 @@ public class InventoryController {
     }
 
     public void getSubCategoriesByMainCategory(int mainCategoryNumber) {
-        while (true) {
+        while (categoryContinue) {
             categoryList.clear();
             System.out.println("\n[중분류별 카테고리 확인]");
             categoryList = queryService.getSubCategoriesByMainCategory(mainCategoryNumber);
@@ -168,7 +175,7 @@ public class InventoryController {
 
             printCategoryNameList(categoryNameList);
 
-            System.out.print("카테고리 선택 : ");
+            System.out.print("번호 입력 : ");
             int subCategoryNumber = Integer.parseInt(sc.nextLine());
             int categoryNameListSize = categoryNameList.size();
             if (subCategoryNumber > categoryNameListSize || subCategoryNumber <= 0) System.out.println("번호를 다시 입력하세요.");
@@ -176,12 +183,13 @@ public class InventoryController {
                 String categoryName = categoryNameList.get(subCategoryNumber - 1);
                 getInventoryBySubCategory(mainCategoryNumber, subCategoryNumber, categoryName);
 
-                System.out.println("1. 하위 카테고리 선택 | 2. 상위 카테고리 다시 선택 | 3. 조회 종료 | 4. 메뉴 나가기");
+                System.out.println("1. 하위 카테고리 선택 | 2. 상위 카테고리 다시 선택 | 3. 메뉴 나가기");
+                System.out.print("번호 입력 : ");
                 int menuChoice = Integer.parseInt(sc.nextLine());
                 switch (menuChoice) {
                     case 1 -> getDetailCategoriesBySubCategory(mainCategoryNumber, subCategoryNumber);
                     case 2 -> getSubCategoriesByMainCategory(mainCategoryNumber);
-                    case 3 -> {return;}
+                    case 3 -> categoryContinue = false;
                     default -> System.out.println("옳지 않은 입력입니다.");
                 }
             }
@@ -189,14 +197,14 @@ public class InventoryController {
     }
 
     public void getDetailCategoriesBySubCategory(int mainCategoryNumber, int subCategoryNumber) {
-        while (true) {
+        while (categoryContinue) {
             categoryList.clear();
             System.out.println("\n[소분류별 카테고리 확인]");
             categoryList = queryService.getDetailCategoriesBySubCategory(mainCategoryNumber, subCategoryNumber);
             List<String> categoryNameList = categoryList.stream().map(CategoryVO::getCategoryName).collect(Collectors.toList());
             printCategoryNameList(categoryNameList);
 
-            System.out.print("카테고리 선택 : ");
+            System.out.print("번호 입력 : ");
             int detailCategoryNumber = Integer.parseInt(sc.nextLine());
             int categoryNameListSize = categoryNameList.size();
             if (detailCategoryNumber > categoryNameListSize || subCategoryNumber <= 0)
@@ -207,11 +215,12 @@ public class InventoryController {
 
 
                 System.out.println("1. 상위 카테고리 다시 선택 | 2. 카테고리 처음부터 선택 | 3. 메뉴 나가기");
+                System.out.print("번호 입력 : ");
                 int menuChoice = Integer.parseInt(sc.nextLine());
                 switch (menuChoice) {
                     case 1 -> getDetailCategoriesBySubCategory(mainCategoryNumber, subCategoryNumber);
                     case 2 -> getProductInventoryByCategory();
-                    case 3 -> {return;}
+                    case 3 -> categoryContinue = false;
                     default -> System.out.println("옳지 않은 입력입니다.");
                 }
             }
@@ -235,18 +244,18 @@ public class InventoryController {
     }
 
     private void printCategoryNameList(List<String> categoryNameList) {
-        System.out.println("-".repeat(300));
+        System.out.println("-" .repeat(300));
         for (int i = 1; i <= categoryNameList.size(); i++) {
-            System.out.print(i + ". " + categoryNameList.get(i - 1) + " ".repeat(5));
+            System.out.print(i + ". " + categoryNameList.get(i - 1) + " " .repeat(5));
         }
-        System.out.println("\n" + "-".repeat(300));
+        System.out.println("\n" + "-" .repeat(300));
     }
 
     private void printProductInventoryCategoryList(List<ProductInventoryCategoryVO> productInventoryCategoryListList) {
-        System.out.println("-".repeat(300));
+        System.out.println("-" .repeat(100));
         System.out.printf("%-25s%-17s%-13s%-13s%s\n",
                 "상품 번호", "상품 이름", "상품 가격", "재고 수량", "카테고리 코드");
-        System.out.println("-".repeat(100));
+        System.out.println("-" .repeat(100));
         for (ProductInventoryCategoryVO productInventory : productInventoryCategoryListList) {
             System.out.printf("%-25s%-20s%-15d%-12d%s\n",
                     productInventory.getProductCode(),
@@ -255,32 +264,28 @@ public class InventoryController {
                     productInventory.getTotalInventoryCnt(),
                     productInventory.getCategoryCode());
         }
-        System.out.println("-".repeat(300));
+        System.out.println("-" .repeat(100));
         System.out.printf("%-60s%d%n", "총 재고 수량", productInventoryCategoryListList.stream().mapToInt(ProductInventoryCategoryVO::getTotalInventoryCnt).sum());
-        System.out.println("-".repeat(300));
+        System.out.println("-" .repeat(100));
     }
 
 
     public void adjustInventory() {
+        boolean adjustContinue = true;
+        while (adjustContinue) {
+            System.out.println("\n**구분 선택**");
+            System.out.println("-" .repeat(50));
+            System.out.println("1. 입고 조정 | 2. 출고 조정 | 3. 메뉴 나가기");
+            System.out.println("-" .repeat(50));
 
-        System.out.println("\n**구분 선택**");
-        System.out.println("-".repeat(50));
-        System.out.println("1. 입고 조정 | 2. 출고 조정 | 3. 메뉴 나가기");
-        System.out.println("-".repeat(50));
-
-        System.out.print("번호 선택 : ");
-        int adjustmentMenuChoice = Integer.parseInt(sc.nextLine());
-
-        if (adjustmentMenuChoice == 1 || adjustmentMenuChoice == 2) {
-
+            System.out.print("번호 선택 : ");
+            int adjustmentMenuChoice = Integer.parseInt(sc.nextLine());
             switch (adjustmentMenuChoice) {
                 case 1 -> increaseInventory();
                 case 2 -> decreaseInventory();
-                case 3 -> {return;}
+                case 3 -> adjustContinue = false;
+                default -> System.out.println("옳지 않은 입력입니다.");
             }
-        } else {
-            System.out.println("번호를 다시 입력하세요");
-            adjustInventory();
         }
     }
 
@@ -382,11 +387,11 @@ public class InventoryController {
         while (true) {
             System.out.println("\n**이동 창고 선택**");
 
-            System.out.println("-".repeat(300));
+            System.out.println("-" .repeat(300));
             for (Map.Entry<Integer, String> warehouseNumberCode : warehouseCodeMap.entrySet()) {
-                System.out.print(warehouseNumberCode.getKey() + ". " + warehouseNumberCode.getValue() + " ".repeat(5));
+                System.out.print(warehouseNumberCode.getKey() + ". " + warehouseNumberCode.getValue() + " " .repeat(5));
             }
-            System.out.println("\n" + "-".repeat(300));
+            System.out.println("\n" + "-" .repeat(300));
 
             System.out.print("번호 선택 : ");
             int warehouseCodeChoice = Integer.parseInt(sc.nextLine()); //번호만 저장
@@ -413,11 +418,11 @@ public class InventoryController {
         while (true) {
             System.out.println("\n** 이동 창고 구역 선택**");
 
-            System.out.println("-".repeat(300));
+            System.out.println("-" .repeat(300));
             for (Map.Entry<Integer, String> warehouseNumberCode : zoneCodeMap.entrySet()) {
-                System.out.print(warehouseNumberCode.getKey() + ". " + warehouseNumberCode.getValue() + " ".repeat(5));
+                System.out.print(warehouseNumberCode.getKey() + ". " + warehouseNumberCode.getValue() + " " .repeat(5));
             }
-            System.out.println("\n" + "-".repeat(300));
+            System.out.println("\n" + "-" .repeat(300));
 
             System.out.print("번호 선택 : ");
             int zoneCodeChoice = Integer.parseInt(sc.nextLine()); //번호만 저장
@@ -457,10 +462,10 @@ public class InventoryController {
 
     //조정, 이동 출력
     private void printProductInventoryList(List<InventoryVO> inventoryList) {
-        System.out.println("-".repeat(300));
+        System.out.println("-" .repeat(300));
         System.out.printf("%-20s%-15s%-15s%-13s%-13s%s\n",
                 "번호", "상품 번호", "재고 수량", "날짜", "창고", "창고 구역");
-        System.out.println("-".repeat(300));
+        System.out.println("-" .repeat(300));
         for (InventoryVO inventory : inventoryList) {
             System.out.printf("%-15s%-25s%-15d%-13s%-13s%s\n",
                     inventory.getInventorySeq(),
@@ -470,7 +475,7 @@ public class InventoryController {
                     inventory.getWarehouseCd(),
                     inventory.getZoneCd());
         }
-        System.out.println("-".repeat(300));
+        System.out.println("-" .repeat(300));
     }
 
 }

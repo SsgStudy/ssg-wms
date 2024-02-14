@@ -30,7 +30,7 @@ public class OrderController {
         updateLoginInfo(); // 로그인 정보 초기화
     }
 
-    public static OrderController getInstance(OrderService orderService) {
+    public static synchronized OrderController getInstance(OrderService orderService) {
         if (instance == null) {
             instance = new OrderController(orderService);
         }
@@ -85,7 +85,7 @@ public class OrderController {
                 boolean flag = false;
 
                 for (OrderVO o : orderList) {
-                    if (o.getOrderSeq()==orderProgressSeq) {
+                    if (o.getOrderSeq() == orderProgressSeq) {
                         if (o.getOrderDetailStatus().equals(OrderStatusEnum.COMPLETE)) {
                             flag = true;
                         } else flag = false;
@@ -94,8 +94,7 @@ public class OrderController {
                 if (flag) {
                     orderService.updateOrderStauts(orderProgressSeq);
                     System.out.println(orderProgressSeq + "번의 발주가 확정되었습니다.");
-                }
-                else {
+                } else {
                     System.out.println("발주 실패 - 미입고 상태입니다.");
                 }
                 menu();
@@ -148,3 +147,4 @@ public class OrderController {
         }
     }
 }
+

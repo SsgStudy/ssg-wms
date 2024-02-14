@@ -40,82 +40,27 @@ public class InvoiceServiceImpl implements InvoiceService {
     public InvoiceServiceImpl(InvoiceDaoImpl invoiceDAO) {
         this.invoiceDAO = invoiceDAO;
     }
-    BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
     List<Invoice> invoiceList = new ArrayList<>();
 
 
     @Override
-    public int registerInvoice(OutgoingProductVO outgoingProductVO) throws IOException, SQLException {
-        Invoice invoice = new Invoice();
-        int status = 0;
-        Long invoiceSeq = 0L;
-
-        System.out.println("[송장 출력]");
-        System.out.println("--".repeat(25));
-
-        /* 송장 종류 선택 */
-        // 송장 종류 출력 dao
-        System.out.print("송장 종류 입력 (1.일반 | 2.특급 | 3.국제 | 4.등기) ");
-        int ch = Integer.parseInt(br.readLine());
-
-        switch (ch) {
-            case 1 -> invoice.setInvoiceType(WaybillTypeEnum.STANDARD);
-            case 2 -> invoice.setInvoiceType(WaybillTypeEnum.EXPRESS);
-            case 3 -> invoice.setInvoiceType(WaybillTypeEnum.INTERNATIONAL);
-            case 4 -> invoice.setInvoiceType(WaybillTypeEnum.REGISTERED);
-        }
-
-        invoice.setPurchaseSeq(outgoingProductVO.getShopPurchaseSeq());
-
-        try {
-            System.out.println("[택배사 선택]");
-            System.out.println("--".repeat(25));
-            System.out.println("1. 한진택배 | 2.CJ대한통운 | 3.우체국택배 | 4.롯데택배 | 5.로젠택배");
-            System.out.print("택배사 선택 : ");
-            invoice.setLogisticSeq(Long.parseLong(br.readLine()));
-
-            invoiceSeq = invoiceDAO.registerInvoice(invoice);
-            Invoice result = invoiceDAO.getInvoiceRowByInvoiceSeq(invoiceSeq);
-
-            invoice.setInvoiceCode(result.getInvoiceCode());
-            invoice.setInvoicePrintDate(result.getInvoicePrintDate());
-            Blob qrCodeImage = createQRCode(invoice, outgoingProductVO);
-            status = invoiceDAO.putQRCode(qrCodeImage, invoiceSeq);
-
-        } catch (NumberFormatException e){
-            logger.info("숫자로 입력하세요.");
-            e.printStackTrace();
-        }
-
-        return status;
+    public Long registerInvoice(Invoice invoice) {
+        return invoiceDAO.registerInvoice(invoice);
     }
 
-
-    @Override
-    public void viewInvoice() throws IOException, SQLException {
-        System.out.println();
-        System.out.println("--".repeat(25));
-        System.out.println("[송장 목록]");
-        System.out.println("--".repeat(25));
-        System.out.printf("%4s | %8s | %5s | %20s \t| %4s | %4s\n", "송장코드", "송장날짜", "송장종류", "QR코드", "택배사코드", "발주코드");
-        System.out.println("--".repeat(25));
-        invoiceList = invoiceDAO.viewInvoice();
-        for (Invoice invoice : invoiceList) {
-            System.out.printf("%7s | %10s | %7s | %20s |%4s | %4s\n",
-                    invoice.getInvoiceCode(),
-                    invoice.getInvoicePrintDate(),
-                    invoice.getInvoiceType(),
-                    invoice.getQrCode(),
-                    invoice.getLogisticSeq(),
-                    invoice.getPurchaseSeq());
-        }
+    public List<Invoice> viewInvoice(){
+        return invoiceDAO.viewInvoice();
     }
+
+    public int putQRCode(Blob qrcode, Long invoiceSeq){
+        return invoiceDAO.putQRCode(qrcode,invoiceSeq);
+    }
+
 
     @Override
     public Invoice getInvoiceRowByInvoiceSeq(Long pkInvoiceSeq) {
         return invoiceDAO.getInvoiceRowByInvoiceSeq(pkInvoiceSeq);
     }
-
 
     public Blob createQRCode(Invoice invoice, OutgoingProductVO outgoingProduct) throws IOException, SQLException {
         String text = new StringBuilder("Invoice Code: " + invoice.getInvoiceCode())

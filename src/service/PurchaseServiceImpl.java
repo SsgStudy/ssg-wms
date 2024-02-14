@@ -105,7 +105,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             switch (ch) {
                 case 1 -> {
                     try {
-                        invoiceService.registerInvoice(outgoingProduct);
+//                        invoiceService.registerInvoice(outgoingProduct);
                     } catch (Exception e) {
                         System.out.println();
                     }
