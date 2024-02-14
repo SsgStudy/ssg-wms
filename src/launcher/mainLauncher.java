@@ -41,7 +41,7 @@ public class mainLauncher {
         // 컨트롤러 객체 생성 및 서비스 객체 주입
         WareHouseController wareHouseController = WareHouseController.getInstance(warehouseService);
         IncomingController incomingController = IncomingController.getInstance(incomingService);
-        OutgoingController outgoingController = OutgoingController.getInstance(outgoingService);
+        OutgoingController outgoingController = OutgoingController.getInstance(outgoingService,invoiceService);
         MemberController memberController = MemberController.getInstance();
         MembrManagemntController membrManagemntController = MembrManagemntController.getInstance();
         ProductManagementController productManagementController = ProductManagementController.getInstance(); // 수정: 싱글톤 인스턴스 사용

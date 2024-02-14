@@ -42,18 +42,24 @@ public class OutgoingController {
         while (continueMenu) {
             System.out.println("\n1. 출고 지시 목록 조회 | 2. 출고 수정 및 승인 | 3. 메뉴 나가기");
             System.out.print("선택: ");
-            int choice = sc.nextInt();
-
-            switch (choice) {
-                case 1 -> printAllOutgoingInsts();
-                case 2 -> updateOutgoingProductMenu();
-                case 3 -> {
-                    return;
+            String input = sc.nextLine();
+            int choice;
+            try {
+                choice = Integer.parseInt(input);
+                switch (choice) {
+                    case 1 -> printAllOutgoingInsts();
+                    case 2 -> updateOutgoingProductMenu();
+                    case 3 -> {
+                        return; // 메뉴 나가기
+                    }
+                    default -> System.out.println("잘못된 입력입니다.");
                 }
-                default -> System.out.println("잘못된 입력입니다.");
+            } catch (NumberFormatException e) {
+                System.out.println("잘못된 입력입니다. 숫자를 입력해주세요.");
             }
         }
     }
+
 
     public void outgoingProductSubMenu() {
         boolean continueMenu = true;
@@ -107,7 +113,7 @@ public class OutgoingController {
         printAllOutgoings();
         try {
             System.out.print("수정할 출고 상품의 ID를 입력하세요: ");
-            Long pkOutgoingId = sc.nextLong();
+            Long pkOutgoingId = Long.parseLong(sc.nextLine());
 
             // 출고 상품에 대한 상품 코드 자동 조회
             String productCd = outgoingService.getProductCodeByOutgoingId(pkOutgoingId);
@@ -115,13 +121,14 @@ public class OutgoingController {
             // 출고 수량 조회
             int currentQuantity = outgoingService.getOutgoingProductQuantity(pkOutgoingId);
             System.out.println("현재 출고 수량: " + currentQuantity + ". 수정할 수량을 입력하세요 (최대 " + currentQuantity + "): ");
-            int newQuantity = sc.nextInt();
+            int newQuantity = Integer.parseInt(sc.nextLine());
+
 
             // 출고 일자 입력
             LocalDateTime outgoingDate = null;
             while (outgoingDate == null) {
                 System.out.print("출고 일자를 입력하세요 (예: 202401301400): ");
-                String outgoingDateInput = sc.nextLine(); // 문자열로 입력 받음
+                String outgoingDateInput = sc.nextLine();
                 try {
                     outgoingDate = LocalDateTime.parse(outgoingDateInput, DateTimeFormatter.ofPattern("yyyyMMddHHmm"));
                 } catch (DateTimeParseException e) {
