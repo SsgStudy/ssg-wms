@@ -1,6 +1,7 @@
 package controller;
 
 import service.*;
+import util.MenuBoxPrinter;
 import vo.CategoryVO;
 import vo.InventoryVO;
 import vo.ProductInventoryCategoryVO;
@@ -29,10 +30,14 @@ public class InventoryController {
 
     public void menu() {
         while (true) {
-            System.out.println("[메뉴 선택]");
+            String[] menuItems = {
+                    "1. 재고 조회\t",
+                    "2. 재고 조정\t",
+                    "3. 재고 이동\t",
+                    "4. 메뉴 나가기\t\t\t"
+            };
+            MenuBoxPrinter.printMenuBoxWithTitle("재고 관리\t\t", menuItems);
 
-            System.out.println("1. 재고 조회 | 2. 재고 조정 | 3. 재고 이동 | 4. 메뉴 나가기");
-            System.out.print("번호 입력 : ");
             int manageChoice = Integer.parseInt(sc.nextLine());
             switch (manageChoice) {
                 case 1 -> inventoryQuerySubMenu();
@@ -49,9 +54,12 @@ public class InventoryController {
     private void inventoryQuerySubMenu() {
         categoryContinue = true;
         while (categoryContinue) {
-            System.out.println("\n**재고 조회 메뉴**");
-            System.out.println("1. 창고별 재고 조회 | 2. 카테고리별 재고 조회 | 3. 메뉴 나가기");
-            System.out.print("번호 입력 : ");
+            String[] menuItems = {
+                    "1. 창고별 재고 조회\t\t\t\t",
+                    "2. 카테고리별 재고 조회\t\t\t\t",
+                    "3. 메뉴 나가기\t\t\t"
+            };
+            MenuBoxPrinter.printMenuBoxWithTitle("재고 조회\t\t", menuItems);
             int manageChoice = Integer.parseInt(sc.nextLine());
             switch (manageChoice) {
                 case 1 -> getProductInventoryTotalByWarehouse();
@@ -65,7 +73,7 @@ public class InventoryController {
     }
 
     public void getProductInventoryTotalByWarehouse() {
-        System.out.println("***창고별 재고 현황***");
+        System.out.println("\n***창고별 재고 현황***");
         List<ProductInventoryWarehouseVO> productInventoryWarehouseList = queryService.getProductInventoryTotalByWarehouse();
 
         List<String> uniqueProductCodes = productInventoryWarehouseList.stream()
@@ -132,14 +140,11 @@ public class InventoryController {
     public void getProductInventoryByCategory() {
         while (categoryContinue) {
             categoryList.clear();
-            System.out.println("\n[대분류별 카테고리 확인]");
             categoryList = queryService.getMainCategories();
 
             List<String> categoryNameList = categoryList.stream().map(CategoryVO::getCategoryName).collect(Collectors.toList());
+            MenuBoxPrinter.printCategoryNameList("대분류별 카테고리 확인",categoryNameList);
 
-            printCategoryNameList(categoryNameList);
-
-            System.out.print("카테고리 선택 : ");
             int mainCategoryNumber = Integer.parseInt(sc.nextLine());
             int categoryNameListSize = categoryNameList.size();
             if (mainCategoryNumber > categoryNameListSize || mainCategoryNumber <= 0)
@@ -147,9 +152,12 @@ public class InventoryController {
             else {
                 String categoryName = categoryNameList.get(mainCategoryNumber - 1);
                 getInventoryByMainCategory(mainCategoryNumber, categoryName);
-
-                System.out.println("1. 하위 카테고리 선택 | 2. 상위 카테고리 다시 선택 | 3. 메뉴 나가기");
-                System.out.print("번호 입력 : ");
+                String[] menuItems = {
+                        "1. 하위 카테고리 선택\t\t\t\t",
+                        "2. 상위 카테고리 재선택\t\t\t\t",
+                        "3. 메뉴 나가기\t\t\t"
+                };
+                MenuBoxPrinter.printMenuBoxWithTitle("대분류별 카테고리\t\t\t\t\t", menuItems);
                 int menuChoice = Integer.parseInt(sc.nextLine());
                 switch (menuChoice) {
                     case 1 -> getSubCategoriesByMainCategory(mainCategoryNumber);
@@ -168,14 +176,12 @@ public class InventoryController {
     public void getSubCategoriesByMainCategory(int mainCategoryNumber) {
         while (categoryContinue) {
             categoryList.clear();
-            System.out.println("\n[중분류별 카테고리 확인]");
             categoryList = queryService.getSubCategoriesByMainCategory(mainCategoryNumber);
 
             List<String> categoryNameList = categoryList.stream().map(CategoryVO::getCategoryName).collect(Collectors.toList());
 
-            printCategoryNameList(categoryNameList);
+            MenuBoxPrinter.printCategoryNameList("중분류별 카테고리\t\t\t\t\t",categoryNameList);
 
-            System.out.print("번호 입력 : ");
             int subCategoryNumber = Integer.parseInt(sc.nextLine());
             int categoryNameListSize = categoryNameList.size();
             if (subCategoryNumber > categoryNameListSize || subCategoryNumber <= 0) System.out.println("번호를 다시 입력하세요.");
@@ -183,8 +189,12 @@ public class InventoryController {
                 String categoryName = categoryNameList.get(subCategoryNumber - 1);
                 getInventoryBySubCategory(mainCategoryNumber, subCategoryNumber, categoryName);
 
-                System.out.println("1. 하위 카테고리 선택 | 2. 상위 카테고리 다시 선택 | 3. 메뉴 나가기");
-                System.out.print("번호 입력 : ");
+                String[] menuItems = {
+                        "1. 하위 카테고리 선택\t\t\t\t",
+                        "2. 상위 카테고리 재선택\t\t\t\t",
+                        "3. 메뉴 나가기\t\t\t"
+                };
+                MenuBoxPrinter.printMenuBoxWithTitle("중분류별 카테고리\t\t\t\t\t", menuItems);
                 int menuChoice = Integer.parseInt(sc.nextLine());
                 switch (menuChoice) {
                     case 1 -> getDetailCategoriesBySubCategory(mainCategoryNumber, subCategoryNumber);
@@ -199,12 +209,10 @@ public class InventoryController {
     public void getDetailCategoriesBySubCategory(int mainCategoryNumber, int subCategoryNumber) {
         while (categoryContinue) {
             categoryList.clear();
-            System.out.println("\n[소분류별 카테고리 확인]");
             categoryList = queryService.getDetailCategoriesBySubCategory(mainCategoryNumber, subCategoryNumber);
             List<String> categoryNameList = categoryList.stream().map(CategoryVO::getCategoryName).collect(Collectors.toList());
-            printCategoryNameList(categoryNameList);
+            MenuBoxPrinter.printCategoryNameList("소분류별 카테고리\t\t\t\t\t",categoryNameList);
 
-            System.out.print("번호 입력 : ");
             int detailCategoryNumber = Integer.parseInt(sc.nextLine());
             int categoryNameListSize = categoryNameList.size();
             if (detailCategoryNumber > categoryNameListSize || subCategoryNumber <= 0)
@@ -214,8 +222,12 @@ public class InventoryController {
                 getInventoryByDetailCategory(mainCategoryNumber, subCategoryNumber, detailCategoryNumber, categoryName);
 
 
-                System.out.println("1. 상위 카테고리 다시 선택 | 2. 카테고리 처음부터 선택 | 3. 메뉴 나가기");
-                System.out.print("번호 입력 : ");
+                String[] menuItems = {
+                        "1. 하위 카테고리 선택\t\t\t\t",
+                        "2. 카테고리 초기화\t\t\t",
+                        "3. 메뉴 나가기\t\t\t"
+                };
+                MenuBoxPrinter.printMenuBoxWithTitle("소분류별 카테고리\t\t\t\t\t", menuItems);
                 int menuChoice = Integer.parseInt(sc.nextLine());
                 switch (menuChoice) {
                     case 1 -> getDetailCategoriesBySubCategory(mainCategoryNumber, subCategoryNumber);
