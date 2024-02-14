@@ -49,17 +49,13 @@ public class InventoryController {
     private void inventoryQuerySubMenu() {
         categoryContinue = true;
         while (categoryContinue) {
-            System.out.println("\n[재고 조회 메뉴]");
+            System.out.println("\n**재고 조회 메뉴**");
             System.out.println("1. 창고별 재고 조회 | 2. 카테고리별 재고 조회 | 3. 메뉴 나가기");
             System.out.print("번호 입력 : ");
             int manageChoice = Integer.parseInt(sc.nextLine());
             switch (manageChoice) {
                 case 1 -> getProductInventoryTotalByWarehouse();
-                case 2 -> {
-
-                    getProductInventoryByCategory();
-
-                }
+                case 2 -> getProductInventoryByCategory();
                 case 3 -> {
                     return;
                 }
@@ -275,27 +271,21 @@ public class InventoryController {
 
 
     public void adjustInventory() {
+        boolean adjustContinue = true;
+        while (adjustContinue) {
+            System.out.println("\n**구분 선택**");
+            System.out.println("-" .repeat(50));
+            System.out.println("1. 입고 조정 | 2. 출고 조정 | 3. 메뉴 나가기");
+            System.out.println("-" .repeat(50));
 
-        System.out.println("\n**구분 선택**");
-        System.out.println("-" .repeat(50));
-        System.out.println("1. 입고 조정 | 2. 출고 조정 | 3. 메뉴 나가기");
-        System.out.println("-" .repeat(50));
-
-        System.out.print("번호 선택 : ");
-        int adjustmentMenuChoice = Integer.parseInt(sc.nextLine());
-
-        if (adjustmentMenuChoice == 1 || adjustmentMenuChoice == 2) {
-
+            System.out.print("번호 선택 : ");
+            int adjustmentMenuChoice = Integer.parseInt(sc.nextLine());
             switch (adjustmentMenuChoice) {
                 case 1 -> increaseInventory();
                 case 2 -> decreaseInventory();
-                case 3 -> {
-                    return;
-                }
+                case 3 -> adjustContinue = false;
+                default -> System.out.println("옳지 않은 입력입니다.");
             }
-        } else {
-            System.out.println("번호를 다시 입력하세요");
-            adjustInventory();
         }
     }
 
