@@ -24,6 +24,7 @@ public class mainLauncher {
         InvoiceDaoImpl invoiceDao = InvoiceDaoImpl.getInstance();
         PurchaseDAOImpl purchaseDAO = PurchaseDAOImpl.getInstance();
 
+
         // 서비스 객체 생성 및 DAO 객체 주입
         WareHouseServiceImpl warehouseService = new WareHouseServiceImpl();
         IncomingServiceImpl incomingService = new IncomingServiceImpl(incomingDAO);
@@ -38,16 +39,18 @@ public class mainLauncher {
         InvoiceServiceImpl invoiceService = new InvoiceServiceImpl(invoiceDao);
         PurchaseServiceImpl purchaseService = new PurchaseServiceImpl(purchaseDAO);
 
+
         // 컨트롤러 객체 생성 및 서비스 객체 주입
         WareHouseController wareHouseController = WareHouseController.getInstance(warehouseService);
         IncomingController incomingController = IncomingController.getInstance(incomingService);
-        OutgoingController outgoingController = OutgoingController.getInstance(outgoingService);
+        OutgoingController outgoingController = OutgoingController.getInstance(outgoingService,invoiceService);
         MemberController memberController = MemberController.getInstance();
         MembrManagemntController membrManagemntController = MembrManagemntController.getInstance();
         ProductManagementController productManagementController = ProductManagementController.getInstance(); // 수정: 싱글톤 인스턴스 사용
         InventoryController inventoryController = new InventoryController(adjustmentService, movementService, queryService);
         InvoiceController invoiceController = InvoiceController.getInstance(invoiceService);
         PurchaseController purchaseController = PurchaseController.getInstance(purchaseService);
+        OrderController orderController = OrderController.getInstance(orderService);
 
         asciiPrinter.printMainTitle();
 
@@ -89,7 +92,7 @@ public class mainLauncher {
                     //송장 관리
                     case 4 -> invoiceController.menu();
                     //발주 관리
-//                    case 5 -> productManagementController.menu();
+                    case 5 -> orderController.menu();
                     //입고 관리
                     case 6 -> incomingController.incomingProductMenu();
                     //출고 관리

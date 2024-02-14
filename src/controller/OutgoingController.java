@@ -1,24 +1,23 @@
 package controller;
 
+import java.io.IOException;
+import java.sql.Blob;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Scanner;
+import java.util.logging.Logger;
 
-import dao.InvoiceDao;
-import dao.InvoiceDaoImpl;
-import service.IncomigService;
 import service.InvoiceService;
-import service.InvoiceServiceImpl;
 
 import service.OutgoingService;
-import vo.InventoryVO;
-import vo.OutgoingInstVO;
-import vo.OutgoingProductVO;
-import vo.OutgoingVO;
+import util.enumcollect.WaybillTypeEnum;
+import vo.*;
 
 public class OutgoingController {
+    private static Logger logger = Logger.getLogger(OutgoingController.class.getName());
 
     private static OutgoingController instance;
     private Scanner sc = new Scanner(System.in);
@@ -42,7 +41,7 @@ public class OutgoingController {
         while (continueMenu) {
             System.out.println("\n1. 출고 지시 목록 조회 | 2. 출고 수정 및 승인 | 3. 메뉴 나가기");
             System.out.print("선택: ");
-            int choice = sc.nextInt();
+            int choice = Integer.parseInt(sc.nextLine().trim());
 
             switch (choice) {
                 case 1 -> printAllOutgoingInsts();
@@ -60,7 +59,7 @@ public class OutgoingController {
         while (continueMenu) {
             System.out.println("\n1. 출고 등록 | 2. 서브 메뉴 나가기");
             System.out.print("선택: ");
-            int choice = sc.nextInt();
+            int choice = Integer.parseInt(sc.nextLine().trim());
 
             switch (choice) {
                 case 1 -> addOutgoingProductList();
@@ -88,7 +87,7 @@ public class OutgoingController {
     public void addOutgoingProductList() {
         try {
             System.out.print("출고 등록할 지시 번호 선택: ");
-            String input = sc.next();
+            String input = sc.nextLine().trim();
             int choice;
 
             try {
@@ -107,7 +106,7 @@ public class OutgoingController {
         printAllOutgoings();
         try {
             System.out.print("수정할 출고 상품의 ID를 입력하세요: ");
-            Long pkOutgoingId = sc.nextLong();
+            Long pkOutgoingId = Long.parseLong(sc.nextLine().trim());
 
             // 출고 상품에 대한 상품 코드 자동 조회
             String productCd = outgoingService.getProductCodeByOutgoingId(pkOutgoingId);
@@ -115,7 +114,7 @@ public class OutgoingController {
             // 출고 수량 조회
             int currentQuantity = outgoingService.getOutgoingProductQuantity(pkOutgoingId);
             System.out.println("현재 출고 수량: " + currentQuantity + ". 수정할 수량을 입력하세요 (최대 " + currentQuantity + "): ");
-            int newQuantity = sc.nextInt();
+            int newQuantity = Integer.parseInt(sc.nextLine().trim());
 
             // 출고 일자 입력
             LocalDateTime outgoingDate = null;
@@ -144,7 +143,7 @@ public class OutgoingController {
                                 + inventory.getInventoryCnt());
             }
             System.out.print("선택: ");
-            int inventoryChoice = sc.nextInt();
+            int inventoryChoice = Integer.parseInt(sc.nextLine().trim());
             InventoryVO selectedInventory = inventories.get(inventoryChoice - 1);
 
             // 출고 상품 업데이트 및 출고 상태 WAIT로 변경, 출고 일자 업데이트
@@ -154,7 +153,8 @@ public class OutgoingController {
 
             // 송장 연결
             OutgoingProductVO outgoingProduct = outgoingService.getOutgoingProductRowByOutgoingId(pkOutgoingId);
-            int result = invoiceService.registerInvoice(outgoingProduct);
+
+            int result = promptInvoice(outgoingProduct);
 
             if (result>0) {
                 System.out.println("출고 승인이 성공적으로 업데이트 되었습니다.\n 예정 출고 일자: " + outgoingDate.format(
@@ -192,6 +192,53 @@ public class OutgoingController {
             System.out.println("출고 현황 조회 중 오류가 발생했습니다: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    public int promptInvoice(OutgoingProductVO outgoingProductVO) {
+        Invoice invoice = new Invoice();
+        int status = 0;
+        Long invoiceSeq = 0L;
+
+        System.out.println("[송장 출력]");
+        System.out.println("--".repeat(25));
+        System.out.print("송장 종류 입력 (1.일반 | 2.특급 | 3.국제 | 4.등기) ");
+
+        try{
+            int ch = Integer.parseInt(sc.nextLine().trim());
+
+            switch (ch) {
+                case 1 -> invoice.setInvoiceType(WaybillTypeEnum.STANDARD);
+                case 2 -> invoice.setInvoiceType(WaybillTypeEnum.EXPRESS);
+                case 3 -> invoice.setInvoiceType(WaybillTypeEnum.INTERNATIONAL);
+                case 4 -> invoice.setInvoiceType(WaybillTypeEnum.REGISTERED);
+            }
+
+            invoice.setPurchaseSeq(outgoingProductVO.getShopPurchaseSeq());
+
+            try {
+                System.out.println("[택배사 선택]");
+                System.out.println("--".repeat(25));
+                System.out.println("1. 한진택배 | 2.CJ대한통운 | 3.우체국택배 | 4.롯데택배 | 5.로젠택배");
+                System.out.print("택배사 선택 : ");
+                invoice.setLogisticSeq(Long.parseLong(sc.nextLine()));
+
+                invoiceSeq = invoiceService.registerInvoice(invoice);
+                Invoice result = invoiceService.getInvoiceRowByInvoiceSeq(invoiceSeq);
+
+                invoice.setInvoiceCode(result.getInvoiceCode());
+                invoice.setInvoicePrintDate(result.getInvoicePrintDate());
+                Blob qrCodeImage = invoiceService.createQRCode(invoice, outgoingProductVO);
+                status = invoiceService.putQRCode(qrCodeImage, invoiceSeq);
+
+            } catch (NumberFormatException e){
+                logger.info("숫자로 입력하세요.");
+                e.printStackTrace();
+            }
+        }catch (IOException | SQLException i){
+            i.printStackTrace();
+        }
+
+        return status;
     }
 
 }

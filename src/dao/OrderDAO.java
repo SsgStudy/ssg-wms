@@ -2,7 +2,6 @@ package dao;
 
 import java.util.List;
 
-import vo.OrderDetailVO;
 import vo.OrderVO;
 import vo.Product;
 
