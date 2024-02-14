@@ -20,11 +20,10 @@ public class MemberController {
     public void logIn(String id, String password) {
         int loginResult = loginService.logIn(id, password);
         if (loginResult == 1) {
-            System.out.println("로그인 성공");
+            System.out.println("\n\n\n\n\n환영합니다 :)\n\n\n");
             // 로그인 성공 후 로그인한 사용자의 정보 출력
             LoginManagementDAOImpl loginDao = LoginManagementDAOImpl.getInstance();
-            System.out.println("로그인한 사용자 ID: " + loginDao.getMemberId());
-            System.out.println("로그인한 사용자 권한: " + loginDao.getMemberRole());
+            System.out.println("ID: " + loginDao.getMemberId() + "\t권한: " + loginDao.getMemberRole()+"\n");
 
             // 로그인 정보 업데이트
             MembrManagemntController.getInstance().updateLoginInfo();

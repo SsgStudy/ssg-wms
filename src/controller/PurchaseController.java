@@ -33,7 +33,6 @@ public class PurchaseController {
     public void updateLoginInfo() {
         loginMemberRole = loginDao.getMemberRole();
         loginMemberId = loginDao.getMemberId();
-        System.out.println("로그인 유지 정보 업데이트: ID = " + loginMemberId + ", Role = " + loginMemberRole);
     }
 
     public void menu() {

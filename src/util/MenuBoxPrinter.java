@@ -46,7 +46,7 @@ public class MenuBoxPrinter { // 문자열의 실제 표시 길이를 계산하�
 
         printLine(boxWidth);  // Bottom border
 
-        System.out.println("메뉴를 선택해주세요 : ");  // Prompt for user input
+        System.out.println("메뉴를 선택해주세요");  // Prompt for user input
     }
 
 }

@@ -55,7 +55,7 @@ public class mainLauncher {
 
         while (isRunning) {
             // 로그인 절차 수행
-            System.out.println("로그인이 필요합니다.");
+            System.out.println("LOG IN\n");
             System.out.print("아이디: ");
             String id = scanner.nextLine().trim();
             System.out.print("비밀번호: ");
@@ -66,8 +66,6 @@ public class mainLauncher {
                 boolean menuContinue = true;
 
                 while (menuContinue) {
-
-                    System.out.println("SSG WMS SYSTEM MAIN");
                     String[] menuItems = {
                             "1. 멤버 관리",
                             "2. 상품 관리",
@@ -81,8 +79,7 @@ public class mainLauncher {
                             "10. 로그 아웃",
                             "11. 프로그램 종료"
                     };
-                    MenuBoxPrinter.printMenuBoxWithTitle("SSG WMS SYSTEM MAIN",menuItems);
-                    System.out.println("메뉴를 선택해주세요 :");
+                    MenuBoxPrinter.printMenuBoxWithTitle("SSG WMS SYSTEM MAIN", menuItems);
 
                     String input = scanner.nextLine();
                     int choice = -1;
