@@ -3,6 +3,7 @@ package controller;
 import service.IncomigService;
 import service.InvoiceService;
 import service.InvoiceServiceImpl;
+import vo.OutgoingProductVO;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -11,9 +12,7 @@ import java.sql.SQLException;
 import java.util.logging.Logger;
 
 public class InvoiceController {
-
     private static InvoiceController instance;
-
     static InvoiceService invoiceService;
 
     public InvoiceController(InvoiceService invoiceService) {
@@ -36,10 +35,15 @@ public class InvoiceController {
         System.out.println("1.송장 등록 | 2.송장 조회 | 3.나가기");
         System.out.print("메뉴 선택 : ");
         Long test=0L;
+
+        OutgoingProductVO outgoingProductVO = new OutgoingProductVO();
+        outgoingProductVO.setOutgoingId(6L);
+        outgoingProductVO.setShopPurchaseSeq(29L);
+
         try {
             int cmd = Integer.parseInt(br.readLine().trim());
             switch (cmd) {
-                case 1 -> invoiceService.registerInvoice(test);
+                case 1 -> invoiceService.registerInvoice(outgoingProductVO);
                 case 2 -> invoiceService.viewInvoice();
                 case 3 -> {return;}
             }

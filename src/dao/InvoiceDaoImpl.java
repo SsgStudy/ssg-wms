@@ -11,7 +11,7 @@ public class InvoiceDaoImpl implements InvoiceDao {
 
     private static InvoiceDaoImpl instance;
 
-    private InvoiceDaoImpl() {
+    public InvoiceDaoImpl() {
     }
 
     public static synchronized InvoiceDaoImpl getInstance() {
@@ -21,10 +21,11 @@ public class InvoiceDaoImpl implements InvoiceDao {
         return instance;
     }
 
-
     @Override
-    public void registerInvoice(Invoice invoice) {//송장코드, 송장출력날짜, 송장종류, qr이미지파일, 택배사코드, 주문번호
+    public Long registerInvoice(Invoice invoice) {//송장코드, 송장출력날짜, 송장종류, qr이미지파일, 택배사코드, 주문번호
         Connection conn = null;
+        int row=0;
+        Long invoiceSeq = 0L;
 
         try {
             conn = DbConnection.getInstance().getConnection();
@@ -37,10 +38,10 @@ public class InvoiceDaoImpl implements InvoiceDao {
             pstmt.setLong(3, invoice.getLogisticSeq());
             pstmt.setLong(4, invoice.getPurchaseSeq());
 
-            int row = pstmt.executeUpdate();
+            row = pstmt.executeUpdate();
 
             ResultSet generatedKeys = pstmt.getGeneratedKeys();
-            Long invoiceSeq = null;
+            invoiceSeq = null;
             if (generatedKeys.next()) {
                 invoiceSeq = generatedKeys.getLong(1);
             }
@@ -58,6 +59,8 @@ public class InvoiceDaoImpl implements InvoiceDao {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        return invoiceSeq;
     }
 
     @Override
@@ -91,8 +94,63 @@ public class InvoiceDaoImpl implements InvoiceDao {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return invoices;
+    }
+
+    @Override
+    public Invoice getInvoiceRowByInvoiceSeq(Long pkInvoiceSeq) {
+        Invoice invoice = new Invoice();
+        Connection conn;
+        ResultSet rs;
+
+        try {
+            conn = DbConnection.getInstance().getConnection();
+            String sql = new StringBuilder("SELECT V_INVOICE_CD, DATE_FORMAT(DT_INVOICE_PRINT_DATE, '%Y-%m-%d')")
+                    .append("FROM TB_INVOICE").toString();
+
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                invoice.setInvoiceCode(rs.getString("V_INVOICE_CD"));
+                invoice.setInvoicePrintDate(rs.getDate("DATE_FORMAT(DT_INVOICE_PRINT_DATE, '%Y-%m-%d')"));
+            }
+
+            rs.close();
+            pstmt.close();
+
+            DbConnection.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return invoice;
+    }
+
+    @Override
+    public int putQRCode(Blob qrcode, Long invoiceSeq) {
+        int status = 0;
+        Connection conn;
+
+        try {
+            conn = DbConnection.getInstance().getConnection();
+            String sql = new StringBuilder("UPDATE TB_INVOICE ")
+                    .append("SET B_INVOICE_QR_CD = ? ")
+                    .append("WHERE PK_INVOICE_SEQ = ? ")
+                    .toString();
+
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setBlob(1, qrcode);
+            pstmt.setLong(2, invoiceSeq);
+            status = pstmt.executeUpdate();
+
+            pstmt.close();
+            DbConnection.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return status;
     }
 
     public int putInvoiceCode(Long invoiceSeq) {

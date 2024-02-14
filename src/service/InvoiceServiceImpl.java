@@ -9,6 +9,7 @@ import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import dao.InvoiceDaoImpl;
 import util.enumcollect.WaybillTypeEnum;
 import vo.Invoice;
+import vo.OutgoingProductVO;
 
 import javax.imageio.ImageIO;
 import javax.sql.rowset.serial.SerialBlob;
@@ -42,27 +43,12 @@ public class InvoiceServiceImpl implements InvoiceService {
     BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
     List<Invoice> invoiceList = new ArrayList<>();
 
-    public void invoiceMain() throws IOException, SQLException {
-        System.out.println("[송장 관리]");
-        System.out.println("--".repeat(25));
-        System.out.println("1.송장 등록 | 2.송장 조회");
-        System.out.print("메뉴 선택 : ");
-        try {
-            int cmd = Integer.parseInt(br.readLine().trim());
-            switch (cmd) {
-                case 1 -> registerInvoice(1L);
-                case 2 -> viewInvoice();
-            }
-        } catch (NumberFormatException e) {
-            logger.info("숫자로 입력하세요.");
-            e.printStackTrace();
-            invoiceMain();
-        }
-    }
 
     @Override
-    public void registerInvoice(Long seq) throws IOException, SQLException {
+    public int registerInvoice(OutgoingProductVO outgoingProductVO) throws IOException, SQLException {
         Invoice invoice = new Invoice();
+        int status = 0;
+        Long invoiceSeq = 0L;
 
         System.out.println("[송장 출력]");
         System.out.println("--".repeat(25));
@@ -79,29 +65,29 @@ public class InvoiceServiceImpl implements InvoiceService {
             case 4 -> invoice.setInvoiceType(WaybillTypeEnum.REGISTERED);
         }
 
-        invoice.setPurchaseSeq(seq);
+        invoice.setPurchaseSeq(outgoingProductVO.getShopPurchaseSeq());
 
         try {
-
             System.out.println("[택배사 선택]");
             System.out.println("--".repeat(25));
             System.out.println("1. 한진택배 | 2.CJ대한통운 | 3.우체국택배 | 4.롯데택배 | 5.로젠택배");
             System.out.print("택배사 선택 : ");
             invoice.setLogisticSeq(Long.parseLong(br.readLine()));
-            Blob qrCodeImage = createQRCode2(invoice.getInvoiceCode(), String.valueOf(invoice.getInvoiceType()), invoice.getPurchaseSeq());
-            invoice.setQrCode(qrCodeImage);
 
-            invoiceDAO.registerInvoice(invoice);
+            invoiceSeq = invoiceDAO.registerInvoice(invoice);
+            Invoice result = invoiceDAO.getInvoiceRowByInvoiceSeq(invoiceSeq);
+
+            invoice.setInvoiceCode(result.getInvoiceCode());
+            invoice.setInvoicePrintDate(result.getInvoicePrintDate());
+            Blob qrCodeImage = createQRCode(invoice, outgoingProductVO);
+            status = invoiceDAO.putQRCode(qrCodeImage, invoiceSeq);
+
         } catch (NumberFormatException e){
             logger.info("숫자로 입력하세요.");
-
             e.printStackTrace();
-//            registerInvoice();
         }
 
-
-
-        invoiceMain();
+        return status;
     }
 
 
@@ -123,12 +109,21 @@ public class InvoiceServiceImpl implements InvoiceService {
                     invoice.getLogisticSeq(),
                     invoice.getPurchaseSeq());
         }
-        invoiceMain();
+    }
+
+    @Override
+    public Invoice getInvoiceRowByInvoiceSeq(Long pkInvoiceSeq) {
+        return invoiceDAO.getInvoiceRowByInvoiceSeq(pkInvoiceSeq);
     }
 
 
-    public Blob createQRCode2(String invoiceCode, String invoiceType, Long purchaseSeq) throws IOException, SQLException {
-        String text = "Invoice Code: " + invoiceCode + "\nInvoice Type: " + invoiceType + "\nPurchase Code: " + purchaseSeq;
+    public Blob createQRCode(Invoice invoice, OutgoingProductVO outgoingProduct) throws IOException, SQLException {
+        String text = new StringBuilder("Invoice Code: " + invoice.getInvoiceCode())
+                        .append("\nInvoice Type: " + invoice.getInvoiceType())
+                        .append("\nPurchase Code: " + invoice.getPurchaseSeq())
+                        .append("\nCustomer Name : " + outgoingProduct.getPurchaseName())
+                        .append("\nCustomer Tel : " + outgoingProduct.getPurchaseTel())
+                        .append("\nCustomer Address : " + outgoingProduct.getPurchaseAddr()).toString();
         int width = 300;
         int height = 300;
         try {
@@ -150,7 +145,7 @@ public class InvoiceServiceImpl implements InvoiceService {
                 }
             }
             // 이미지 파일로 저장
-            File qrFile = new File(invoiceCode + ".png");
+            File qrFile = new File(invoice.getInvoiceCode() + ".png");
             ImageIO.write(image, "png", qrFile);
             // 파일을 Blob으로 변환하여 반환
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
