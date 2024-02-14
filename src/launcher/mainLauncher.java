@@ -71,6 +71,9 @@ public class mainLauncher {
                 boolean menuContinue = true;
 
                 while (menuContinue) {
+                    String fiftyNewLines = "x".repeat(50).replaceAll(".", "\n");
+                    System.out.println(fiftyNewLines);
+                    asciiPrinter.printMainTitle();
                     String[] menuItems = {
                             "1. 멤버 관리\t",
                             "2. 상품 관리\t",

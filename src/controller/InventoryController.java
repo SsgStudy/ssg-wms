@@ -285,12 +285,13 @@ public class InventoryController {
     public void adjustInventory() {
         boolean adjustContinue = true;
         while (adjustContinue) {
-            System.out.println("\n**구분 선택**");
-            System.out.println("-" .repeat(50));
-            System.out.println("1. 입고 조정 | 2. 출고 조정 | 3. 메뉴 나가기");
-            System.out.println("-" .repeat(50));
+            String[] menuItems = {
+                    "1. 입고 조정\t",
+                    "2. 출고 조정\t",
+                    "3. 메뉴 나가기\t\t\t"
+            };
+            MenuBoxPrinter.printMenuBoxWithTitle("재고 조정\t\t", menuItems);
 
-            System.out.print("번호 선택 : ");
             int adjustmentMenuChoice = Integer.parseInt(sc.nextLine());
             switch (adjustmentMenuChoice) {
                 case 1 -> increaseInventory();
@@ -303,7 +304,7 @@ public class InventoryController {
 
     public void increaseInventory() {
         int selectedNumber = selectInventoryNumber();
-        System.out.print("조정 재고량 : ");
+        System.out.print("\n➔ 조정 재고량 : ");
         int adjustedQuantity = Integer.parseInt(sc.nextLine());
         int ack = adjustmentService.updateIncreaseInventoryQuantity(selectedNumber, adjustedQuantity);
 
@@ -317,7 +318,7 @@ public class InventoryController {
 
     public void decreaseInventory() {
         int selectedNumber = selectInventoryNumber();
-        System.out.print("조정 재고량 : ");
+        System.out.print("\n➔ 조정 재고량 : ");
         int adjustedQuantity = Integer.parseInt(sc.nextLine());
         int currentQuantity = getCurrentQuantity(selectedNumber); //기존 재고량
 
@@ -337,7 +338,7 @@ public class InventoryController {
     private int selectInventoryNumber() {
         List<InventoryVO> inventoryList = adjustmentService.getInventoryInformation();
         printProductInventoryList(inventoryList);
-        System.out.print("수정할 재고 번호 선택 : ");
+        System.out.print("\n➔ 수정할 재고 번호 선택 : ");
         int selectedInventoryIndex = Integer.parseInt(sc.nextLine());
         if (selectedInventoryIndex <= 0 || selectedInventoryIndex > inventoryList.size() + 1) {
             System.out.println("잘못된 번호입니다. 다시 선택하세요.");
@@ -362,7 +363,7 @@ public class InventoryController {
         while (true) {
             List<InventoryVO> inventoryList = movementService.getInventoryInformation();
             printProductInventoryList(inventoryList);
-            System.out.print("번호 선택 : ");
+            System.out.print("\n➔ 번호 선택 : ");
             int selectedNumber = Integer.parseInt(sc.nextLine());
             if (selectedNumber <= 0 || selectedNumber > inventoryList.size() + 1) {
                 System.out.println("잘못된 번호입니다. 다시 선택하세요.");
@@ -397,7 +398,7 @@ public class InventoryController {
         String warehouseCode;
 
         while (true) {
-            System.out.println("\n**이동 창고 선택**");
+            System.out.println("\n***이동 창고 선택***");
 
             System.out.println("-" .repeat(300));
             for (Map.Entry<Integer, String> warehouseNumberCode : warehouseCodeMap.entrySet()) {
@@ -405,7 +406,7 @@ public class InventoryController {
             }
             System.out.println("\n" + "-" .repeat(300));
 
-            System.out.print("번호 선택 : ");
+            System.out.print("\n➔ 번호 선택 : ");
             int warehouseCodeChoice = Integer.parseInt(sc.nextLine()); //번호만 저장
             if (warehouseCodeChoice <= 0 || warehouseCodeChoice >= warehouseCodeMap.size() + 1) {
                 System.out.println("번호를 다시 입력하세요.");
@@ -428,7 +429,7 @@ public class InventoryController {
         String zoneCode = null;
 
         while (true) {
-            System.out.println("\n** 이동 창고 구역 선택**");
+            System.out.println("\n*** 이동 창고 구역 선택***");
 
             System.out.println("-" .repeat(300));
             for (Map.Entry<Integer, String> warehouseNumberCode : zoneCodeMap.entrySet()) {
@@ -436,7 +437,7 @@ public class InventoryController {
             }
             System.out.println("\n" + "-" .repeat(300));
 
-            System.out.print("번호 선택 : ");
+            System.out.print("\n➔ 번호 선택 : ");
             int zoneCodeChoice = Integer.parseInt(sc.nextLine()); //번호만 저장
             if (zoneCodeChoice <= 0 || zoneCodeChoice >= zoneCodeMap.size() + 1) {
                 System.out.println("번호를 다시 입력하세요.");
