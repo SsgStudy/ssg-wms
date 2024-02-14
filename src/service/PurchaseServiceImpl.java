@@ -2,6 +2,7 @@ package service;
 
 import dao.PurchaseDAOImpl;
 import util.enumcollect.PurchaseEnum;
+import vo.OutgoingProductVO;
 import vo.PurchaseVO;
 
 import java.util.*;
@@ -52,8 +53,10 @@ public class PurchaseServiceImpl implements PurchaseService {
 
         List<Long> shopPurchaseSeqList = purchaseDAO.getPurchaseByDateAndShopName(dates[0], dates[1], selectedShopNames);
 
-        if (shopPurchaseSeqList.size() == 0)
+        if (shopPurchaseSeqList.size() == 0) {
+            System.out.println("수집할 주문이 없습니다.");
             return;
+        }
 
         // 상태 변경
         int result = purchaseDAO.updatePurchaseStatus(shopPurchaseSeqList, PurchaseEnum.신규등록);
@@ -94,14 +97,15 @@ public class PurchaseServiceImpl implements PurchaseService {
             System.out.println(purchaseSeq + "번 주문이 반품 처리 되었습니다.");
         } else if (result.equals("INVOICE")) {
             System.out.println(purchaseSeq + "번 주문이 반품 처리 중에 있습니다.");
-
+            OutgoingProductVO outgoingProduct = new OutgoingProductVO();
+            outgoingProduct.setShopPurchaseSeq(purchaseSeq);
             int ch = Integer.parseInt(sc.nextLine());
             System.out.println("1.송장 접수 | 2.입고 확인 | 3.검수");
 
             switch (ch) {
                 case 1 -> {
                     try {
-                        invoiceService.registerInvoice(purchaseSeq);
+                        invoiceService.registerInvoice(outgoingProduct);
                     } catch (Exception e) {
                         System.out.println();
                     }

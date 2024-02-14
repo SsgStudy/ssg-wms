@@ -11,9 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 import util.DbConnection;
-import vo.InventoryVO;
-import vo.OutgoingInstVO;
-import vo.OutgoingVO;
+import vo.*;
 
 public class OutgoingDAOImpl implements OutgoingDAO {
 
@@ -276,6 +274,48 @@ public class OutgoingDAOImpl implements OutgoingDAO {
             throw e;
         }
         return outgoings;
+    }
+
+    @Override
+    public OutgoingProductVO getOutgoingRowByOutgoingId(Long pkOutgoingId) throws Exception{
+        OutgoingProductVO outgoingProduct = new OutgoingProductVO();
+
+        String sql = "SELECT op.PK_OUTGOING_ID, op.DT_OUTGOING_DATE, op.N_OUTGOING_CNT, op.PK_SHOP_PURCHASE_SEQ, \n" +
+                "                 p.V_PRODUCT_NM, p.V_PRODUCT_BRAND, sp.V_SHOP_PURCHASE_NM, sp.V_SHOP_PURCHASE_ADDR, sp.V_SHOP_PURCHASE_TEL \n" +
+                "                 FROM TB_OUTGOING_PRODUCT op \n" +
+                "                 JOIN TB_PRODUCT p ON op.V_PRODUCT_CD = p.V_PRODUCT_CD \n" +
+                "                 JOIN TB_SHOP_PURCHASE sp ON op.PK_SHOP_PURCHASE_SEQ = sp.PK_SHOP_PURCHASE_SEQ \n" +
+                "                 WHERE sp.V_SHOP_PURCHASE_CLAIM IS NULL AND op.PK_OUTGOING_ID = ?;";
+
+
+        try (Connection conn = DbConnection.getInstance().getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setLong(1, pkOutgoingId);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                List<Product> products = new ArrayList<>();
+                while (rs.next()) {
+                    Product product = new Product();
+                    outgoingProduct.setOutgoingId(rs.getLong("PK_OUTGOING_ID"));
+                    outgoingProduct.setOutgoingDate(rs.getTimestamp("DT_OUTGOING_DATE").toLocalDateTime());
+                    outgoingProduct.setShopPurchaseSeq(rs.getLong("PK_SHOP_PURCHASE_SEQ"));
+                    outgoingProduct.setPurchaseName(rs.getString("V_SHOP_PURCHASE_NM"));
+                    outgoingProduct.setPurchaseAddr(rs.getString("V_SHOP_PURCHASE_ADDR"));
+                    outgoingProduct.setPurchaseTel(rs.getString("V_SHOP_PURCHASE_TEL"));
+
+                    product.setProductName(rs.getString("V_PRODUCT_NM"));
+                    product.setProductBrand(rs.getString("V_PRODUCT_BRAND"));
+                    product.setInventoryCnt(rs.getInt("N_OUTGOING_CNT"));
+                    products.add(product);
+
+                }
+                outgoingProduct.setProducts(products);
+
+                System.out.println(outgoingProduct);
+                outgoingProduct.getProducts().forEach(System.out::println);
+            }
+        }
+        return outgoingProduct;
     }
 
 }

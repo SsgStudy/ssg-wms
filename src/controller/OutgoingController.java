@@ -6,9 +6,16 @@ import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Scanner;
 
+import dao.InvoiceDao;
+import dao.InvoiceDaoImpl;
+import service.IncomigService;
+import service.InvoiceService;
+import service.InvoiceServiceImpl;
+
 import service.OutgoingService;
 import vo.InventoryVO;
 import vo.OutgoingInstVO;
+import vo.OutgoingProductVO;
 import vo.OutgoingVO;
 
 public class OutgoingController {
@@ -16,14 +23,16 @@ public class OutgoingController {
     private static OutgoingController instance;
     private Scanner sc = new Scanner(System.in);
     private OutgoingService outgoingService;
+    private InvoiceService invoiceService;
 
-    public OutgoingController(OutgoingService outgoingService) {
+    public OutgoingController(OutgoingService outgoingService, InvoiceService invoiceService) {
         this.outgoingService = outgoingService;
+        this.invoiceService = invoiceService;
     }
 
-    public static OutgoingController getInstance(OutgoingService outgoingService) {
+    public static OutgoingController getInstance(OutgoingService outgoingService, InvoiceService invoiceService) {
         if (instance == null) {
-            instance = new OutgoingController(outgoingService);
+            instance = new OutgoingController(outgoingService, invoiceService);
         }
         return instance;
     }
@@ -142,8 +151,17 @@ public class OutgoingController {
             outgoingService.updateOutgoingProduct(pkOutgoingId, newQuantity, selectedInventory.getWarehouseCd(),
                     selectedInventory.getZoneCd());
             outgoingService.updateOutgoingProductStatusAndDate(pkOutgoingId, outgoingDate, "WAIT");
-            System.out.println("출고 승인이 성공적으로 업데이트 되었습니다.\n 예정 출고 일자: " + outgoingDate.format(
-                    DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
+
+            // 송장 연결
+            OutgoingProductVO outgoingProduct = outgoingService.getOutgoingProductRowByOutgoingId(pkOutgoingId);
+            int result = invoiceService.registerInvoice(outgoingProduct);
+
+            if (result>0) {
+                System.out.println("출고 승인이 성공적으로 업데이트 되었습니다.\n 예정 출고 일자: " + outgoingDate.format(
+                        DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
+            } else {
+                System.out.println("출고 실패 하였습니다. 다시 시도해주세요.");
+            }
 
         } catch (Exception e) {
             System.out.println("오류 발생: " + e.getMessage());

@@ -17,4 +17,7 @@ public class Product {
     private SalesStatus prductStatus;
     private Date productManufactorsDate;
     private String categoryCode;
+    private int inventoryCnt;
+    private String warehouseCode;
+    private String zoneCode;
 }
