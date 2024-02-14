@@ -7,6 +7,7 @@ import java.util.Scanner;
 
 import service.*;
 import util.AsciiPrinter;
+import util.MenuBoxPrinter;
 
 public class mainLauncher {
 
@@ -65,18 +66,22 @@ public class mainLauncher {
                 boolean menuContinue = true;
 
                 while (menuContinue) {
+
                     System.out.println("SSG WMS SYSTEM MAIN");
-                    System.out.println("1. 멤버 관리");
-                    System.out.println("2. 상품 관리");
-                    System.out.println("3. 주문 관리");
-                    System.out.println("4. 송장 관리");
-                    System.out.println("5. 발주 관리");
-                    System.out.println("6. 입고 관리");
-                    System.out.println("7. 출고 관리");
-                    System.out.println("8. 창고 관리");
-                    System.out.println("9. 재고 관리");
-                    System.out.println("10. 로그 아웃");
-                    System.out.println("11. 프로그램 종료");
+                    String[] menuItems = {
+                            "1. 멤버 관리",
+                            "2. 상품 관리",
+                            "3. 주문 관리",
+                            "4. 송장 관리",
+                            "5. 발주 관리",
+                            "6. 입고 관리",
+                            "7. 출고 관리",
+                            "8. 창고 관리",
+                            "9. 재고 관리",
+                            "10. 로그 아웃",
+                            "11. 프로그램 종료"
+                    };
+                    MenuBoxPrinter.printMenuBoxWithTitle("SSG WMS SYSTEM MAIN",menuItems);
                     System.out.println("메뉴를 선택해주세요 :");
 
                     String input = scanner.nextLine();
