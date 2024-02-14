@@ -56,9 +56,9 @@ public class mainLauncher {
             // 로그인 절차 수행
             System.out.println("로그인이 필요합니다.");
             System.out.print("아이디: ");
-            String id = scanner.nextLine();
+            String id = scanner.nextLine().trim();
             System.out.print("비밀번호: ");
-            String password = scanner.nextLine();
+            String password = scanner.nextLine().trim();
 
             memberController.logIn(id, password);
             if (loginDAO.getMemberId() != null) {
@@ -77,9 +77,16 @@ public class mainLauncher {
                     System.out.println("9. 재고 관리");
                     System.out.println("10. 로그 아웃");
                     System.out.println("11. 프로그램 종료");
+                    System.out.println("메뉴를 선택해주세요 :");
 
-                    System.out.print("선택: ");
-                    int choice = scanner.nextInt();
+                    String input = scanner.nextLine();
+                    int choice = -1;
+                    try {
+                        choice = Integer.parseInt(input);
+                    } catch (NumberFormatException e) {
+                        System.out.println("숫자를 입력해주세요.");
+                        continue;
+                    }
 
                     switch (choice) {
                         //멤버 관리
@@ -104,6 +111,7 @@ public class mainLauncher {
                         case 10 -> {
                             memberController.logOut();
                             menuContinue = false;
+                            scanner.nextLine();
                         }
                         //프로그램 종료
                         case 11 -> {
@@ -117,7 +125,6 @@ public class mainLauncher {
                 System.out.println("로그인에 실패했습니다. 프로그램을 종료합니다.");
             }
         }
-
         scanner.close();
     }
 
