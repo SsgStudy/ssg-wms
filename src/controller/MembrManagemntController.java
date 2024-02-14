@@ -21,13 +21,12 @@ public class MembrManagemntController {
     BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
     private MembrManagemntController() {
-        updateLoginInfo(); // 로그인 정보 초기화
+        updateLoginInfo();
     }
 
     public void updateLoginInfo() {
         this.loginMemberRole = loginDao.getMemberRole();
         this.loginMemberId = loginDao.getMemberId();
-        System.out.println("로그인 유지 정보 업데이트: ID = " + loginMemberId + ", Role = " + loginMemberRole);
     }
 
     public static synchronized MembrManagemntController getInstance() {
@@ -38,8 +37,7 @@ public class MembrManagemntController {
     }
 
     private String getCurrentUserId() {
-        // 현재 로그인한 사용자의 ID를 반환합니다.
-        return loginMemberId; // loginDao를 통해 실제 로그인한 사용자 ID를 반환하도록 수정
+        return loginMemberId;
     }
 
     public void menu() throws IOException {
@@ -65,8 +63,6 @@ public class MembrManagemntController {
     }
 
     public void memberRead() throws IOException {
-        String currentUserId = getCurrentUserId();
-        MemberEnum currentUserRole = memberService.getMemberRoleById(currentUserId);
 
         if (loginMemberRole == MemberEnum.ADMIN) {
             List<Member> members = memberService.getMemberList();
@@ -85,9 +81,7 @@ public class MembrManagemntController {
         }
     }
 
-    public void memberUpdate() throws IOException {
-        String currentUserId = getCurrentUserId();
-        MemberEnum currentUserRole = memberService.getMemberRoleById(currentUserId);
+    public void memberUpdate() {
 
         try {
             memberRead();
