@@ -37,7 +37,9 @@ public class PurchaseDAOImpl implements PurchaseDAO{
                             .append("FROM TB_SHOP_PURCHASE sp " +
                                     "JOIN TB_SHOP s ON sp.PK_SHOP_CD = s.PK_SHOP_CD ")
                             .append("WHERE sp.DT_SHOP_PURCHASE_DATE BETWEEN ? AND ? ")
-                            .append("AND sp.V_SHOP_PURCHASE_STATUS IS NULL ")
+                            .append("AND (sp.V_SHOP_PURCHASE_STATUS IS NULL OR ")
+                            .append("sp.V_SHOP_PURCHASE_STATUS='' OR ")
+                            .append("sp.V_SHOP_PURCHASE_STATUS='신규등록') ")
                             .append("AND s.V_SHOP_NM IN (");
 
             for (int i=0; i<shopName.size(); i++) {
@@ -148,7 +150,6 @@ public class PurchaseDAOImpl implements PurchaseDAO{
                     .append("SET V_SHOP_PURCHASE_STATUS = ? ")
                     .append("WHERE V_SHOP_PURCHASE_CLAIM IS NULL " )
                     .append("AND PK_SHOP_PURCHASE_SEQ IN ( ");
-
             for (int i = 0; i < purchaseDetailSeq.size(); i++) {
                 sql.append("?");
                 if (i < purchaseDetailSeq.size() - 1) {
