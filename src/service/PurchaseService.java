@@ -16,6 +16,6 @@ public interface PurchaseService {
     List<PurchaseVO> getPurchaseClaimListByPurchaseSeq(List<Long> claimSeqList);
     List<Long> updateNewPurchaseStatus(List<Long> shopPurchaseSeqList);
 //    String processPurchaseToCancel(Long purchaseSeq);
-    int createPurchaseReturn(Long purchaseSeq);
+    Long createPurchaseReturn(Long purchaseSeq);
     int updatePurchaseStatusToReturn(Long purchaseSeq, PurchaseEnum returnStatus);
 }
