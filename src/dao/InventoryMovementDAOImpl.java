@@ -35,6 +35,8 @@ public class InventoryMovementDAOImpl implements InventoryMovementDAO {
         String sql = "SELECT * FROM TB_INVENTORY";
 
         try {
+            Connection conn = DbConnection.getInstance().getConnection();
+
             pstmt = conn.prepareStatement(sql);
             ResultSet rs = pstmt.executeQuery();
 
@@ -61,6 +63,8 @@ public class InventoryMovementDAOImpl implements InventoryMovementDAO {
         String sql = "SELECT V_WAREHOUSE_CD FROM TB_WAREHOUSE";
 
         try {
+            Connection conn = DbConnection.getInstance().getConnection();
+
             pstmt = conn.prepareStatement(sql);
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
@@ -79,6 +83,8 @@ public class InventoryMovementDAOImpl implements InventoryMovementDAO {
         String sql = "SELECT V_ZONE_CD FROM TB_ZONE WHERE V_WAREHOUSE_CD = ?";
 
         try {
+            Connection conn = DbConnection.getInstance().getConnection();
+
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, wareHouseCode);
             try (ResultSet rs = pstmt.executeQuery()) {
@@ -99,6 +105,8 @@ public class InventoryMovementDAOImpl implements InventoryMovementDAO {
         String sql = "UPDATE TB_INVENTORY SET V_ZONE_CD = ?, V_WAREHOUSE_CD = ? WHERE PK_INVENTORY_SEQ = ?";
 
         try {
+            Connection conn = DbConnection.getInstance().getConnection();
+
             pstmt = conn.prepareStatement(sql);
 
             pstmt.setString(1, inventory.getZoneCd());
@@ -120,6 +128,8 @@ public class InventoryMovementDAOImpl implements InventoryMovementDAO {
         String sql = "SELECT * FROM TB_INVENTORY WHERE PK_INVENTORY_SEQ = ?";
 
         try {
+            Connection conn = DbConnection.getInstance().getConnection();
+
             pstmt = conn.prepareStatement(sql);
 
             pstmt.setInt(1, selectedNumber);

@@ -29,12 +29,12 @@ public class OrderDAOImpl implements OrderDAO {
     @Override
     public List<OrderVO> getAllOrdersWithDetails() {
         List<OrderVO> orders = new ArrayList<>();
-        Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
 
         try {
-            conn = DbConnection.getInstance().getConnection();
+            Connection conn = DbConnection.getInstance().getConnection();
+
             String sql = "SELECT * FROM TB_ORDER O JOIN TB_ORDER_DETAIL OD ON O.PK_ORDER_SEQ = OD.PK_ORDER_SEQ";
             stmt = conn.prepareStatement(sql);
             rs = stmt.executeQuery();
@@ -74,12 +74,11 @@ public class OrderDAOImpl implements OrderDAO {
     @Override
     public List<OrderVO> getAllOrdersStatusProgress() {
         List<OrderVO> orders = new ArrayList<>();
-        Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
 
         try {
-            conn = DbConnection.getInstance().getConnection();
+            Connection conn = DbConnection.getInstance().getConnection();
             String sql = "SELECT O.PK_ORDER_SEQ, O.V_ORDER_STATUS, O.V_INCOMING_PRODUCT_SUPPLIER_NM, O.DT_DELIVERY_DATE, O.DT_ORDER_COMPLETION_DATE, " +
                     "OD.PK_ORDER_DETAIL_SEQ, OD.N_ORDER_CNT, OD.V_ORDER_STATUS AS V_ORDER_DETAIL_STATUS, OD.V_PRODUCT_CD, OD.V_WAREHOUSE_CD " +
                     "FROM TB_ORDER O JOIN TB_ORDER_DETAIL OD ON O.PK_ORDER_SEQ = OD.PK_ORDER_SEQ " +
@@ -124,12 +123,11 @@ public class OrderDAOImpl implements OrderDAO {
     @Override
     public Long registerOrder(String deliveryDate, Product product) {
         Long orderSeq = 0l;
-        Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
 
         try {
-            conn = DbConnection.getInstance().getConnection();
+            Connection conn = DbConnection.getInstance().getConnection();
 
             // TB_ORDER에 주문 생성
             String insertOrderSql = "INSERT INTO TB_ORDER (V_ORDER_STATUS, V_INCOMING_PRODUCT_SUPPLIER_NM, DT_DELIVERY_DATE) " +
@@ -177,11 +175,12 @@ public class OrderDAOImpl implements OrderDAO {
 
     public List<Product> getAllProductQuantity() {
         List<Product> productList = new ArrayList<>();
+
         String sql = "SELECT * FROM TB_PRODUCT;";
-        Connection conn = null;
+
 
         try {
-            conn = DbConnection.getInstance().getConnection();
+            Connection conn = DbConnection.getInstance().getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql);
             ResultSet rs = pstmt.executeQuery();
 
@@ -209,10 +208,9 @@ public class OrderDAOImpl implements OrderDAO {
                 "d.PK_ORDER_DETAIL_SEQ, d.N_ORDER_CNT, d.V_ORDER_STATUS AS V_ORDER_DETAIL_STATUS, d.V_PRODUCT_CD, d.V_WAREHOUSE_CD " +
                 "FROM TB_ORDER o JOIN TB_ORDER_DETAIL d ON o.PK_ORDER_SEQ = d.PK_ORDER_SEQ WHERE o.PK_ORDER_SEQ = ?";
 
-        Connection conn = null;
 
         try {
-            conn = DbConnection.getInstance().getConnection();
+            Connection conn = DbConnection.getInstance().getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setLong(1, orderSeq);
             ResultSet rs = pstmt.executeQuery();
@@ -239,12 +237,11 @@ public class OrderDAOImpl implements OrderDAO {
     // 발주 상태 변경
     @Override
     public int updateOrderStatus(Long orderSeq) {
-        Connection conn;
         PreparedStatement pstmt = null;
         int updatedRows = 0;
 
         try {
-            conn = DbConnection.getInstance().getConnection();
+            Connection conn = DbConnection.getInstance().getConnection();
 
             String sql = new StringBuilder("UPDATE TB_ORDER ")
                     .append("SET V_ORDER_STATUS = ? ")

@@ -20,6 +20,7 @@ import vo.WareHouse;
 import vo.WareHouseZone;
 
 public class OrderController {
+
     private static OrderController instance;
     private Scanner sc = new Scanner(System.in);
 
@@ -63,6 +64,14 @@ public class OrderController {
         String ch = sc.nextLine().trim();
         switch (ch) {
             case "1":
+                if (!(
+                        loginMemberRole == MemberEnum.ADMIN ||
+                                loginMemberRole == MemberEnum.OPERATOR
+                )) {
+                    System.out.println("해당 메뉴를 실행할 권한이 없습니다.\n관리자에게 문의해주세요...");
+                    break;
+                }
+
                 registerOrder();
                 menu();
                 break;

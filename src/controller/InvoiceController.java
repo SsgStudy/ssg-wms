@@ -6,9 +6,11 @@ import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
+import dao.LoginManagementDAOImpl;
 import service.IncomigService;
 import service.InvoiceService;
 import service.InvoiceServiceImpl;
+import util.enumcollect.MemberEnum;
 import util.enumcollect.WaybillTypeEnum;
 import vo.Invoice;
 import vo.OutgoingProductVO;
@@ -26,11 +28,16 @@ import java.util.List;
 import java.util.logging.Logger;
 
 public class InvoiceController {
+    private LoginManagementDAOImpl loginDao = LoginManagementDAOImpl.getInstance();
+    private MemberEnum loginMemberRole;
+    private String loginMemberId;
     private static InvoiceController instance;
     static InvoiceService invoiceService;
 
     public InvoiceController(InvoiceService invoiceService) {
         this.invoiceService = invoiceService;
+        this.loginMemberRole = loginDao.getMemberRole();
+        this.loginMemberId = loginDao.getMemberId();
     }
 
     List<Invoice> invoiceList = new ArrayList<>();
@@ -46,6 +53,7 @@ public class InvoiceController {
     static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
     public static void menu() throws IOException, SQLException {
+
         System.out.println("[송장 관리]");
         System.out.println("--".repeat(25));
         System.out.println("1.송장 조회 | 2.메뉴 나가기");

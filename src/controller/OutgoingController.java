@@ -1,5 +1,6 @@
 package controller;
 
+import dao.LoginManagementDAOImpl;
 import java.io.IOException;
 import java.sql.Blob;
 import java.sql.SQLException;
@@ -14,10 +15,14 @@ import service.InvoiceService;
 
 import service.OutgoingService;
 import util.MenuBoxPrinter;
+import util.enumcollect.MemberEnum;
 import util.enumcollect.WaybillTypeEnum;
 import vo.*;
 
 public class OutgoingController {
+    private LoginManagementDAOImpl loginDao = LoginManagementDAOImpl.getInstance();
+    private MemberEnum loginMemberRole;
+    private String loginMemberId;
     private static Logger logger = Logger.getLogger(OutgoingController.class.getName());
 
     private static OutgoingController instance;
@@ -102,6 +107,13 @@ public class OutgoingController {
     }
 
     public void addOutgoingProductList() {
+        if (!(
+                loginMemberRole == MemberEnum.ADMIN ||
+                        loginMemberRole == MemberEnum.WAREHOUSE_MANAGER
+        )) {
+            System.out.println("해당 메뉴를 실행할 권한이 없습니다.\n관리자에게 문의해주세요...");
+            return;
+        }
         try {
             System.out.print("\n➔ 출고 등록할 지시 번호 선택: ");
             String input = sc.nextLine().trim();
@@ -120,6 +132,13 @@ public class OutgoingController {
     }
 
     public void updateOutgoingProductMenu() {
+        if (!(
+                loginMemberRole == MemberEnum.ADMIN ||
+                        loginMemberRole == MemberEnum.WAREHOUSE_MANAGER
+        )) {
+            System.out.println("해당 메뉴를 실행할 권한이 없습니다.\n관리자에게 문의해주세요...");
+            return;
+        }
         printAllOutgoings();
         try {
             System.out.print("\n➔ 수정할 출고 상품의 ID를 입력하세요: ");
