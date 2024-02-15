@@ -44,6 +44,7 @@ public class InventoryAdjustmentServiceImpl implements InventoryAdjustmentServic
         else return 0;
     }
 
+    @Override
     public int updateRestoration(Long purchaseSeq) {
         int quanity = -1;
 

@@ -1,5 +1,6 @@
 package service;
 
+import util.enumcollect.PurchaseEnum;
 import vo.PurchaseVO;
 
 import java.util.List;
@@ -16,6 +17,5 @@ public interface PurchaseService {
     List<Long> updateNewPurchaseStatus(List<Long> shopPurchaseSeqList);
 //    String processPurchaseToCancel(Long purchaseSeq);
     int createPurchaseReturn(Long purchaseSeq);
-    void updatePurchaseToCancel(Long purchaseSeq, String status);
-    int updatePurchaseStatusToReturnComplete(Long purchaseSeq);
+    int updatePurchaseStatusToReturn(Long purchaseSeq, PurchaseEnum returnStatus);
 }
