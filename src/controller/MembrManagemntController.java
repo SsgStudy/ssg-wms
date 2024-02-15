@@ -116,7 +116,6 @@ public class MembrManagemntController {
             boolean isUpdated = memberService.updateMemberInfo(no, newId, newName);
             if (isUpdated) {
                 System.out.println("회원 정보가 성공적으로 업데이트 되었습니다.");
-                System.out.println("회원 정보가 성공적으로 업데이트 되었습니다.");
             } else {
                 System.out.println("회원 정보 업데이트에 실패했습니다.");
             }

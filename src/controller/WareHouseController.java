@@ -105,7 +105,7 @@ public class WareHouseController {
     public void viewWareHouse() throws IOException {
         String[] menuItems = {
                 "1. 전체 조회\t",
-                "2. 창고명별 조회\t",
+                "2. 창고 이름별 조회\t",
                 "3. 소재지별 조회\t",
                 "4. 창고종류별 조회\t\t",
                 "5. 메뉴 나가기\t\t",
