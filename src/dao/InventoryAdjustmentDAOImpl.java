@@ -10,12 +10,11 @@ import java.util.List;
 public class InventoryAdjustmentDAOImpl implements InventoryAdjustmentDAO {
 
     private static InventoryAdjustmentDAOImpl instance;
-    private static Connection conn;
     private static PreparedStatement pstmt;
 
     private InventoryAdjustmentDAOImpl() {
         try {
-            conn = DbConnection.getInstance().getConnection();
+            Connection conn = DbConnection.getInstance().getConnection();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -34,6 +33,8 @@ public class InventoryAdjustmentDAOImpl implements InventoryAdjustmentDAO {
         String sql = "SELECT * FROM TB_INVENTORY";
 
         try {
+            Connection conn = DbConnection.getInstance().getConnection();
+
             pstmt = conn.prepareStatement(sql);
             ResultSet rs = pstmt.executeQuery();
 
@@ -60,6 +61,8 @@ public class InventoryAdjustmentDAOImpl implements InventoryAdjustmentDAO {
         int ack = 0;
         String sql = "UPDATE TB_INVENTORY SET N_INVENTORY_CNT = N_INVENTORY_CNT + ? WHERE PK_INVENTORY_SEQ = ?";
         try {
+            Connection conn = DbConnection.getInstance().getConnection();
+
             pstmt = conn.prepareStatement(sql);
 
             pstmt.setInt(1, adjustedQuantity);
@@ -78,6 +81,7 @@ public class InventoryAdjustmentDAOImpl implements InventoryAdjustmentDAO {
         int ack = 0;
         String sql = "UPDATE TB_INVENTORY SET N_INVENTORY_CNT = N_INVENTORY_CNT - ? WHERE PK_INVENTORY_SEQ = ?";
         try {
+            Connection conn = DbConnection.getInstance().getConnection();
             pstmt = conn.prepareStatement(sql);
 
             pstmt.setInt(1, adjustedQuantity);
@@ -96,6 +100,8 @@ public class InventoryAdjustmentDAOImpl implements InventoryAdjustmentDAO {
         List<InventoryVO> inventoryList = new ArrayList<>();
         String sql = "SELECT * FROM TB_INVENTORY WHERE PK_INVENTORY_SEQ = ?";
         try {
+            Connection conn = DbConnection.getInstance().getConnection();
+
             pstmt = conn.prepareStatement(sql);
             pstmt.setInt(1, selectedNumber);
             try (ResultSet rs = pstmt.executeQuery()) {
@@ -124,6 +130,7 @@ public class InventoryAdjustmentDAOImpl implements InventoryAdjustmentDAO {
 
         try {
             String procedure = "{call RESTORE_INVENTORY(?, ?)}";
+            Connection conn = DbConnection.getInstance().getConnection();
 
             cstmt = conn.prepareCall(procedure);
             cstmt.setLong(1, purchaseSeq);
@@ -160,6 +167,7 @@ public class InventoryAdjustmentDAOImpl implements InventoryAdjustmentDAO {
                     .append("JOIN TB_SHOP_PURCHASE_DETAIL d ON i.V_PRODUCT_CD = d.V_PRODUCT_CD ")
                     .append("WHERE d.PK_SHOP_PURCHASE_SEQ = ? AND h.V_INVENTORY_CHANEGE_TYPE IN ('CHANGE_CNT_OUTBOUND', 'CHANGE_CNT_INBOUND')")
                     .append("GROUP BY i.V_PRODUCT_CD").toString();
+            Connection conn = DbConnection.getInstance().getConnection();
 
             pstmt = conn.prepareStatement(sql);
             pstmt.setLong(1, purchaseSeq);

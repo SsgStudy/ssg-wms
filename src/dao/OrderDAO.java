@@ -13,6 +13,4 @@ public interface OrderDAO {
     OrderVO getOneOrderInformation(Long orderSeq);
     int updateOrderStatus(Long orderSeq);
 
-
-
 }

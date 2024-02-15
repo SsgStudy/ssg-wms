@@ -2,6 +2,7 @@ package service;
 
 import dao.WareHouseDaoImpl;
 import vo.WareHouse;
+import vo.WareHouseZone;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -34,6 +35,16 @@ public class WareHouseServiceImpl implements WareHouseService {
 
     public List<WareHouse> viewWareHouseByType(String type){
         return wareHouseDao.viewWareHouseByType(type);
+    }
+
+    @Override
+    public List<WareHouse> viewWareHouseByMemberId(String memberId) {
+        return wareHouseDao.viewWarehouseByMemberId(memberId);
+    }
+
+    @Override
+    public List<WareHouseZone> viewWareHouseZoneByWarehouseCd(String warehouseCd) {
+        return wareHouseDao.viewWarehouseZoneCdByWarehouseCd(warehouseCd);
     }
 
     public List<WareHouse> viewWareHouseByNameMain(){

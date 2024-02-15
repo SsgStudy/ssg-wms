@@ -3,6 +3,7 @@ package dao;
 import java.sql.SQLException;
 import util.DbConnection;
 import vo.WareHouse;
+import vo.WareHouseZone;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -170,5 +171,58 @@ public class WareHouseDaoImpl implements WareHouseDao {
         wareHouse.setWarehouseType(rs.getString("S_WAREHOUSE_TYPE"));
         wareHouse.setMemberSeq(rs.getInt("PK_MEMBER_SEQ"));
         return wareHouse;
+    }
+
+    // 창고 담당자가 관리하는 창고 검색
+    public List<WareHouse> viewWarehouseByMemberId(String memberId) {
+        List<WareHouse> wareHouses = new ArrayList<>();
+        String sql = "SELECT * FROM TB_WAREHOUSE w JOIN TB_MEMBER m ON w.PK_MEMBER_SEQ=m.PK_MEMBER_SEQ " +
+                    " WHERE m.V_MEMBER_ID = ? ;";
+        Connection conn = null;
+
+        try {
+            conn = DbConnection.getInstance().getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, memberId);
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                WareHouse wareHouse = new WareHouse();
+                wareHouse.setWarehouseCode(rs.getString("V_WAREHOUSE_CD"));
+                wareHouse.setWarehouseName(rs.getString("V_WAREHOUSE_NM"));
+                wareHouse.setWarehouseLocation(rs.getString("V_WAREHOUSE_LOC"));
+                wareHouse.setWarehouseType(rs.getString("S_WAREHOUSE_TYPE"));
+                wareHouses.add(wareHouse);
+            }
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return wareHouses;
+    }
+
+    @Override
+    public List<WareHouseZone> viewWarehouseZoneCdByWarehouseCd(String warehouseCd) {
+        List<WareHouseZone> wareHouseZones = new ArrayList<>();
+        String sql = "SELECT * FROM TB_WAREHOUSE w JOIN TB_ZONE z ON w.V_WAREHOUSE_CD=z.V_WAREHOUSE_CD " +
+                " WHERE w.V_WAREHOUSE_CD = ? ;";
+        Connection conn = null;
+
+        try {
+            conn = DbConnection.getInstance().getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, warehouseCd);
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                WareHouseZone wareHouseZone = new WareHouseZone();
+                wareHouseZone.setZoneCode(rs.getString("V_ZONE_CD"));
+                wareHouseZone.setZoneName(rs.getString("V_ZONE_NM"));
+                wareHouseZones.add(wareHouseZone);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return wareHouseZones;
     }
 }

@@ -1,5 +1,7 @@
 package dao;
 
+import static util.DbConnection.getConnection;
+
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -15,10 +17,16 @@ import vo.DetailedIncomingVO;
 import vo.IncomingVO;
 
 public class IncomingDAOImpl implements IncomingDAO {
+//    private static Connection conn;
 
     private static IncomingDAOImpl instance;
 
     private IncomingDAOImpl() {
+        try {
+            Connection conn = DbConnection.getInstance().getConnection();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public static synchronized IncomingDAOImpl getInstance() {
@@ -30,12 +38,11 @@ public class IncomingDAOImpl implements IncomingDAO {
 
     public List<IncomingVO> getAllIncomingProductsWithDetails() {
         List<IncomingVO> incomingProducts = new ArrayList<>();
-        Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
 
         try {
-            conn = DbConnection.getInstance().getConnection();
+            Connection conn = DbConnection.getInstance().getConnection();
             String sql = "SELECT * FROM TB_INCOMING_PRODUCT";
             stmt = conn.prepareStatement(sql);
             rs = stmt.executeQuery();
@@ -67,7 +74,6 @@ public class IncomingDAOImpl implements IncomingDAO {
                 if (stmt != null) {
                     stmt.close();
                 }
-                DbConnection.close();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -80,8 +86,10 @@ public class IncomingDAOImpl implements IncomingDAO {
     public void updateIncomingProduct(long seq, String zoneCode, int count, int price) throws SQLException {
         String sql = "UPDATE TB_INCOMING_PRODUCT SET V_ZONE_CD = ?, N_INCOMING_PRODUCT_CNT = ?, N_INCOMING_PRODUCT_PRICE = ? WHERE PK_INCOMING_PRODUCT_SEQ = ?";
 
-        try (Connection conn = DbConnection.getInstance().getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (
+                Connection conn = DbConnection.getInstance().getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql);
+        ) {
             stmt.setString(1, zoneCode);
             stmt.setInt(2, count);
             stmt.setInt(3, price);

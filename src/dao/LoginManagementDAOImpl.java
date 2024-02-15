@@ -12,11 +12,10 @@ public class LoginManagementDAOImpl {
     private static volatile LoginManagementDAOImpl instance;
     private String memberId;
     private MemberEnum memberRole;
-    private Connection conn;
 
     private LoginManagementDAOImpl() {
         try {
-            conn = DbConnection.getConnection();
+            Connection conn = DbConnection.getInstance().getConnection();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -35,7 +34,9 @@ public class LoginManagementDAOImpl {
 
     public int logIn(String id, String password) {
         String sql = "SELECT * FROM TB_MEMBER WHERE V_MEMBER_ID = ? AND V_MEMBER_PW = ?";
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try ( Connection conn = DbConnection.getInstance().getConnection();
+
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, id);
             pstmt.setString(2, password);
             ResultSet rs = pstmt.executeQuery();

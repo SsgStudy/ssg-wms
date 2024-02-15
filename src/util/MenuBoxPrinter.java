@@ -35,7 +35,7 @@ public class MenuBoxPrinter { // 문자열의 실제 표시 길이를 계산하�
         int titleLength = getStringDisplayLength(title);
         int paddingBeforeTitle = (boxWidth - 2 - titleLength) / 2;
         System.out.print("|" + " ".repeat(paddingBeforeTitle) + title);
-        System.out.println(" ".repeat(boxWidth - 2 - titleLength - paddingBeforeTitle) + "|");
+        System.out.println(" ".repeat(boxWidth - 2 - titleLength - paddingBeforeTitle));
 
         printLine(boxWidth);  // Separator
 
@@ -43,7 +43,7 @@ public class MenuBoxPrinter { // 문자열의 실제 표시 길이를 계산하�
         for (String item : menuItems) {
             int itemLength = getStringDisplayLength(item);
             System.out.print("| " + item);
-            System.out.println(" ".repeat(boxWidth - 2 - itemLength) + "|");
+            System.out.println(" ".repeat(boxWidth - 2 - itemLength));
         }
 
         printLine(boxWidth);  // Bottom border

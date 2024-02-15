@@ -1,11 +1,13 @@
 package controller;
 
+import dao.LoginManagementDAOImpl;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
 
 import service.WareHouseService;
 import util.MenuBoxPrinter;
+import util.enumcollect.MemberEnum;
 import vo.WareHouse;
 
 import java.io.IOException;
@@ -15,6 +17,9 @@ import java.util.List;
 import java.util.logging.Logger;
 
 public class WareHouseController {
+    private LoginManagementDAOImpl loginDao = LoginManagementDAOImpl.getInstance();
+    private MemberEnum loginMemberRole;
+    private String loginMemberId;
     private static WareHouseController instance;
     private static WareHouseService wareHouseService;
     private static Logger logger = Logger.getLogger(WareHouseController.class.getName());
@@ -34,6 +39,8 @@ public class WareHouseController {
     }
 
     public void menu() throws IOException {
+        this.loginMemberRole = loginDao.getMemberRole();
+        this.loginMemberId = loginDao.getMemberId();
         boolean running = true;
         while (running) {
             String[] menuItems = {
@@ -64,19 +71,26 @@ public class WareHouseController {
     }
 
     public void registerWareHouse() {
+        if (!(
+                loginMemberRole == MemberEnum.ADMIN ||
+                        loginMemberRole == MemberEnum.OPERATOR
+        )) {
+            System.out.println("해당 메뉴를 실행할 권한이 없습니다.\n관리자에게 문의해주세요...");
+            return;
+        }
         WareHouse wareHouse = new WareHouse();
 
         try{
             System.out.println("***신규 창고 등록***");
-            System.out.print("\n➔ 창고 코드 지정 : ");
+            System.out.print("\n➔ 창고 코드 지정 (예 : KR-CJU-01) : ");
             wareHouse.setWarehouseCode(br.readLine());
-            System.out.print("\n➔ 창고 명 지정 : ");
+            System.out.print("\n➔ 창고 명 지정 (예 : 서울 중앙 창고) : ");
             wareHouse.setWarehouseName(br.readLine());
-            System.out.print("\n➔ 창고 소재지(도시 국가) 지정 : ");
+            System.out.print("\n➔ 창고 소재지(도시 국가) 지정 (예 : 노르웨이) : ");
             wareHouse.setWarehouseLocation(br.readLine());
-            System.out.print("\n➔ 창고 종류 지정 : ");
+            System.out.print("\n➔ 창고 종류 지정 (예 : 전자제품) : ");
             wareHouse.setWarehouseType(br.readLine());
-            System.out.print("\n➔ 창고관리자 코드 입력 : ");
+            System.out.print("\n➔ 창고관리자 코드 입력 (예 : 6) : ");
             wareHouse.setMemberSeq(Integer.parseInt(br.readLine()));
             wareHouseService.registerWareHouse(wareHouse);
             System.out.printf("[%s의 등록이 완료되었습니다.]\n", wareHouse.getWarehouseName());
@@ -137,7 +151,7 @@ public class WareHouseController {
     public void viewWareHouseByName() {
         System.out.println("--".repeat(25));
         System.out.println("[창고 이름별 조회]");
-        System.out.print("\n➔ 창고 이름 입력 : ");
+        System.out.print("\n➔ 창고 이름 입력 (예 : 서울 중앙 창고) : ");
         try{
             String name = br.readLine();
             wareHouseList = wareHouseService.viewWareHouseByName(name);
@@ -163,7 +177,7 @@ public class WareHouseController {
     public void viewWareHouseByLocation(){
         System.out.println("--".repeat(25));
         System.out.println("[창고 소재지별 조회]");
-        System.out.print("\n➔ 창고 소재지 입력 : ");
+        System.out.print("\n➔ 창고 소재지 입력 (예 : 서울 중구) : ");
         try{
             String location = br.readLine();
             wareHouseList = wareHouseService.viewWareHouseByLocation(location);
@@ -189,7 +203,7 @@ public class WareHouseController {
     public void viewWareHouseByType() {
         System.out.println("--".repeat(25));
         System.out.println("[창고 종류별 조회]");
-        System.out.print("\n➔ 창고 종류 입력 : ");
+        System.out.print("\n➔ 창고 종류 입력 (예 : 전자제품) : ");
         try{
             String type = br.readLine();
             wareHouseList = wareHouseService.viewWareHouseByType(type);
