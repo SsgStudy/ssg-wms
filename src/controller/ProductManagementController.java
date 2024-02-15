@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class ProductManagementController {
 
@@ -63,7 +64,7 @@ public class ProductManagementController {
                 System.out.println(category.getCategoryCode() + ": " + category.getCategoryName());
             }
 
-            System.out.println("대분류 카테고리 번호를 입력하세요: ");
+            System.out.print("대분류 카테고리 번호를 입력하세요: ");
             int mainCategoryNumber = Integer.parseInt(br.readLine().trim());
 
             List<Category> subCategories = productService.getSubCategoriesByMainCategory(mainCategoryNumber);
@@ -76,7 +77,7 @@ public class ProductManagementController {
             for (Category category : subCategories) {
                 System.out.println(category.getCategoryCode() + ": " + category.getCategoryName());
             }
-            System.out.println("중분류 카테고리 번호를 입력하세요: ");
+            System.out.print("중분류 카테고리 번호를 입력하세요: ");
             int subCategoryNumber = Integer.parseInt(br.readLine().trim());
 
             List<Category> detailCategories = productService.getDetailCategoriesBySubCategory(mainCategoryNumber, subCategoryNumber);
@@ -88,19 +89,26 @@ public class ProductManagementController {
             for (Category category : detailCategories) {
                 System.out.println(category.getCategoryCode() + ": " + category.getCategoryName());
             }
-            System.out.println("소분류 카테고리 번호를 입력하세요: ");
+            System.out.print("소분류 카테고리 번호를 입력하세요: ");
             String detailCategoryNumber = br.readLine().trim(); // 입력값을 문자열로 처리
 
-            boolean isValidDetailCategory = detailCategories.stream()
-                    .anyMatch(c -> c.getCategoryCode().equals(detailCategoryNumber));
+            List<String> lastThreeCharsList = detailCategories.stream()
+                    .map(s -> s.getCategoryCode().substring(s.getCategoryCode().length() - 3))
+                    .collect(Collectors.toList());
+
+            boolean isValidDetailCategory = lastThreeCharsList.stream()
+                    .anyMatch(c -> c.equals(detailCategoryNumber));
+
+            System.out.println(detailCategoryNumber);
+            System.out.println(lastThreeCharsList);
             if (!isValidDetailCategory) {
                 System.out.println("선택한 소분류에 해당하는 카테고리가 존재하지 않습니다. 메인 메뉴로 돌아갑니다.");
                 return false;
             }
 
             selectedCategoryCode = String.format("%03d", mainCategoryNumber) + "-"
-                    + String.format("%03d", subCategoryNumber) + "-"
-                    + String.format("%03d", detailCategoryNumber); // 올바르게 선택된 경우 카테고리 코드 설정
+                    + String.format("%03d", subCategoryNumber) + "-" + detailCategoryNumber;
+
 
         } catch (Exception e) {
             System.out.println("카테고리 조회 중 오류가 발생했습니다: " + e.getMessage());
