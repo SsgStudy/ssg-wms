@@ -67,14 +67,6 @@ public class OrderController {
             int ch = Integer.parseInt(sc.nextLine().trim());
             switch (ch) {
                 case 1:
-                                if (!(
-                        loginMemberRole == MemberEnum.ADMIN ||
-                                loginMemberRole == MemberEnum.OPERATOR
-                )) {
-                    System.out.println("해당 메뉴를 실행할 권한이 없습니다.\n관리자에게 문의해주세요...");
-                    break;
-                }
-                
                     Product product = new Product();
                     // 상품 재고 순으로 조회
                     List<Product> productList = orderService.getProductInventoryList();
@@ -206,11 +198,6 @@ public class OrderController {
 
     public void printAllOrdersWithDetails() {
 
-        // 권한 검사 로직
-        if (!(loginMemberRole == MemberEnum.ADMIN || loginMemberRole == MemberEnum.WAREHOUSE_MANAGER || loginMemberRole == MemberEnum.OPERATOR)) {
-            System.out.println("권한이 없습니다.");
-            return;
-        }
         List<OrderVO> orders = getAllOrdersWithDetails();
 
 
