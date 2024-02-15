@@ -98,4 +98,6 @@ public interface PurchaseService {
      * @return the int
      */
     int updatePurchaseStatusToReturn(Long purchaseSeq, PurchaseEnum returnStatus);
+
+    int updatePurchaseStatusEx(Long purchaseSeq, PurchaseEnum purchaseStatus);
 }
