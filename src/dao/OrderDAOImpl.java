@@ -107,7 +107,6 @@ public class OrderDAOImpl implements OrderDAO {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            // 자원 해제
             try {
                 if (rs != null) rs.close();
                 if (stmt != null) stmt.close();
@@ -120,6 +119,7 @@ public class OrderDAOImpl implements OrderDAO {
         return orders;
     }
 
+    // 발주 등록
     @Override
     public Long registerOrder(String deliveryDate, Product product) {
         Long orderSeq = 0l;
@@ -163,7 +163,6 @@ public class OrderDAOImpl implements OrderDAO {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            // 자원 해제
             try {
                 if (rs != null) rs.close();
                 if (pstmt != null) pstmt.close();
@@ -233,7 +232,6 @@ public class OrderDAOImpl implements OrderDAO {
                 order.setProductCode(rs.getString("V_PRODUCT_CD"));
                 order.setWarehouseCode(rs.getString("V_WAREHOUSE_CD"));
             }
-
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
