@@ -139,6 +139,13 @@ public class PurchaseController {
 
     // 주문 수집 시 신규 등록
     public void updatePurchaseStatusForNewPurchase(List<Long> shopPurchaseSeqList) {
+        if (!(
+                loginMemberRole == MemberEnum.ADMIN ||
+                        loginMemberRole == MemberEnum.OPERATOR
+        )) {
+            System.out.println("해당 메뉴를 실행할 권한이 없습니다.\n관리자에게 문의해주세요...");
+            return;
+        }
         purchaseService.updateNewPurchaseStatus(shopPurchaseSeqList);
         if (!shopPurchaseSeqList.isEmpty()) {
             printForPurchaseList(shopPurchaseSeqList);
@@ -155,6 +162,13 @@ public class PurchaseController {
 
     // 주문 확정하기
     public void promptForPurchaseConfirmed() {
+        if (!(
+                loginMemberRole == MemberEnum.ADMIN ||
+                        loginMemberRole == MemberEnum.OPERATOR
+        )) {
+            System.out.println("해당 메뉴를 실행할 권한이 없습니다.\n관리자에게 문의해주세요...");
+            return;
+        }
         System.out.println("\n➔ 확정할 주문의 번호를 입력해주세요. (1 2 3) : ");
         List<Long> selectedPurchaseSeq = List.of(sc.nextLine().split(" "))
                 .stream()

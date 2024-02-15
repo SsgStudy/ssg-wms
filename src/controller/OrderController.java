@@ -58,6 +58,13 @@ public class OrderController {
         String ch = sc.nextLine().trim();
         switch (ch) {
             case "1":
+                if (!(
+                        loginMemberRole == MemberEnum.ADMIN ||
+                                loginMemberRole == MemberEnum.OPERATOR
+                )) {
+                    System.out.println("해당 메뉴를 실행할 권한이 없습니다.\n관리자에게 문의해주세요...");
+                    break;
+                }
                 Product product = new Product();
                 // 상품 재고 순으로 조회
                 List<Product> productList = orderService.getProductInventoryList();
@@ -84,6 +91,13 @@ public class OrderController {
                 break;
             case "2":
                 // 발주 확정
+                if (!(
+                        loginMemberRole == MemberEnum.ADMIN ||
+                                loginMemberRole == MemberEnum.OPERATOR
+                )) {
+                    System.out.println("해당 메뉴를 실행할 권한이 없습니다.\n관리자에게 문의해주세요...");
+                    return;
+                }
                 List<OrderVO> orderList = orderService.getAllOrdersStatusProgress();
                 System.out.print("\n➔ 확정할 발주 번호를 입력하세요. ");
                 Long orderProgressSeq = Long.parseLong(sc.nextLine().trim());
