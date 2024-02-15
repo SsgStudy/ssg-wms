@@ -24,28 +24,46 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+/**
+ * 이 클래스는 주문을 담당하는 PurchaseController 컨트롤러입니다.
+ * 주로 주문 수집, 주문 조회, 클레임 수집, 송장 처리, 반품과 같은 기능을 수행합니다.
+ * 해당 클래스는 Singleton 패턴을 따르며, 하나의 인스턴스만을 생성하여 사용합니다.
+ *
+ * @author : 장서윤
+ */
 public class PurchaseController {
-
     private static Logger logger = Logger.getLogger(PurchaseController.class.getName());
-
-
     private static PurchaseController instance;
     private Scanner sc = new Scanner(System.in);
     private PurchaseService purchaseService;
     private InvoiceService invoiceService;
     private InventoryAdjustmentService inventoryAdjustmentService;
-
     private LoginManagementDAOImpl loginDao = LoginManagementDAOImpl.getInstance();
     private MemberEnum loginMemberRole;
     private String loginMemberId;
 
+    /**
+     * Instantiates a new Purchase controller.
+     *
+     * @param purchaseService            the purchase service
+     * @param invoiceService             the invoice service
+     * @param inventoryAdjustmentService the inventory adjustment service
+     */
     private PurchaseController(PurchaseService purchaseService, InvoiceService invoiceService, InventoryAdjustmentService inventoryAdjustmentService) {
         this.purchaseService = purchaseService;
         this.invoiceService = invoiceService;
         this.inventoryAdjustmentService = inventoryAdjustmentService;
-        updateLoginInfo(); // 로그인 정보 초기화
+        updateLoginInfo();
     }
 
+    /**
+     * Gets instance.
+     *
+     * @param purchaseService            the purchase service
+     * @param invoiceService             the invoice service
+     * @param inventoryAdjustmentService the inventory adjustment service
+     * @return the instance
+     */
     public static PurchaseController getInstance(PurchaseService purchaseService, InvoiceService invoiceService, InventoryAdjustmentService inventoryAdjustmentService) {
         if (instance == null) {
             instance = new PurchaseController(purchaseService, invoiceService, inventoryAdjustmentService);
@@ -53,11 +71,17 @@ public class PurchaseController {
         return instance;
     }
 
+    /**
+     * Update login info.
+     */
     public void updateLoginInfo() {
         loginMemberRole = loginDao.getMemberRole();
         loginMemberId = loginDao.getMemberId();
     }
 
+    /**
+     * Menu.
+     */
     public void menu() {
         this.loginMemberRole = loginDao.getMemberRole();
         this.loginMemberId = loginDao.getMemberId();
@@ -96,6 +120,9 @@ public class PurchaseController {
         }
     }
 
+    /**
+     * Purchase menu.
+     */
     public void purchaseMenu() {
         String[] menuItems = {
                 "1. 주문 확정\t",
@@ -119,7 +146,11 @@ public class PurchaseController {
         }
     }
 
-    // 주문 수집 일자 쇼핑몰 선택
+    /**
+     * Prompt for purchase list.
+     *
+     * @return the list
+     */
     public List<Long> promptForPurchase() {
         System.out.print("\n➔ 주문 수집 일자를 입력해주세요 (YYYY-mm-DD YYYY-mm-DD) : ");
         String date = sc.nextLine();
@@ -137,7 +168,13 @@ public class PurchaseController {
         return purchaseService.integrateShopPurchases(date, selectedShopIndexes);
     }
 
-    // 주문 수집 시 신규 등록
+    /**
+     * Update purchase status for new purchase.
+     * <p>
+     * 접근제한 : 창고관리자
+     * <p>
+     * @param shopPurchaseSeqList the shop purchase seq list
+     */
     public void updatePurchaseStatusForNewPurchase(List<Long> shopPurchaseSeqList) {
         if (!(
                 loginMemberRole == MemberEnum.ADMIN ||
@@ -153,14 +190,22 @@ public class PurchaseController {
         }
     }
 
-    // 주문 수집 내역 조회
+    /**
+     * Print for purchase list.
+     *
+     * @param shopPurchaseSeqList the shop purchase seq list
+     */
     public void printForPurchaseList(List<Long> shopPurchaseSeqList) {
         if (!shopPurchaseSeqList.isEmpty()) {
             purchasePrintFormat(purchaseService.getPurchaseListByPurchaseSeq(shopPurchaseSeqList));
         }
     }
 
-    // 주문 확정하기
+    /**
+     * Prompt for purchase confirmed.
+     * <p>
+     * 접근제한 : 창고관리자
+     */
     public void promptForPurchaseConfirmed() {
         if (!(
                 loginMemberRole == MemberEnum.ADMIN ||
@@ -179,13 +224,19 @@ public class PurchaseController {
         printForPurchaseList(selectedPurchaseSeq);
     }
 
-    // 주문 수집 확정 내역 조회
+    /**
+     * Print for purchase confirm list.
+     *
+     * @param shopPurchaseSeqList the shop purchase seq list
+     */
     public void printForPurchaseConfirmList(List<PurchaseVO> shopPurchaseSeqList) {
         if (!shopPurchaseSeqList.isEmpty())
             purchasePrintFormat(shopPurchaseSeqList);
     }
 
-    // 클레임 수집 일자, 쇼핑몰 선택
+    /**
+     * Prompt for purchase claim.
+     */
     public void promptForPurchaseClaim() {
         System.out.println("\n➔ 클레임 수집 일자를 입력해주세요 (YYYY-mm-DD YYYY-mm-DD) : ");
         String date = sc.nextLine();
@@ -205,18 +256,23 @@ public class PurchaseController {
         if (!claimSeqList.isEmpty()) {
             printForPurchaseClaimList(claimSeqList);
             promptForPurchaseCancelOrReturn();
-        }
-        else {
+        } else {
             System.out.println("반품 내역이 없습니다.");
         }
     }
 
-    // 주문 클레임 처리 내역 조회
+    /**
+     * Print for purchase claim list.
+     *
+     * @param shopPurchaseSeqList the shop purchase seq list
+     */
     public void printForPurchaseClaimList(List<Long> shopPurchaseSeqList) {
         purchaseClaimPrintFormat(purchaseService.getPurchaseClaimListByPurchaseSeq(shopPurchaseSeqList));
     }
 
-    // 주문 취소/반품 하기
+    /**
+     * Prompt for purchase cancel or return.
+     */
     public void promptForPurchaseCancelOrReturn() {
         System.out.println("\n➔ 취소/반품할 주문의 번호를 입력해주세요. (1 2 3) : ");
         Long purchaseSeq = Long.parseLong(sc.nextLine());
@@ -234,14 +290,17 @@ public class PurchaseController {
             } else if (status.equals("INVOICE")) {
                 System.out.println("반품 처리 중 입니다.");
                 purchaseReturnMenu(purchaseReturnKey);
-            }
-            else {
+            } else {
                 logger.info("null 값");
             }
         }
     }
 
-    // 반품 절차
+    /**
+     * Purchase return menu.
+     *
+     * @param purchaseSeq the purchase seq
+     */
     public void purchaseReturnMenu(Long purchaseSeq) {
         OutgoingProductVO outgoingProduct = new OutgoingProductVO();
         outgoingProduct.setShopPurchaseSeq(purchaseSeq);
@@ -271,7 +330,7 @@ public class PurchaseController {
                 checkRestoreInventory(purchaseSeq);
                 purchaseReturnMenu(purchaseSeq);
             }
-            case 4-> {
+            case 4 -> {
                 return;
             }
             default -> {
@@ -281,6 +340,12 @@ public class PurchaseController {
 
     }
 
+    /**
+     * Prompt invoice int.
+     *
+     * @param outgoingProductVO the outgoing product vo
+     * @return the int
+     */
     public int promptInvoice(OutgoingProductVO outgoingProductVO) {
         Invoice invoice = new Invoice();
         int status = 0;
@@ -294,7 +359,7 @@ public class PurchaseController {
         };
         MenuBoxPrinter.printMenuBoxWithTitle("송장 종류 선택\t", menuItems);
 
-        try{
+        try {
             int ch = Integer.parseInt(sc.nextLine().trim());
 
             switch (ch) {
@@ -325,29 +390,34 @@ public class PurchaseController {
                 Blob qrCodeImage = invoiceService.createQRCode(invoice, outgoingProductVO);
                 status = invoiceService.putQRCode(qrCodeImage, invoiceSeq);
 
-            } catch (NumberFormatException e){
+            } catch (NumberFormatException e) {
                 logger.info("숫자로 입력하세요.");
                 e.printStackTrace();
             }
-        }catch (IOException | SQLException i){
+        } catch (IOException | SQLException i) {
             i.printStackTrace();
         }
 
         return status;
     }
 
-    // 재고 복원
+    /**
+     * Restore inventory.
+     *
+     * @param purchaseSeq the purchase seq
+     */
     public void restoreInventory(Long purchaseSeq) {
-        // 창고에 재고 증가
         inventoryAdjustmentService.updateRestoreInventoryQuantity(purchaseSeq);
-        // 주문 상태 - 반품 입고
         purchaseService.updatePurchaseStatusToReturn(purchaseSeq, PurchaseEnum.반품입고);
     }
 
+    /**
+     * Check restore inventory.
+     *
+     * @param purchaseSeq the purchase seq
+     */
     public void checkRestoreInventory(Long purchaseSeq) {
-        // 검수 - 출고 select by purchaseSeq 상품 일련 번호 -> 창고구역 tb join 재고 변경 이력
         int quantity = inventoryAdjustmentService.updateRestoration(purchaseSeq);
-        // 주문 상태 - 반품 완료
         if (quantity == 1)
             purchaseService.updatePurchaseStatusToReturn(purchaseSeq, PurchaseEnum.반품완료);
         else
@@ -355,11 +425,19 @@ public class PurchaseController {
 
     }
 
+    /**
+     * Print for all purchase list.
+     */
     public void printForAllPurchaseList() {
         List<PurchaseVO> purchaseList = purchaseService.readAllPurchases();
         purchasePrintFormat(purchaseList);
     }
 
+    /**
+     * Purchase print format.
+     *
+     * @param purchaseList the purchase list
+     */
     public void purchasePrintFormat(List<PurchaseVO> purchaseList) {
         System.out.println("주문 리스트");
         System.out.printf("%-10s %-10s %-15s %-15s %-15s %-15s %n",
@@ -380,6 +458,11 @@ public class PurchaseController {
         System.out.println("----------------------------------------------------------------------------------------------------------------");
     }
 
+    /**
+     * Purchase claim print format.
+     *
+     * @param purchaseList the purchase list
+     */
     public void purchaseClaimPrintFormat(List<PurchaseVO> purchaseList) {
         System.out.println("주문 리스트");
         System.out.printf("%-10s %-10s %-10s %-15s %-15s %-15s %-15s %n",
@@ -401,6 +484,12 @@ public class PurchaseController {
         System.out.println("----------------------------------------------------------------------------------------------------------------");
     }
 
+    /**
+     * Gets date format check.
+     *
+     * @param date the date
+     * @return the date format check
+     */
     public String getDateFormatCheck(String date) {
         Scanner scanner = new Scanner(System.in);
         Pattern pattern = Pattern.compile("^\\d{4}-\\d{2}-\\d{2} \\d{4}-\\d{2}-\\d{2}$");
@@ -414,6 +503,4 @@ public class PurchaseController {
 
         return date;
     }
-
-
 }

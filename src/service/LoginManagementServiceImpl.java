@@ -2,8 +2,10 @@ package service;
 
 import dao.LoginManagementDAOImpl;
 
+/**
+ * The type Login management service.
+ */
 public class LoginManagementServiceImpl implements LoginManagementService {
-
     private final LoginManagementDAOImpl loginDao = LoginManagementDAOImpl.getInstance();
 
     @Override

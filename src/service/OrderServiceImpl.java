@@ -1,16 +1,24 @@
 package service;
 
 import dao.OrderDAO;
+
 import java.util.List;
+
 import vo.OrderVO;
 import vo.Product;
 
+/**
+ * The type Order service.
+ */
 public class OrderServiceImpl implements OrderService {
     private OrderDAO orderDAO;
-
     private static OrderServiceImpl instance;
 
-    // Dependency Injection을 통해 OrderDAOImpl 인스턴스를 주입받음
+    /**
+     * Instantiates a new Order service.
+     *
+     * @param orderDAO the order dao
+     */
     public OrderServiceImpl(OrderDAO orderDAO) {
         this.orderDAO = orderDAO;
     }
@@ -52,7 +60,11 @@ public class OrderServiceImpl implements OrderService {
         return orderDAO.updateOrderStatus(orderSeq);
     }
 
-
+    /**
+     * Print order info.
+     *
+     * @param order the order
+     */
     public void printOrderInfo(OrderVO order) {
         System.out.printf("%-4s %-12s %-20s %-8s%n",
                 "발주 번호", "발주 상태", "공급 업체", "납품 일자");
@@ -62,6 +74,11 @@ public class OrderServiceImpl implements OrderService {
                 order.getDeliveryDate());
     }
 
+    /**
+     * Print order progress list.
+     *
+     * @param orderList the order list
+     */
     public void printOrderProgressList(List<OrderVO> orderList) {
         System.out.printf("%-4s %-12s %-20s %-10s  \n",
                 "발주 번호", "발주 상태", "공급 업체", "납품 일자");
@@ -72,6 +89,12 @@ public class OrderServiceImpl implements OrderService {
                     order.getDeliveryDate());
         }
     }
+
+    /**
+     * Print product list.
+     *
+     * @param productList the product list
+     */
     public void printProductList(List<Product> productList) {
         System.out.printf("%-4s %-12s %-20s %-8s %-15s %-15s %-15s%n",
                 "번호", "상품 코드", "상품명", "상품 가격", "브랜드", "원산지", "제조사");
@@ -83,6 +106,4 @@ public class OrderServiceImpl implements OrderService {
                     product.getProductBrand(), product.getProductOrign(), product.getManufactor());
         }
     }
-
-
 }

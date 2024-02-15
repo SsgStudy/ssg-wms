@@ -6,9 +6,15 @@ import vo.InventoryVO;
 
 import java.util.List;
 
+/**
+ * The type Inventory movement service.
+ */
 public class InventoryMovementServiceImpl implements InventoryMovementService {
     private InventoryMovementDAO inventoryMovementDao;
 
+    /**
+     * Instantiates a new Inventory movement service.
+     */
     public InventoryMovementServiceImpl() {
         this.inventoryMovementDao = InventoryMovementDAOImpl.getInstance();
     }

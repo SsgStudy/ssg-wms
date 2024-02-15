@@ -1,17 +1,25 @@
 package service;
 
 import dao.IncomingDAOImpl;
+
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
+
 import vo.DetailedIncomingVO;
 import vo.IncomingVO;
 
+/**
+ * The type Incoming service.
+ */
 public class IncomingServiceImpl implements IncomigService {
-
     private IncomingDAOImpl incomingDAO;
 
-    // Dependency Injection을 통해 IncomingProductDAOImpl 인스턴스를 주입받음
+    /**
+     * Instantiates a new Incoming service.
+     *
+     * @param incomingDAO the incoming dao
+     */
     public IncomingServiceImpl(IncomingDAOImpl incomingDAO) {
         this.incomingDAO = incomingDAO;
     }
@@ -31,6 +39,7 @@ public class IncomingServiceImpl implements IncomigService {
         incomingDAO.approveIncomingProduct(seq);
 
     }
+
     @Override
     public List<IncomingVO> getIncomingProductsByMonth(int year, int month) throws SQLException {
         return incomingDAO.getIncomingProductsByMonth(year, month);
@@ -38,8 +47,8 @@ public class IncomingServiceImpl implements IncomigService {
 
 
     @Override
-    public List<IncomingVO> getIncomingProductsByDateRange(LocalDate startDate, LocalDate endDate) throws SQLException{
-        return incomingDAO.getIncomingProductsByDateRange(startDate,endDate);
+    public List<IncomingVO> getIncomingProductsByDateRange(LocalDate startDate, LocalDate endDate) throws SQLException {
+        return incomingDAO.getIncomingProductsByDateRange(startDate, endDate);
     }
 
     @Override

@@ -13,6 +13,13 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Scanner;
 
+/**
+ * 이 클래스는 회원관리를 담당하는 MembrManagemntController 컨트롤러입니다.
+ * 주로 회원의 정보를 조회하고 수정과 같은 기능을 수행합니다.
+ * 해당 클래스는 Singleton 패턴을 따르며, 하나의 인스턴스만을 생성하여 사용합니다.
+ *
+ * @author : 손혜지
+ */
 public class MembrManagemntController {
     private static MembrManagemntController instance;
     private MemberService memberService = MemberServicelmpl.getInstance();
@@ -21,15 +28,26 @@ public class MembrManagemntController {
     private String loginMemberId;
     BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
+    /**
+     * Instantiates a new Membr managemnt controller.
+     */
     private MembrManagemntController() {
         updateLoginInfo();
     }
 
+    /**
+     * Update login info.
+     */
     public void updateLoginInfo() {
         this.loginMemberRole = loginDao.getMemberRole();
         this.loginMemberId = loginDao.getMemberId();
     }
 
+    /**
+     * Gets instance.
+     *
+     * @return the instance
+     */
     public static synchronized MembrManagemntController getInstance() {
         if (instance == null) {
             instance = new MembrManagemntController();
@@ -37,10 +55,20 @@ public class MembrManagemntController {
         return instance;
     }
 
+    /**
+     * Gets current user id.
+     *
+     * @return the current user id
+     */
     private String getCurrentUserId() {
         return loginMemberId;
     }
 
+    /**
+     * Menu.
+     *
+     * @throws IOException the io exception
+     */
     public void menu() throws IOException {
         boolean continueMenu = true;
 
@@ -52,7 +80,7 @@ public class MembrManagemntController {
                     "1. 회원 정보 수정\t\t\t\t",
                     "2. 메뉴 나가기\t\t\t"
             };
-            MenuBoxPrinter.printMenuBoxWithTitle("회원 관리\t\t",menuItems);
+            MenuBoxPrinter.printMenuBoxWithTitle("회원 관리\t\t", menuItems);
             int manageChoice = Integer.parseInt(br.readLine());
 
             switch (manageChoice) {
@@ -63,9 +91,16 @@ public class MembrManagemntController {
                 default -> System.out.println("옳지 않은 입력입니다.");
             }
         }
-
     }
 
+    /**
+     * Member read.
+     * <p>
+     * 접근제한 : 회원, 창고관리자 -> 모든 멤버 리스트<p>
+     * 본인은 본인의 리스트 확인 가능
+     *<p>
+     * @throws IOException the io exception
+     */
     public void memberRead() throws IOException {
 
         if (loginMemberRole == MemberEnum.ADMIN) {
@@ -85,6 +120,12 @@ public class MembrManagemntController {
         }
     }
 
+    /**
+     * Member update.
+     * <p>
+     * 총 관리자는 모든 회원의 정보 수정 가능<p>
+     * 사용자는 본인의 회원 정보만 수정 가능
+     */
     public void memberUpdate() {
 
         try {
@@ -126,7 +167,5 @@ public class MembrManagemntController {
             e.printStackTrace();
         }
     }
-
-
 }
 

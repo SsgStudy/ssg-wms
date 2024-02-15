@@ -10,17 +10,33 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+/**
+ * The type Purchase service.
+ */
 public class PurchaseServiceImpl implements PurchaseService {
     static Scanner sc = new Scanner(System.in);
     private static PurchaseServiceImpl instance;
     private PurchaseDAOImpl purchaseDAO;
 
+    /**
+     * Instantiates a new Purchase service.
+     *
+     * @param purchaseDAO the purchase dao
+     */
     public PurchaseServiceImpl(PurchaseDAOImpl purchaseDAO) {
         this.purchaseDAO = purchaseDAO;
     }
 
-    public PurchaseServiceImpl() {};
+    /**
+     * Instantiates a new Purchase service.
+     */
+    public PurchaseServiceImpl() {}
 
+    /**
+     * Gets instance.
+     *
+     * @return the instance
+     */
     public static synchronized PurchaseServiceImpl getInstance() {
         if (instance == null) {
             instance = new PurchaseServiceImpl();
@@ -47,9 +63,8 @@ public class PurchaseServiceImpl implements PurchaseService {
         if (!shopPurchaseSeqList.isEmpty()) {
             // 상태 변경
             purchaseDAO.updatePurchaseStatus(shopPurchaseSeqList, PurchaseEnum.신규등록);
-            System.out.println(shopPurchaseSeqList.size()+1 + "건의 주문이 수집되었습니다.");
-        }
-        else
+            System.out.println(shopPurchaseSeqList.size() + 1 + "건의 주문이 수집되었습니다.");
+        } else
             System.out.println("수집할 주문이 없습니다.");
 
         return shopPurchaseSeqList;
@@ -74,8 +89,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         if (!claimSeqList.isEmpty()) {
             purchaseDAO.updatePurchaseStatusCancelOrReturn(claimSeqList);
             System.out.println(claimSeqList.size() + "건의 취소/반품 내역이 있습니다.");
-        }
-        else {
+        } else {
             System.out.println("수집/반품 내역이 없습니다.");
         }
 
@@ -97,13 +111,11 @@ public class PurchaseServiceImpl implements PurchaseService {
         return purchaseDAO.updatePurchaseStatus(selectedPurchaseSeq, PurchaseEnum.주문확정);
     }
 
-    // 한 건의 주문 취소 또는 반품
     @Override
     public String processPurchaseToCancelOrReturn(Long purchaseSeq) {
         return purchaseDAO.processPurchaseCancelOrReturn(purchaseSeq);
     }
 
-    // 반품건 생성
     @Override
     public Long createPurchaseReturn(Long purchaseSeq) {
         return purchaseDAO.createPurchaseReturn(purchaseSeq);
@@ -114,14 +126,8 @@ public class PurchaseServiceImpl implements PurchaseService {
         return purchaseDAO.updatePurchaseCancelStatus(purchaseSeq, purchaseEnum);
     }
 
-
     @Override
     public List<PurchaseVO> readAllPurchases() {
         return purchaseDAO.findAll();
     }
-
-
-
-
-
 }

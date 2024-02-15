@@ -13,6 +13,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+/**
+ * The type Ware house service.
+ */
 public class WareHouseServiceImpl implements WareHouseService {
     private WareHouseDaoImpl wareHouseDao = WareHouseDaoImpl.getInstance();
     private static Logger logger = Logger.getLogger(WareHouseServiceImpl.class.getName());
@@ -33,7 +36,7 @@ public class WareHouseServiceImpl implements WareHouseService {
         return wareHouseDao.viewWareHouseByLocation(location);
     }
 
-    public List<WareHouse> viewWareHouseByType(String type){
+    public List<WareHouse> viewWareHouseByType(String type) {
         return wareHouseDao.viewWareHouseByType(type);
     }
 
@@ -47,29 +50,41 @@ public class WareHouseServiceImpl implements WareHouseService {
         return wareHouseDao.viewWarehouseZoneCdByWarehouseCd(warehouseCd);
     }
 
-    public List<WareHouse> viewWareHouseByNameMain(){
+    /**
+     * View warehouse by name main list.
+     *
+     * @return the list
+     */
+    public List<WareHouse> viewWareHouseByNameMain() {
         return wareHouseDao.viewWareHouseByNameMain();
     }
 
-    public List<WareHouse> viewWareHouseByLocationMain(){
+    /**
+     * View warehouse by location main list.
+     *
+     * @return the list
+     */
+    public List<WareHouse> viewWareHouseByLocationMain() {
         return wareHouseDao.viewWareHouseByLocationMain();
     }
 
-    public List<WareHouse> viewWareHouseByTypeMain(){
+    /**
+     * View warehouse by type main list.
+     *
+     * @return the list
+     */
+    public List<WareHouse> viewWareHouseByTypeMain() {
         return wareHouseDao.viewWareHouseByTypeMain();
     }
 
+    /**
+     * Extract warehouse from result set warehouse.
+     *
+     * @param rs the rs
+     * @return the warehouse
+     * @throws SQLException the sql exception
+     */
     public WareHouse extractWareHouseFromResultSet(ResultSet rs) throws SQLException {
         return wareHouseDao.extractWareHouseFromResultSet(rs);
     }
-
-
-
-
-
-
-
-
-
-
 }

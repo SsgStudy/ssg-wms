@@ -7,32 +7,89 @@ import vo.OutgoingInstVO;
 import vo.OutgoingProductVO;
 import vo.OutgoingVO;
 
+/**
+ * The interface Outgoing service.
+ */
 public interface OutgoingService {
 
-    //출고 지시 전체 조회
+    /**
+     * Gets all outgoing insts.
+     *
+     * @return the all outgoing insts
+     */
     List<OutgoingInstVO> getAllOutgoingInsts();
 
-    //출고 등록
+    /**
+     * Add outgoing product.
+     *
+     * @param shopSeq the shop seq
+     * @throws Exception the exception
+     */
     void addOutgoingProduct(int shopSeq) throws Exception;
 
-    //출고 등록 수정 및 승인
+    /**
+     * Update outgoing product status and date.
+     *
+     * @param pkOutgoingId the pk outgoing id
+     * @param date         the date
+     * @param status       the status
+     * @throws Exception the exception
+     */
     void updateOutgoingProductStatusAndDate(Long pkOutgoingId, LocalDateTime date, String status) throws Exception;
 
-    //출고 지시 수량 조회
+    /**
+     * Gets outgoing product quantity.
+     *
+     * @param pkOutgoingId the pk outgoing id
+     * @return the outgoing product quantity
+     * @throws Exception the exception
+     */
     int getOutgoingProductQuantity(Long pkOutgoingId) throws Exception;
 
-    //창고 및 출고 수량 조회
+    /**
+     * Gets inventory by product code and quantity.
+     *
+     * @param productCd the product cd
+     * @param quantity  the quantity
+     * @return the inventory by product code and quantity
+     * @throws Exception the exception
+     */
     List<InventoryVO> getInventoryByProductCodeAndQuantity(String productCd, int quantity) throws Exception;
 
-    //출고 수정 및 승인
+    /**
+     * Update outgoing product.
+     *
+     * @param pkOutgoingId the pk outgoing id
+     * @param newQuantity  the new quantity
+     * @param warehouseCd  the warehouse cd
+     * @param zoneCd       the zone cd
+     * @throws Exception the exception
+     */
     void updateOutgoingProduct(Long pkOutgoingId, int newQuantity, String warehouseCd, String zoneCd) throws Exception;
 
-    //출고 아이디로 상품 코드 받아오기
+    /**
+     * Gets product code by outgoing id.
+     *
+     * @param pkOutgoingId the pk outgoing id
+     * @return the product code by outgoing id
+     * @throws Exception the exception
+     */
     String getProductCodeByOutgoingId(Long pkOutgoingId) throws Exception;
 
-    //출고 리스트 전체 조회
+    /**
+     * Gets all outgoings.
+     *
+     * @return the all outgoings
+     * @throws Exception the exception
+     */
     List<OutgoingVO> getAllOutgoings() throws Exception;
 
+    /**
+     * Gets outgoing product row by outgoing id.
+     *
+     * @param pkOutgoingId the pk outgoing id
+     * @return the outgoing product row by outgoing id
+     * @throws Exception the exception
+     */
     OutgoingProductVO getOutgoingProductRowByOutgoingId(Long pkOutgoingId) throws Exception;
-
 }

@@ -7,22 +7,31 @@ import vo.Product;
 import java.util.List;
 import java.util.logging.Logger;
 
+/**
+ * The type Product service.
+ */
 public class ProductServiceImpl implements ProductService {
-
     private static ProductServiceImpl instance;
     private ProductManagementDaoImpl productDao;
 
+    /**
+     * Instantiates a new Product service.
+     */
     public ProductServiceImpl() {
         this.productDao = ProductManagementDaoImpl.getInstance();
     }
 
+    /**
+     * Gets instance.
+     *
+     * @return the instance
+     */
     public static synchronized ProductServiceImpl getInstance() {
         if (instance == null) {
             instance = new ProductServiceImpl();
         }
         return instance;
     }
-
 
     private static Logger logger = Logger.getLogger(ProductServiceImpl.class.getName());
 

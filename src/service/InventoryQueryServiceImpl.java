@@ -8,9 +8,15 @@ import vo.ProductInventoryWarehouseVO;
 
 import java.util.List;
 
+/**
+ * The type Inventory query service.
+ */
 public class InventoryQueryServiceImpl implements InventoryQueryService {
     private InventoryQueryDAO inventoryQueryDao;
 
+    /**
+     * Instantiates a new Inventory query service.
+     */
     public InventoryQueryServiceImpl() {
         this.inventoryQueryDao = InventoryQueryDAOImpl.getInstance();
     }

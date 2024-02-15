@@ -1,6 +1,7 @@
 package controller;
 
 import dao.LoginManagementDAOImpl;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
@@ -16,6 +17,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+/**
+ * 이 클래스는 창고 관리를 담당하는 WareHouseController 컨트롤러입니다.
+ * 주로 창고의 등록 및 조회등을 수행합니다.
+ * 또한, 해당 클래스는 Singleton 패턴을 따르고 있어 하나의 인스턴스만을 생성하여 사용합니다.
+ *
+ * @author : 윤여빈
+ */
 public class WareHouseController {
     private LoginManagementDAOImpl loginDao = LoginManagementDAOImpl.getInstance();
     private MemberEnum loginMemberRole;
@@ -24,13 +32,23 @@ public class WareHouseController {
     private static WareHouseService wareHouseService;
     private static Logger logger = Logger.getLogger(WareHouseController.class.getName());
     static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-
     private List<WareHouse> wareHouseList = new ArrayList<>();
 
+    /**
+     * Instantiates a new Ware house controller.
+     *
+     * @param wareHouseService the warehouse service
+     */
     public WareHouseController(WareHouseService wareHouseService) {
         this.wareHouseService = wareHouseService;
     }
 
+    /**
+     * Gets instance.
+     *
+     * @param wareHouseService the warehouse service
+     * @return the instance
+     */
     public static WareHouseController getInstance(WareHouseService wareHouseService) {
         if (instance == null) {
             instance = new WareHouseController(wareHouseService);
@@ -38,6 +56,11 @@ public class WareHouseController {
         return instance;
     }
 
+    /**
+     * Menu.
+     *
+     * @throws IOException the io exception
+     */
     public void menu() throws IOException {
         this.loginMemberRole = loginDao.getMemberRole();
         this.loginMemberId = loginDao.getMemberId();
@@ -70,6 +93,11 @@ public class WareHouseController {
         }
     }
 
+    /**
+     * Register ware house.
+     *<p>
+     * 접근제한 : 창고관리자
+     */
     public void registerWareHouse() {
         if (!(
                 loginMemberRole == MemberEnum.ADMIN ||
@@ -80,7 +108,7 @@ public class WareHouseController {
         }
         WareHouse wareHouse = new WareHouse();
 
-        try{
+        try {
             System.out.println("***신규 창고 등록***");
             System.out.print("\n➔ 창고 코드 지정 (예 : KR-CJU-01) : ");
             wareHouse.setWarehouseCode(br.readLine());
@@ -95,13 +123,18 @@ public class WareHouseController {
             wareHouseService.registerWareHouse(wareHouse);
             System.out.printf("[%s의 등록이 완료되었습니다.]\n", wareHouse.getWarehouseName());
 
-        }catch (IOException i){
+        } catch (IOException i) {
             i.printStackTrace();
         }
 
 
     }
 
+    /**
+     * View warehouse.
+     *
+     * @throws IOException the io exception
+     */
     public void viewWareHouse() throws IOException {
         String[] menuItems = {
                 "1. 전체 조회\t",
@@ -118,11 +151,16 @@ public class WareHouseController {
             case 2 -> viewWareHouseByName();
             case 3 -> viewWareHouseByLocation();
             case 4 -> viewWareHouseByType();
-            case 5 -> {return;}
+            case 5 -> {
+                return;
+            }
             default -> System.out.println("잘못된 입력입니다. 다시 시도해주세요.");
         }
     }
 
+    /**
+     * Warehouse table.
+     */
     public void wareHouseTable() {
 
         try {
@@ -148,11 +186,14 @@ public class WareHouseController {
         }
     }
 
+    /**
+     * View warehouse by name.
+     */
     public void viewWareHouseByName() {
         System.out.println("--".repeat(25));
         System.out.println("[창고 이름별 조회]");
         System.out.print("\n➔ 창고 이름 입력 (예 : 서울 중앙 창고) : ");
-        try{
+        try {
             String name = br.readLine();
             wareHouseList = wareHouseService.viewWareHouseByName(name);
             if (!wareHouseList.isEmpty()) {
@@ -168,17 +209,20 @@ public class WareHouseController {
                 System.out.println("일치하는 창고 정보가 없습니다.");
             }
             System.out.println("--".repeat(25));
-        }catch (IOException | SQLException i){
+        } catch (IOException | SQLException i) {
             i.printStackTrace();
         }
 
     }
 
-    public void viewWareHouseByLocation(){
+    /**
+     * View warehouse by location.
+     */
+    public void viewWareHouseByLocation() {
         System.out.println("--".repeat(25));
         System.out.println("[창고 소재지별 조회]");
         System.out.print("\n➔ 창고 소재지 입력 (예 : 서울 중구) : ");
-        try{
+        try {
             String location = br.readLine();
             wareHouseList = wareHouseService.viewWareHouseByLocation(location);
             if (!wareHouseList.isEmpty()) {
@@ -194,17 +238,20 @@ public class WareHouseController {
                 System.out.println("일치하는 창고 정보가 없습니다.");
             }
             System.out.println("--".repeat(25));
-        }catch (IOException | SQLException i){
+        } catch (IOException | SQLException i) {
             i.printStackTrace();
         }
 
     }
 
+    /**
+     * View warehouse by type.
+     */
     public void viewWareHouseByType() {
         System.out.println("--".repeat(25));
         System.out.println("[창고 종류별 조회]");
         System.out.print("\n➔ 창고 종류 입력 (예 : 전자제품) : ");
-        try{
+        try {
             String type = br.readLine();
             wareHouseList = wareHouseService.viewWareHouseByType(type);
             if (!wareHouseList.isEmpty()) {
@@ -220,10 +267,8 @@ public class WareHouseController {
                 System.out.println("일치하는 창고 정보가 없습니다.");
             }
             System.out.println("--".repeat(25));
-        }catch (IOException | SQLException i){
+        } catch (IOException | SQLException i) {
             i.printStackTrace();
         }
-
     }
-
 }
