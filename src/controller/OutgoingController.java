@@ -219,13 +219,12 @@ public class OutgoingController {
         Long invoiceSeq = 0L;
 
         String[] menuItems = {
-                "1. 일반",
-                "2. 특급",
-                "3. 국제",
-                "3. 등기",
-                "4. 메뉴 나가기\t\t\t"
+                "1. 일반\t",
+                "2. 특급\t",
+                "3. 국제\t",
+                "4. 등기\t\t",
         };
-        MenuBoxPrinter.printMenuBoxWithTitle("송장 출력\t\t", menuItems);
+        MenuBoxPrinter.printMenuBoxWithTitle("송장 종류 선택\t", menuItems);
 
         try{
             int ch = Integer.parseInt(sc.nextLine().trim());
@@ -244,8 +243,8 @@ public class OutgoingController {
                         "1. 한진택배\t",
                         "2. CJ대한통운\t",
                         "3. 우체국택배\t\t",
-                        "3. 롯데택배\t",
-                        "4. 로젠택배\t",
+                        "4. 롯데택배\t",
+                        "5. 로젠택배\t",
                 };
                 MenuBoxPrinter.printMenuBoxWithTitle("택배사 선택\t\t\t", menuItems2);
                 invoice.setLogisticSeq(Long.parseLong(sc.nextLine()));
