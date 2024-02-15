@@ -72,8 +72,8 @@ public class PurchaseServiceImpl implements PurchaseService {
         List<Long> claimSeqList = purchaseDAO.getClaimByDateAndShopName(dates[0], dates[1], selectedShopNames);
 
         if (!claimSeqList.isEmpty()) {
-            int result = purchaseDAO.updatePurchaseStatusCancelOrReturn(claimSeqList);
-            System.out.println(result + "건의 취소/반품 내역이 있습니다.");
+            purchaseDAO.updatePurchaseStatusCancelOrReturn(claimSeqList);
+            System.out.println(claimSeqList.size() + "건의 취소/반품 내역이 있습니다.");
         }
         else {
             System.out.println("수집/반품 내역이 없습니다.");
@@ -105,7 +105,7 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     // 반품건 생성
     @Override
-    public int createPurchaseReturn(Long purchaseSeq) {
+    public Long createPurchaseReturn(Long purchaseSeq) {
         return purchaseDAO.createPurchaseReturn(purchaseSeq);
     }
 
