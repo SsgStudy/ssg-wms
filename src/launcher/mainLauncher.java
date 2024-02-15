@@ -108,7 +108,7 @@ public class mainLauncher {
                         //송장 관리
                         case 4 -> invoiceController.menu();
                         //발주 관리
-                        case 5 -> productManagementController.menu();
+                        case 5 -> orderController.menu();
                         //입고 관리
                         case 6 -> incomingController.incomingProductMenu();
                         //출고 관리
