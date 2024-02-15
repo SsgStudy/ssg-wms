@@ -10,6 +10,7 @@ import dao.LoginManagementDAOImpl;
 import service.IncomigService;
 import service.InvoiceService;
 import service.InvoiceServiceImpl;
+import util.MenuBoxPrinter;
 import util.enumcollect.MemberEnum;
 import util.enumcollect.WaybillTypeEnum;
 import vo.Invoice;
@@ -33,7 +34,8 @@ public class InvoiceController {
     private String loginMemberId;
     private static InvoiceController instance;
     static InvoiceService invoiceService;
-
+    static boolean isRunning = true;
+static int cmd;
     public InvoiceController(InvoiceService invoiceService) {
         this.invoiceService = invoiceService;
         this.loginMemberRole = loginDao.getMemberRole();
@@ -52,23 +54,31 @@ public class InvoiceController {
     private static Logger logger = Logger.getLogger(InvoiceController.class.getName());
     static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
+
+
     public static void menu() throws IOException, SQLException {
 
-        System.out.println("[송장 관리]");
-        System.out.println("--".repeat(25));
-        System.out.println("1.송장 조회 | 2.메뉴 나가기");
-        System.out.print("메뉴 선택 : ");
 
-        try {
-            int cmd = Integer.parseInt(br.readLine().trim());
-            switch (cmd) {
-                case 1 -> instance.viewInvoice();
-                case 2 -> {return;}
+            System.out.println("[송장 관리]");
+            System.out.println("--".repeat(25));
+            System.out.println("1.송장 조회 | 2.메뉴 나가기");
+            System.out.print("메뉴 선택 : ");
+
+        cmd = Integer.parseInt(br.readLine().trim());
+
+        while(isRunning){
+            try {
+                switch (cmd) {
+                    case 1 -> instance.viewInvoice();
+                    case 2 -> {isRunning=false;}
+                }
+            }catch (NumberFormatException e){
+                logger.info("숫자로 입력하세요.");
+                e.printStackTrace();
             }
-        }catch (NumberFormatException e){
-            logger.info("숫자로 입력하세요.");
-            e.printStackTrace();
         }
+
+
     }
 
     public void viewInvoice() {
@@ -87,6 +97,29 @@ public class InvoiceController {
                     invoice.getQrCode(),
                     invoice.getLogisticSeq(),
                     invoice.getPurchaseSeq());
+        }
+
+        {
+            String[] menuItems1 = {
+                    "1. 송장 다시 조회하기\t\t\t\t",
+                    "2. 메뉴 나가기\t\t\t\t",
+            };
+
+            MenuBoxPrinter.printMenuBoxWithTitle("송장 조회\t\t\t\t\t", menuItems1);
+
+            try{
+                int cmd = Integer.parseInt(br.readLine().trim());
+
+                switch (cmd) {
+                    case 1 -> {
+                        System.out.println("다시 조회 중...");;
+                    }
+                    case 2 -> isRunning=false;
+                }
+            }catch (IOException i){
+                i.printStackTrace();
+            }
+
         }
     }
 
