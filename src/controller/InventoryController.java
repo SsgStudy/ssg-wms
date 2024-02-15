@@ -292,7 +292,7 @@ public class InventoryController {
     public void adjustInventory() {
         if (!(
                         loginMemberRole == MemberEnum.WAREHOUSE_MANAGER ||
-                        loginMemberRole == MemberEnum.OPERATOR
+                        loginMemberRole == MemberEnum.ADMIN
         )) {
             System.out.println("해당 메뉴를 실행할 권한이 없습니다.\n관리자에게 문의해주세요...");
             return;
@@ -376,7 +376,7 @@ public class InventoryController {
     public void moveInventory() {
         if (!(
                         loginMemberRole == MemberEnum.WAREHOUSE_MANAGER ||
-                        loginMemberRole == MemberEnum.OPERATOR
+                        loginMemberRole == MemberEnum.ADMIN
         )) {
             System.out.println("해당 메뉴를 실행할 권한이 없습니다.\n관리자에게 문의해주세요...");
             return;

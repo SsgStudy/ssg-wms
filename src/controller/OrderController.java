@@ -66,7 +66,6 @@ static boolean allContinue = true;
 
             while (menuContinue) {
 
-
                 int ch = Integer.parseInt(sc.nextLine().trim());
                 switch (ch) {
                     case 1:
@@ -167,11 +166,6 @@ static boolean allContinue = true;
 
     public void printAllOrdersWithDetails() {
 
-        // 권한 검사 로직
-        if (!(loginMemberRole == MemberEnum.ADMIN || loginMemberRole == MemberEnum.WAREHOUSE_MANAGER || loginMemberRole == MemberEnum.OPERATOR)) {
-            System.out.println("권한이 없습니다.");
-            return;
-        }
         List<OrderVO> orders = getAllOrdersWithDetails();
 
 

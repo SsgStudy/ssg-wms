@@ -43,6 +43,8 @@ public class OutgoingController {
     }
 
     public void outgoingProductMenu() {
+        this.loginMemberRole = loginDao.getMemberRole();
+        this.loginMemberId = loginDao.getMemberId();
         boolean continueMenu = true;
         while (continueMenu) {
             String[] menuItems = {
