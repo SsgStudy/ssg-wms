@@ -226,14 +226,14 @@ public class PurchaseController {
         if (status.equals("CANCEL")) {
             System.out.println(purchaseSeq + "번 주문이 취소 되었습니다.");
         } else {
-            if (status.equals("RETURN")) {
-                purchaseService.createPurchaseReturn(purchaseSeq);
-                purchaseService.updatePurchaseStatusToReturn(purchaseSeq, PurchaseEnum.반품완료);
+            Long purchaseReturnKey = purchaseService.createPurchaseReturn(purchaseSeq);
+
+            if (status.equals("RETURN") || status.equals("RESTORE")) {
+                purchaseService.updatePurchaseStatusToReturn(purchaseReturnKey, PurchaseEnum.반품완료);
                 System.out.println(purchaseSeq + "번 주문이 반품 처리 되었습니다.");
             } else if (status.equals("INVOICE")) {
-                purchaseService.createPurchaseReturn(purchaseSeq);
-                System.out.println(purchaseSeq + "번 주문이 반품 처리 중에 있습니다.");
-                purchaseReturnMenu(purchaseSeq);
+                System.out.println("반품 처리 중 입니다.");
+                purchaseReturnMenu(purchaseReturnKey);
             }
             else {
                 logger.info("null 값");
@@ -264,20 +264,11 @@ public class PurchaseController {
                 purchaseReturnMenu(purchaseSeq);
             }
             case 2 -> {
-                // 창고에 재고 증가
-                inventoryAdjustmentService.updateRestoreInventoryQuantity(purchaseSeq);
-                // 주문 상태 - 반품 입고
-                purchaseService.updatePurchaseStatusToReturn(purchaseSeq, PurchaseEnum.반품입고);
+                restoreInventory(purchaseSeq);
                 purchaseReturnMenu(purchaseSeq);
             }
             case 3 -> {
-                // 검수 - 출고 select by purchaseSeq 상품 일련 번호 -> 창고구역 tb join 재고 변경 이력
-                int quantity = inventoryAdjustmentService.updateRestoration(purchaseSeq);
-                // 주문 상태 - 반품 완료
-                if (quantity == 1)
-                    purchaseService.updatePurchaseStatusToReturn(purchaseSeq, PurchaseEnum.반품완료);
-                else
-                    System.out.println("반품 실패");
+                checkRestoreInventory(purchaseSeq);
                 purchaseReturnMenu(purchaseSeq);
             }
             case 4-> {
@@ -302,8 +293,6 @@ public class PurchaseController {
                 "4. 등기\t\t",
         };
         MenuBoxPrinter.printMenuBoxWithTitle("송장 종류 선택\t", menuItems);
-
-
 
         try{
             int ch = Integer.parseInt(sc.nextLine().trim());
@@ -347,6 +336,25 @@ public class PurchaseController {
         return status;
     }
 
+    // 재고 복원
+    public void restoreInventory(Long purchaseSeq) {
+        // 창고에 재고 증가
+        inventoryAdjustmentService.updateRestoreInventoryQuantity(purchaseSeq);
+        // 주문 상태 - 반품 입고
+        purchaseService.updatePurchaseStatusToReturn(purchaseSeq, PurchaseEnum.반품입고);
+    }
+
+    public void checkRestoreInventory(Long purchaseSeq) {
+        // 검수 - 출고 select by purchaseSeq 상품 일련 번호 -> 창고구역 tb join 재고 변경 이력
+        int quantity = inventoryAdjustmentService.updateRestoration(purchaseSeq);
+        // 주문 상태 - 반품 완료
+        if (quantity == 1)
+            purchaseService.updatePurchaseStatusToReturn(purchaseSeq, PurchaseEnum.반품완료);
+        else
+            System.out.println("반품 실패");
+
+    }
+
     public void printForAllPurchaseList() {
         List<PurchaseVO> purchaseList = purchaseService.readAllPurchases();
         purchasePrintFormat(purchaseList);
@@ -354,24 +362,19 @@ public class PurchaseController {
 
     public void purchasePrintFormat(List<PurchaseVO> purchaseList) {
         System.out.println("주문 리스트");
-        System.out.printf("%-10s %-10s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-10s %-10s %n",
-                "주문 번호", "주문 상태", "주문 일시", "주문 상세 번호", "쇼핑몰", "상품명", "브랜드", "구매자", "연락처 번호", "주문 수량", "판매 금액");
+        System.out.printf("%-10s %-10s %-15s %-15s %-15s %-15s %n",
+                "주문 번호", "주문 상태", "주문 일시", "쇼핑몰", "구매자", "전화번호");
 
         System.out.println("----------------------------------------------------------------------------------------------------------------");
 
         purchaseList.forEach(purchase -> {
-            System.out.printf("%-10s %-10s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-10d %-10d %n",
+            System.out.printf("%-10s %-10s %-15s %-15s %-15s %-15s %n",
                     purchase.getShopPurchaseSeq(),
                     purchase.getShopPurchaseStatus(),
                     purchase.getShopPurchaseDate().toString(),
-                    purchase.getShopPurchaseDetailSeq(),
                     purchase.getShopName(),
-                    purchase.getProductName(),
-                    purchase.getProductBrand(),
                     purchase.getShopPurchaseName(),
-                    purchase.getShopPurchaseTel(),
-                    purchase.getProductCnt(),
-                    purchase.getProductCnt() * purchase.getProductPrice());
+                    purchase.getShopPurchaseTel());
         });
 
         System.out.println("----------------------------------------------------------------------------------------------------------------");

@@ -33,7 +33,7 @@ public class PurchaseDAOImpl implements PurchaseDAO{
         try {
             conn = DbConnection.getInstance().getConnection();
             StringBuilder sql =
-                    new StringBuilder("SELECT sp.PK_SHOP_PURCHASE_SEQ ")
+                    new StringBuilder("SELECT DISTINCT sp.PK_SHOP_PURCHASE_SEQ ")
                             .append("FROM TB_SHOP_PURCHASE sp " +
                                     "JOIN TB_SHOP s ON sp.PK_SHOP_CD = s.PK_SHOP_CD ")
                             .append("WHERE sp.DT_SHOP_PURCHASE_DATE BETWEEN ? AND ? ")
@@ -407,12 +407,13 @@ public class PurchaseDAOImpl implements PurchaseDAO{
             conn = DbConnection.getInstance().getConnection();
 
             StringBuilder sql = new StringBuilder("UPDATE TB_SHOP_PURCHASE ")
-                    .append("SET V_SHOP_PURCHASE_STATUS = CASE V_SHOP_PURCHASE_CLAIM ")
-                    .append("WHEN '취소' THEN  ? ")
-//                    .append("WHEN '반품' THEN  ? ")
+                    .append("SET V_SHOP_PURCHASE_STATUS = CASE ")
+                    .append("WHEN V_SHOP_PURCHASE_CLAIM = '취소' THEN ? ")
                     .append("ELSE V_SHOP_PURCHASE_STATUS END ")
-                    .append("WHERE V_SHOP_PURCHASE_STATUS NOT IN ('주문취소완료', '반품완료') AND ")
-                    .append("PK_SHOP_PURCHASE_SEQ IN ( ");
+                    .append("WHERE V_SHOP_PURCHASE_STATUS NOT IN ('주문취소완료', '반품완료') ")
+                    .append("AND V_SHOP_PURCHASE_CLAIM != '반품' ")
+                    .append("AND PK_SHOP_PURCHASE_SEQ IN ( ");
+
 
             for (int i = 0; i < purchaseSeqList.size(); i++) {
                 sql.append("?");
@@ -478,35 +479,45 @@ public class PurchaseDAOImpl implements PurchaseDAO{
 
     // 반품 승인 시, 주문 테이블에 주문 반품건 하나 생성함
     @Override
-    public int createPurchaseReturn(Long purchaseSeq) {
+    public Long createPurchaseReturn(Long purchaseSeq) {
         Connection conn;
-        CallableStatement cstmt = null;
+        PreparedStatement pstmt = null;
         int updatedRows = 0;
+        Long generatedKey = 0L;
 
         try {
             conn = DbConnection.getInstance().getConnection();
 
-            String procedure = "{call CREATE_PURCHASE_CLAIM(?, ?)}";
+            String sql = new StringBuilder("INSERT INTO TB_SHOP_PURCHASE " +
+                    "(PK_SHOP_CD, V_SHOP_PURCHASE_NM, V_SHOP_PURCHASE_ADDR, V_SHOP_PURCHASE_TEL, V_SHOP_PURCHASE_STATUS, V_SHOP_PURCHASE_CLAIM) ")
+                    .append("SELECT PK_SHOP_CD, V_SHOP_PURCHASE_NM, V_SHOP_PURCHASE_ADDR, V_SHOP_PURCHASE_TEL, ? , V_SHOP_PURCHASE_CLAIM ")
+                    .append("FROM TB_SHOP_PURCHASE ")
+                    .append("WHERE PK_SHOP_PURCHASE_SEQ = ?").toString();
 
-            cstmt = conn.prepareCall(procedure);
-            cstmt.setLong(1, purchaseSeq);
-            cstmt.setString(2, PurchaseEnum.반품접수.toString());
-//            cstmt.registerOutParameter(3, Types.VARCHAR);
-            cstmt.execute();
+            pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            pstmt.setString(1, PurchaseEnum.반품접수.toString());
+            pstmt.setLong(2, purchaseSeq);
+            int affectedRows = pstmt.executeUpdate();
 
-//            String uuid = cstmt.getString(3);
+            if (affectedRows > 0) {
+                try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        generatedKey = generatedKeys.getLong(1);
+                    }
+                }
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             try {
-                if (cstmt != null) cstmt.close();
+                if (pstmt != null) pstmt.close();
                 DbConnection.close();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
         }
-        return updatedRows;
+        return generatedKey;
     }
 
     public int updatePurchaseCancelStatus(Long purchaseSeq, PurchaseEnum status) {
