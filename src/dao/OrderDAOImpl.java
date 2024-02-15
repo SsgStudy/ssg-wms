@@ -83,7 +83,7 @@ public class OrderDAOImpl implements OrderDAO {
             String sql = "SELECT O.PK_ORDER_SEQ, O.V_ORDER_STATUS, O.V_INCOMING_PRODUCT_SUPPLIER_NM, O.DT_DELIVERY_DATE, O.DT_ORDER_COMPLETION_DATE, " +
                     "OD.PK_ORDER_DETAIL_SEQ, OD.N_ORDER_CNT, OD.V_ORDER_STATUS AS V_ORDER_DETAIL_STATUS, OD.V_PRODUCT_CD, OD.V_WAREHOUSE_CD " +
                     "FROM TB_ORDER O JOIN TB_ORDER_DETAIL OD ON O.PK_ORDER_SEQ = OD.PK_ORDER_SEQ " +
-                    "WHERE O.V_ORDER_STATUS LIKE ? ";
+                    "WHERE O.V_ORDER_STATUS LIKE ? AND ";
             stmt = conn.prepareStatement(sql);
             stmt.setString(1, OrderStatusEnum.PROGRESS.toString());
             rs = stmt.executeQuery();
@@ -155,7 +155,7 @@ public class OrderDAOImpl implements OrderDAO {
             try (PreparedStatement pstmtd = conn.prepareStatement(insertDetailSql)) {
                 pstmtd.setLong(1, orderSeq);
                 pstmtd.setInt(2, product.getInventoryCnt());
-                pstmtd.setString(3, OrderStatusEnum.PROGRESS.toString());
+                pstmtd.setString(3, OrderStatusEnum.COMPLETE.toString());
                 pstmtd.setString(4, product.getProductCode());
                 pstmtd.setString(5, product.getWarehouseCode());
                 pstmtd.executeUpdate();

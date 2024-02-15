@@ -62,26 +62,7 @@ public class OrderController {
                 menu();
                 break;
             case "2":
-                // 발주 확정
-                List<OrderVO> orderList = orderService.getAllOrdersStatusProgress();
-                System.out.print("확정할 발주 번호를 입력하세요. ");
-                Long orderProgressSeq = Long.parseLong(sc.nextLine());
-
-                boolean flag = false;
-
-                for (OrderVO o : orderList) {
-                    if (o.getOrderSeq() == orderProgressSeq) {
-                        if (o.getOrderDetailStatus().equals(OrderStatusEnum.COMPLETE)) {
-                            flag = true;
-                        } else flag = false;
-                    }
-                }
-                if (flag) {
-                    orderService.updateOrderStauts(orderProgressSeq);
-                    System.out.println(orderProgressSeq + "번의 발주가 확정되었습니다.");
-                } else {
-                    System.out.println("발주 실패 - 미입고 상태입니다.");
-                }
+                completeOrder();
                 menu();
                 break;
             case "3":
@@ -136,6 +117,31 @@ public class OrderController {
 
         // 등록된 내역 조회
         OrderVO orderDetail = orderService.getOneOrderInformation(orderSeq);
+
+    }
+
+    // 발주 확정
+    public void completeOrder() {
+        List<OrderVO> orderList = orderService.getAllOrdersStatusProgress();
+        System.out.print("확정할 발주 번호를 입력하세요. ");
+        Long orderProgressSeq = Long.parseLong(sc.nextLine());
+
+        boolean flag = false;
+
+        for (OrderVO o : orderList) {
+            if (o.getOrderSeq() == orderProgressSeq) {
+                if (o.getOrderDetailStatus().equals(OrderStatusEnum.COMPLETE)) {
+                    flag = true;
+                } else flag = false;
+            }
+        }
+        if (flag) {
+            orderService.updateOrderStauts(orderProgressSeq);
+            System.out.println(orderProgressSeq + "번의 발주가 확정되었습니다.");
+
+        } else {
+            System.out.println("발주 실패 - 미입고 상태입니다.");
+        }
 
     }
 
