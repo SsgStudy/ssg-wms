@@ -11,8 +11,15 @@ import java.util.List;
 
 public class InventoryMovementDAOImpl implements InventoryMovementDAO {
     private static InventoryMovementDAOImpl instance;
+    private static Connection conn;
+    private static PreparedStatement pstmt;
 
     private InventoryMovementDAOImpl() {
+        try {
+            conn = DbConnection.getInstance().getConnection();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public static synchronized InventoryMovementDAOImpl getInstance() {
@@ -27,9 +34,9 @@ public class InventoryMovementDAOImpl implements InventoryMovementDAO {
         List<InventoryVO> inventoryList = new ArrayList<>();
         String sql = "SELECT * FROM TB_INVENTORY";
 
-        try (Connection conn = DbConnection.getInstance().getConnection();
-                PreparedStatement pstmt = conn.prepareStatement(sql);
-                ResultSet rs = pstmt.executeQuery()) {
+        try {
+            pstmt = conn.prepareStatement(sql);
+            ResultSet rs = pstmt.executeQuery();
 
             while (rs.next()) {
                 InventoryVO inventory = new InventoryVO();
@@ -41,6 +48,7 @@ public class InventoryMovementDAOImpl implements InventoryMovementDAO {
                 inventory.setProductCd(rs.getString("V_PRODUCT_CD"));
                 inventoryList.add(inventory);
             }
+            pstmt.close();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -52,13 +60,13 @@ public class InventoryMovementDAOImpl implements InventoryMovementDAO {
         List<String> warehouseCodeList = new ArrayList<>();
         String sql = "SELECT V_WAREHOUSE_CD FROM TB_WAREHOUSE";
 
-        try (Connection conn = DbConnection.getInstance().getConnection();
-                PreparedStatement pstmt = conn.prepareStatement(sql);
-                ResultSet rs = pstmt.executeQuery()) {
-
+        try {
+            pstmt = conn.prepareStatement(sql);
+            ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
                 warehouseCodeList.add(rs.getString("V_WAREHOUSE_CD"));
             }
+            pstmt.close();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -70,15 +78,15 @@ public class InventoryMovementDAOImpl implements InventoryMovementDAO {
         List<String> zoneCodeList = new ArrayList<>();
         String sql = "SELECT V_ZONE_CD FROM TB_ZONE WHERE V_WAREHOUSE_CD = ?";
 
-        try (Connection conn = DbConnection.getInstance().getConnection();
-                PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
+        try {
+            pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, wareHouseCode);
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
                     zoneCodeList.add(rs.getString("V_ZONE_CD"));
                 }
             }
+            pstmt.close();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -87,19 +95,23 @@ public class InventoryMovementDAOImpl implements InventoryMovementDAO {
 
     @Override
     public int updateInventoryForMovement(InventoryVO inventory) {
+        int ack = 0;
         String sql = "UPDATE TB_INVENTORY SET V_ZONE_CD = ?, V_WAREHOUSE_CD = ? WHERE PK_INVENTORY_SEQ = ?";
 
-        try (Connection conn = DbConnection.getInstance().getConnection();
-                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try {
+            pstmt = conn.prepareStatement(sql);
 
             pstmt.setString(1, inventory.getZoneCd());
             pstmt.setString(2, inventory.getWarehouseCd());
             pstmt.setInt(3, inventory.getInventorySeq());
-            return pstmt.executeUpdate();
 
+            ack = pstmt.executeUpdate();
+
+            pstmt.close();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+        return ack;
     }
 
     @Override
@@ -107,8 +119,8 @@ public class InventoryMovementDAOImpl implements InventoryMovementDAO {
         List<InventoryVO> inventoryList = new ArrayList<>();
         String sql = "SELECT * FROM TB_INVENTORY WHERE PK_INVENTORY_SEQ = ?";
 
-        try (Connection conn = DbConnection.getInstance().getConnection();
-                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try {
+            pstmt = conn.prepareStatement(sql);
 
             pstmt.setInt(1, selectedNumber);
             try (ResultSet rs = pstmt.executeQuery()) {
@@ -123,6 +135,7 @@ public class InventoryMovementDAOImpl implements InventoryMovementDAO {
                     inventoryList.add(inventory);
                 }
             }
+            pstmt.close();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
