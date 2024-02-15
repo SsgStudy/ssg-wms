@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import service.OrderService;
 import service.PurchaseService;
 import service.WareHouseService;
+import util.MenuBoxPrinter;
 import util.enumcollect.MemberEnum;
 import util.enumcollect.OrderStatusEnum;
 import vo.OrderVO;
@@ -46,16 +47,20 @@ public class OrderController {
     public void updateLoginInfo() {
         this.loginMemberRole = loginDao.getMemberRole();
         this.loginMemberId = loginDao.getMemberId();
-        System.out.println("로그인 유지 정보 출력 아이디 : " + loginMemberId);
-        System.out.println("로그인 유지 정보 출력 권한 : " + loginMemberRole);
     }
 
     public void menu() {
         updateLoginInfo();
-        System.out.println("1. 발주 등록 | 2. 발주 확정 | 3. 발주 조회 | 4. 메뉴 나가기");
-        String ch = sc.nextLine();
-        System.out.println(loginMemberId);
-        System.out.println(loginMemberRole);
+
+        String[] menuItems = {
+                "1. 발주 등록\t",
+                "2. 발주 확정\t",
+                "3. 발주 조회\t",
+                "4. 메뉴 나가기\t\t\t"
+        };
+        MenuBoxPrinter.printMenuBoxWithTitle("발주 조회\t\t", menuItems);
+
+        String ch = sc.nextLine().trim();
         switch (ch) {
             case "1":
                 registerOrder();
@@ -150,8 +155,6 @@ public class OrderController {
     }
 
     public void printAllOrdersWithDetails() {
-        System.out.println("현재 로그인한 사용자: " + loginMemberId);
-        System.out.println("사용자 권한: " + loginMemberRole);
 
         // 권한 검사 로직
         if (!(loginMemberRole == MemberEnum.ADMIN || loginMemberRole == MemberEnum.WAREHOUSE_MANAGER || loginMemberRole == MemberEnum.OPERATOR)) {

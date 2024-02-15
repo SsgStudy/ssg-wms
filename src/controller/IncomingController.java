@@ -1,15 +1,18 @@
 package controller;
 
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Scanner;
 import service.IncomigService;
+import util.MenuBoxPrinter;
 import vo.DetailedIncomingVO;
 import vo.IncomingVO;
 
 public class IncomingController {
+
     private static IncomingController instance;
     private IncomigService incomingService;
     Scanner sc = new Scanner(System.in);
@@ -36,20 +39,24 @@ public class IncomingController {
         printAllIncomingProductsWithDetails();
 
         while (continueMenu) {
-
-            System.out.println("1. 조회 필터 선택 | 2. 수정 | 3. 승인 | 4. 메뉴 나가기");
-            System.out.print("선택: ");
+            String[] menuItems = {
+                    "1. 입고 조회\t",
+                    "2. 입고 수정\t",
+                    "3. 입고 승인\t",
+                    "4. 메뉴 나가기\t\t\t"
+            };
+            MenuBoxPrinter.printMenuBoxWithTitle("입고 관리\t\t", menuItems);
             int manageChoice = sc.nextInt();
 
             switch (manageChoice) {
                 case 1 -> selectFilterOption();
                 case 2 -> {
-                    System.out.println("수정할 입고 상품의 번호를 입력하세요:");
+                    System.out.print("\n➔ 수정할 입고 상품의 번호를 입력하세요 : ");
                     long seqToUpdate = sc.nextLong();
                     updateIncomingProduct(seqToUpdate);
                 }
                 case 3 -> {
-                    System.out.println("승인할 입고 상품의 번호를 입력하세요:");
+                    System.out.print("➔ 승인할 입고 상품의 번호를 입력하세요 : ");
                     long seqToApprove = sc.nextLong();
                     approveIncomingProduct(seqToApprove);
                 }
@@ -63,9 +70,15 @@ public class IncomingController {
 
     //조회 필터 메뉴
     private void selectFilterOption() throws Exception {
-        System.out.println("조회 필터 선택");
-        System.out.println("1. 전체 조회 | 2. 년 월 조회 | 3. 기간 별 조회 | 4. 상세 조회 | 5. 메뉴 나가기");
-        System.out.print("선택: ");
+        String[] menuItems = {
+                "1. 전체 조회\t",
+                "2. 년월 조회\t",
+                "3. 기간 조회\t",
+                "4. 상세 조회\t",
+                "5. 메뉴 나가기\t\t\t"
+        };
+        MenuBoxPrinter.printMenuBoxWithTitle("입고 조회\t\t", menuItems);
+
         int filterChoice = sc.nextInt();
 
         switch (filterChoice) {
@@ -73,7 +86,9 @@ public class IncomingController {
             case 2 -> promptForMonthlyIncomingProducts();
             case 3 -> promptForIncomingProductsByDateRange();
             case 4 -> promptForDetailedIncomingProduct();
-            case 5 -> {return;}
+            case 5 -> {
+                return;
+            }
             default -> System.out.println("옳지 않은 입력입니다.");
         }
     }
@@ -81,22 +96,35 @@ public class IncomingController {
     ////////////////////////////////////////////////////////////////
     //기능 프롬프트
     public void updateIncomingProduct(long seq) throws Exception {
-        System.out.println("수정할 ZONE 코드, 수량, 가격을 입력하세요 (공백으로 구분):");
+        System.out.println("수정 사항 입력");
+        System.out.print("\n➔ ZONE 코드 : ");
         String zoneCode = sc.next();
+        System.out.print("➔ 수     량 : ");
         int count = sc.nextInt();
+        System.out.print("➔ 매입  가격 : ");
         int price = sc.nextInt();
 
-        incomingService.updateIncomingProductDetails(seq, zoneCode, count, price);
+        try {
+            incomingService.updateIncomingProductDetails(seq, zoneCode, count, price);
+            System.out.println("성공적으로 수정하였습니다.");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
         printAllIncomingProductsWithDetails();
     }
 
     public void approveIncomingProduct(long seq) throws Exception {
-        incomingService.approveIncomingProduct(seq);
+        try {
+            incomingService.approveIncomingProduct(seq);
+            System.out.println("성공적으로 승인되었습니다.");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         printAllIncomingProductsWithDetails();
     }
 
     private void promptForMonthlyIncomingProducts() throws Exception {
-        System.out.println("년도와 월을 입력하세요 (예: 2023 5):");
+        System.out.print("\n➔ 년도와 월을 입력하세요 (예: 2023 5) : ");
         int year = sc.nextInt();
         int month = sc.nextInt();
         if (year > 0 && month >= 1 && month <= 12) {
@@ -108,7 +136,7 @@ public class IncomingController {
     }
 
     private void promptForIncomingProductsByDateRange() throws Exception {
-        System.out.println("시작 날짜와 종료 날짜를 입력하세요 (예: 2023-01-01 2023-01-31):");
+        System.out.println("\n➔ 시작 날짜와 종료 날짜를 입력하세요 (예: 2023-01-01 2023-01-31) : ");
         String startDateStr = sc.next();
         String endDateStr = sc.next();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -128,7 +156,7 @@ public class IncomingController {
     }
 
     private void promptForDetailedIncomingProduct() throws Exception {
-        System.out.println("조회할 입고 상품의 번호를 입력하세요:");
+        System.out.println("\n➔ 조회할 입고 상품의 번호를 입력하세요 : ");
         long seq = sc.nextLong();
         DetailedIncomingVO detailedIncomingProduct = incomingService.getIncomingProductDetailsWithProductInfo(seq);
         printDetailedIncomingProduct(detailedIncomingProduct);
