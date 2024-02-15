@@ -54,7 +54,7 @@ public class InvoiceController {
         try {
             int cmd = Integer.parseInt(br.readLine().trim());
             switch (cmd) {
-                case 1 -> invoiceService.viewInvoice();
+                case 1 -> instance.viewInvoice();
                 case 2 -> {return;}
             }
         }catch (NumberFormatException e){
