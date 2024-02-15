@@ -60,11 +60,9 @@ public class mainLauncher {
             // 로그인 절차 수행
             System.out.println("LOG IN\n");
             System.out.print("➔ 아이디 : ");
-            String id = "test";
-//            String id = scanner.nextLine().trim();
+            String id = scanner.nextLine().trim();
             System.out.print("➔ 비밀번호 : ");
-            String password = "xptmxm";
-//            String password = scanner.nextLine().trim();
+            String password = scanner.nextLine().trim();
 
             memberController.logIn(id, password);
             if (loginDAO.getMemberId() != null) {
