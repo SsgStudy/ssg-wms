@@ -21,7 +21,7 @@ public class IncomingController {
         this.incomingService = incomingService;
     }
 
-    public static IncomingController getInstance(IncomigService incomingService) {
+    public static synchronized IncomingController getInstance(IncomigService incomingService) {
         if (instance == null) {
             instance = new IncomingController(incomingService);
         }

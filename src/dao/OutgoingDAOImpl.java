@@ -52,10 +52,9 @@ public class OutgoingDAOImpl implements OutgoingDAO {
 
     @Override
     public void insertOutgoingProduct(OutgoingVO outgoingVO) throws Exception {
-        Connection conn = null;
         PreparedStatement pstmt = null;
         try {
-            conn = DbConnection.getInstance().getConnection();
+            Connection conn = DbConnection.getInstance().getConnection();
             conn.setAutoCommit(false);
 
             String sql = "INSERT INTO TB_OUTGOING_PRODUCT (V_OUTGOING_STATUS, N_OUTGOING_CNT, PK_SHOP_PURCHASE_DETAIL_SEQ, PK_SHOP_PURCHASE_SEQ, V_PRODUCT_CD) VALUES (?, ?, ?, ?, ?)";
@@ -72,7 +71,9 @@ public class OutgoingDAOImpl implements OutgoingDAO {
             }
 
             String updateStatusSql = "UPDATE TB_OUTGOING_INST SET V_OUTGOING_INTS_STATUS = 'PROGRESS' WHERE PK_SHOP_PURCHASE_SEQ = ?";
-            try (PreparedStatement updatePstmt = conn.prepareStatement(updateStatusSql)) {
+            try (
+
+                    PreparedStatement updatePstmt = conn.prepareStatement(updateStatusSql)) {
                 updatePstmt.setLong(1, outgoingVO.getShopPurchaseSeq());
                 updatePstmt.executeUpdate();
             }
@@ -82,6 +83,7 @@ public class OutgoingDAOImpl implements OutgoingDAO {
 
         } catch (Exception e) {
             log.info("출고 등록 중 예외 발생: " + e.getMessage());
+            Connection conn = DbConnection.getInstance().getConnection();
 
             if (conn != null) {
                 try {
@@ -94,6 +96,8 @@ public class OutgoingDAOImpl implements OutgoingDAO {
             }
             throw e;
         } finally {
+            Connection conn = DbConnection.getInstance().getConnection();
+
             if (pstmt != null) {
                 try {
                     pstmt.close();

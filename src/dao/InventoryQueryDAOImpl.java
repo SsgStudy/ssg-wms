@@ -14,12 +14,12 @@ import java.util.List;
 
 public class InventoryQueryDAOImpl implements InventoryQueryDAO {
     private static InventoryQueryDAOImpl instance;
-    private static Connection conn;
     private PreparedStatement pstmt;
 
     private InventoryQueryDAOImpl() {
         try {
-            conn = DbConnection.getInstance().getConnection();
+            Connection conn = DbConnection.getInstance().getConnection();
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -38,6 +38,8 @@ public class InventoryQueryDAOImpl implements InventoryQueryDAO {
         String sql = "SELECT V_WAREHOUSE_CD FROM TB_WAREHOUSE";
 
         try {
+            Connection conn = DbConnection.getInstance().getConnection();
+
             pstmt = conn.prepareStatement(sql);
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
@@ -45,6 +47,8 @@ public class InventoryQueryDAOImpl implements InventoryQueryDAO {
             }
             pstmt.close();
         } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
         return warehouseCodeList;
@@ -59,6 +63,8 @@ public class InventoryQueryDAOImpl implements InventoryQueryDAO {
                 "GROUP BY I.V_WAREHOUSE_CD, P.V_PRODUCT_CD";
 
         try {
+            Connection conn = DbConnection.getInstance().getConnection();
+
             pstmt = conn.prepareStatement(sql);
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
@@ -70,7 +76,7 @@ public class InventoryQueryDAOImpl implements InventoryQueryDAO {
                 productInventoryWarehouseList.add(piw);
             }
             pstmt.close();
-        } catch (SQLException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
         return productInventoryWarehouseList;
@@ -81,6 +87,8 @@ public class InventoryQueryDAOImpl implements InventoryQueryDAO {
         List<CategoryVO> categoryList = new ArrayList<>();
         String sql = "SELECT * FROM TB_CATEGORY WHERE V_CATEGORY_PARENT_CD IS NULL";
         try {
+            Connection conn = DbConnection.getInstance().getConnection();
+
             pstmt = conn.prepareStatement(sql);
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
@@ -105,6 +113,8 @@ public class InventoryQueryDAOImpl implements InventoryQueryDAO {
                 .append("WHERE V_CATEGORY_PARENT_CD LIKE ?")
                 .toString();
         try {
+            Connection conn = DbConnection.getInstance().getConnection();
+
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, "__" + mainCategoryNumber);
             ResultSet rs = pstmt.executeQuery();
@@ -133,6 +143,8 @@ public class InventoryQueryDAOImpl implements InventoryQueryDAO {
                 .toString();
 
         try {
+            Connection conn = DbConnection.getInstance().getConnection();
+
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, "__" + mainCategoryNumber + "___" + subCategoryNumber);
             ResultSet rs = pstmt.executeQuery();
@@ -171,6 +183,8 @@ public class InventoryQueryDAOImpl implements InventoryQueryDAO {
                 .toString();
 
         try {
+            Connection conn = DbConnection.getInstance().getConnection();
+
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, "__" + mainCategoryNumber + "%");
             ResultSet rs = pstmt.executeQuery();
@@ -210,6 +224,8 @@ public class InventoryQueryDAOImpl implements InventoryQueryDAO {
                 .append("GROUP BY V_PRODUCT_CD")
                 .toString();
         try {
+            Connection conn = DbConnection.getInstance().getConnection();
+
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, "__" + mainCategoryNumber + "___" + subCategoryNumber + "%");
             ResultSet rs = pstmt.executeQuery();
@@ -251,6 +267,8 @@ public class InventoryQueryDAOImpl implements InventoryQueryDAO {
                 .toString();
 
         try {
+            Connection conn = DbConnection.getInstance().getConnection();
+
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, "__"+ mainCategoryNumber + "___" + subCategoryNumber + "___" + detailCategoryNumber);
             ResultSet rs = pstmt.executeQuery();

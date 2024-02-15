@@ -37,6 +37,7 @@ public class MemberManagementDaoImpl implements MemberManagementDao {
         List<Member> members = new ArrayList<>();
 
         try {
+            Connection conn = DbConnection.getInstance().getConnection();
 
             String sql = "SELECT * FROM TB_MEMBER";
             pstmt = conn.prepareStatement(sql);
@@ -68,6 +69,8 @@ public class MemberManagementDaoImpl implements MemberManagementDao {
                 .append("WHERE V_MEMBER_ID = ?").toString();
 
         try {
+            Connection conn = DbConnection.getInstance().getConnection();
+
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, userId);
             ResultSet rs = pstmt.executeQuery();
@@ -83,6 +86,8 @@ public class MemberManagementDaoImpl implements MemberManagementDao {
             pstmt.close();
         } catch (SQLException e) {
             e.printStackTrace();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
 
         return member;
@@ -93,6 +98,8 @@ public class MemberManagementDaoImpl implements MemberManagementDao {
         String sql = "SELECT * FROM TB_MEMBER WHERE PK_MEMBER_SEQ=?";
 
         try {
+            Connection conn = DbConnection.getInstance().getConnection();
+
             pstmt = conn.prepareStatement(sql);
             pstmt.setInt(1, no);
             ResultSet rs = pstmt.executeQuery();
@@ -109,6 +116,8 @@ public class MemberManagementDaoImpl implements MemberManagementDao {
             pstmt.close();
         } catch (SQLException e) {
             e.printStackTrace();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
 
         return member;
@@ -118,9 +127,8 @@ public class MemberManagementDaoImpl implements MemberManagementDao {
         MemberEnum userRole = null;
         String sql = "SELECT V_MEMBER_AUTH FROM TB_MEMBER WHERE V_MEMBER_ID = ?";
         try {
-            if (conn == null || conn.isClosed()) {
-                conn = DbConnection.getInstance().getConnection();
-            }
+            Connection conn = DbConnection.getInstance().getConnection();
+
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, userId);
             ResultSet rs = pstmt.executeQuery();
@@ -146,6 +154,7 @@ public class MemberManagementDaoImpl implements MemberManagementDao {
                 .append("WHERE PK_MEMBER_SEQ=?").toString();
 
         try {
+            Connection conn = DbConnection.getInstance().getConnection();
 
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, member.getMemberId());
@@ -157,6 +166,8 @@ public class MemberManagementDaoImpl implements MemberManagementDao {
 
         } catch (SQLException e) {
             e.printStackTrace();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
 
         return row;

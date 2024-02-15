@@ -23,12 +23,11 @@ public class InvoiceDaoImpl implements InvoiceDao {
 
     @Override
     public Long registerInvoice(Invoice invoice) {//송장코드, 송장출력날짜, 송장종류, qr이미지파일, 택배사코드, 주문번호
-        Connection conn = null;
         int row=0;
         Long invoiceSeq = 0L;
 
         try {
-            conn = DbConnection.getInstance().getConnection();
+            Connection conn = DbConnection.getInstance().getConnection();
 
             String sql = "INSERT INTO `TB_INVOICE` (V_INVOICE_TYPE, B_INVOICE_QR_CD, PK_LOGISTIC_SEQ, PK_SHOP_PURCHASE_SEQ) VALUES "
                     + "(?,?,?,?)";
@@ -66,11 +65,10 @@ public class InvoiceDaoImpl implements InvoiceDao {
     @Override
     public List<Invoice> viewInvoice() {
         List<Invoice> invoices = new ArrayList<>();
-        Connection conn;
         ResultSet rs;
 
         try {
-            conn = DbConnection.getInstance().getConnection();
+            Connection conn = DbConnection.getInstance().getConnection();
             String sql = new StringBuilder().append("SELECT V_INVOICE_CD, DATE_FORMAT(DT_INVOICE_PRINT_DATE, '%Y-%m-%d'), V_INVOICE_TYPE, B_INVOICE_QR_CD, PK_LOGISTIC_SEQ, PK_SHOP_PURCHASE_SEQ FROM TB_INVOICE").toString();
 
             PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -100,11 +98,10 @@ public class InvoiceDaoImpl implements InvoiceDao {
     @Override
     public Invoice getInvoiceRowByInvoiceSeq(Long pkInvoiceSeq) {
         Invoice invoice = new Invoice();
-        Connection conn;
         ResultSet rs;
 
         try {
-            conn = DbConnection.getInstance().getConnection();
+            Connection conn = DbConnection.getInstance().getConnection();
             String sql = new StringBuilder("SELECT V_INVOICE_CD, DATE_FORMAT(DT_INVOICE_PRINT_DATE, '%Y-%m-%d')")
                     .append("FROM TB_INVOICE").toString();
 
@@ -130,10 +127,9 @@ public class InvoiceDaoImpl implements InvoiceDao {
     @Override
     public int putQRCode(Blob qrcode, Long invoiceSeq) {
         int status = 0;
-        Connection conn;
 
         try {
-            conn = DbConnection.getInstance().getConnection();
+            Connection conn = DbConnection.getInstance().getConnection();
             String sql = new StringBuilder("UPDATE TB_INVOICE ")
                     .append("SET B_INVOICE_QR_CD = ? ")
                     .append("WHERE PK_INVOICE_SEQ = ? ")
@@ -155,10 +151,9 @@ public class InvoiceDaoImpl implements InvoiceDao {
 
     public int putInvoiceCode(Long invoiceSeq) {
         int status = 0;
-        Connection conn;
 
         try {
-            conn = DbConnection.getInstance().getConnection();
+            Connection conn = DbConnection.getInstance().getConnection();
             String sql = new StringBuilder("UPDATE TB_INVOICE ")
                     .append("SET V_INVOICE_CD = CONCAT('INV', LPAD(PK_INVOICE_SEQ, 8, '0'))")
                     .append("WHERE PK_INVOICE_SEQ = ? ")

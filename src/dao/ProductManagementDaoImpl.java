@@ -46,6 +46,8 @@ public class ProductManagementDaoImpl implements ProductManagementDao {
                 .append("VALUES (?,?,?,?,?,?,?,?,?)").toString();
 
         try {
+            Connection conn = DbConnection.getInstance().getConnection();
+
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, product.getProductCode());
             pstmt.setString(2, product.getProductName());
@@ -64,6 +66,8 @@ public class ProductManagementDaoImpl implements ProductManagementDao {
             si.printStackTrace();
         } catch (SQLException s) {
             s.printStackTrace();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
 
 
@@ -76,6 +80,8 @@ public class ProductManagementDaoImpl implements ProductManagementDao {
                 .append("SELECT * FROM TB_CATEGORY WHERE V_CATEGORY_PARENT_CD IS NULL").toString();
 
         try {
+            Connection conn = DbConnection.getInstance().getConnection();
+
             pstmt = conn.prepareStatement(sql);
             ResultSet rs = pstmt.executeQuery();
 
@@ -91,6 +97,8 @@ public class ProductManagementDaoImpl implements ProductManagementDao {
 
         } catch (SQLException s) {
             s.printStackTrace();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         } finally {
             if (pstmt != null) {
                 try {
@@ -110,6 +118,8 @@ public class ProductManagementDaoImpl implements ProductManagementDao {
                 .toString();
 
         try {
+            Connection conn = DbConnection.getInstance().getConnection();
+
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, "__" + mainCategoryNumber);
             ResultSet rs = pstmt.executeQuery();
@@ -123,6 +133,8 @@ public class ProductManagementDaoImpl implements ProductManagementDao {
             pstmt.close();
         } catch (SQLException s) {
             s.printStackTrace();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
 
         return categoryList;
@@ -135,6 +147,8 @@ public class ProductManagementDaoImpl implements ProductManagementDao {
                 .append("WHERE V_CATEGORY_PARENT_CD LIKE ?")
                 .toString();
         try {
+            Connection conn = DbConnection.getInstance().getConnection();
+
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, "__" + mainCategoryNumber + "___" + subCategoryNumber);
             ResultSet rs = pstmt.executeQuery();
@@ -148,6 +162,8 @@ public class ProductManagementDaoImpl implements ProductManagementDao {
             pstmt.close();
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
         return categoryList;
     }
@@ -159,6 +175,7 @@ public class ProductManagementDaoImpl implements ProductManagementDao {
         String sql = new StringBuilder().append("SELECT * FROM TB_PRODUCT").toString();
 
         try {
+            Connection conn = DbConnection.getInstance().getConnection();
 
             pstmt = conn.prepareStatement(sql);
             ResultSet rs = pstmt.executeQuery();
@@ -176,6 +193,8 @@ public class ProductManagementDaoImpl implements ProductManagementDao {
 
         } catch (SQLException s) {
             s.printStackTrace();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
 
         return productList;
@@ -190,6 +209,8 @@ public class ProductManagementDaoImpl implements ProductManagementDao {
                 .append("WHERE V_PRODUCT_CD = ?").toString();
 
         try {
+            Connection conn = DbConnection.getInstance().getConnection();
+
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, productcode);
             ResultSet rs = pstmt.executeQuery();
@@ -211,6 +232,8 @@ public class ProductManagementDaoImpl implements ProductManagementDao {
 
         } catch (SQLException s) {
             s.printStackTrace();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
 
         return product;
