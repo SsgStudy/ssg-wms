@@ -5,6 +5,7 @@ import service.InventoryAdjustmentService;
 import service.InvoiceService;
 import service.PurchaseService;
 
+import util.MenuBoxPrinter;
 import util.enumcollect.MemberEnum;
 import util.enumcollect.PurchaseEnum;
 import util.enumcollect.WaybillTypeEnum;
@@ -58,7 +59,14 @@ public class PurchaseController {
 
     public void menu() {
         updateLoginInfo();
-        System.out.println("1. 주문 수집하기 | 2. 주문 조회하기 | 3. 주문 클레임 수집하기 | 4. 메뉴 나가기");
+        String[] menuItems = {
+                "1. 주문 수집하기\t\t\t",
+                "2. 주문 조회하기\t\t\t",
+                "3. 주문 클레임 수집하기\t\t\t\t",
+                "4. 메뉴 나가기\t\t\t",
+        };
+        MenuBoxPrinter.printMenuBoxWithTitle("주문 관리\t\t", menuItems);
+
         int ch = Integer.parseInt(sc.nextLine().trim());
 
         System.out.println(loginMemberId);
@@ -86,7 +94,11 @@ public class PurchaseController {
     }
 
     public void purchaseMenu() {
-        System.out.println("1. 주문 확정 | 2. 돌아가기");
+        String[] menuItems = {
+                "1. 주문 확정\t",
+                "2. 메뉴 나가기\t\t\t",
+        };
+        MenuBoxPrinter.printMenuBoxWithTitle("주문 수집 목록\t\t\t\t", menuItems);
         int ch = Integer.parseInt(sc.nextLine().trim());
 
         switch (ch) {
@@ -106,7 +118,7 @@ public class PurchaseController {
 
     // 주문 수집 일자 쇼핑몰 선택
     public List<Long> promptForPurchase() {
-        System.out.println("주문 수집 일자를 입력해주세요 (YYYY-mm-DD YYYY-mm-DD)");
+        System.out.print("\n➔ 주문 수집 일자를 입력해주세요 (YYYY-mm-DD YYYY-mm-DD) : ");
         String date = sc.nextLine();
         date = getDateFormatCheck(date);
 
@@ -114,7 +126,7 @@ public class PurchaseController {
         List<String> shopList = purchaseService.getShoppingmallList();
         shopList.forEach(idx -> System.out.println((shopList.indexOf(idx) + 1) + ". " + idx));
 
-        System.out.println("수집할 쇼핑몰의 번호를 입력해주세요. (1 2 3)");
+        System.out.println("\n➔ 수집할 쇼핑몰의 번호를 입력해주세요. (1 2 3) : ");
         List<Integer> selectedShopIndexes = Arrays.stream(sc.nextLine().split(" "))
                 .map(Integer::parseInt)
                 .collect(Collectors.toList());
@@ -140,7 +152,7 @@ public class PurchaseController {
 
     // 주문 확정하기
     public void promptForPurchaseConfirmed() {
-        System.out.println("확정할 주문의 번호를 입력해주세요. (1 2 3)");
+        System.out.println("\n➔ 확정할 주문의 번호를 입력해주세요. (1 2 3) : ");
         List<Long> selectedPurchaseSeq = List.of(sc.nextLine().split(" "))
                 .stream()
                 .map(Long::parseLong)
@@ -158,7 +170,7 @@ public class PurchaseController {
 
     // 클레임 수집 일자, 쇼핑몰 선택
     public void promptForPurchaseClaim() {
-        System.out.println("클레임 수집 일자를 입력해주세요 (YYYY-mm-DD YYYY-mm-DD)");
+        System.out.println("\n➔ 클레임 수집 일자를 입력해주세요 (YYYY-mm-DD YYYY-mm-DD) : ");
         String date = sc.nextLine();
         date = getDateFormatCheck(date);
 
@@ -166,7 +178,7 @@ public class PurchaseController {
         List<String> shopList = purchaseService.getShoppingmallList();
         shopList.forEach(idx -> System.out.println((shopList.indexOf(idx) + 1) + ". " + idx));
 
-        System.out.println("수집할 쇼핑몰의 번호를 입력해주세요. (1 2 3)");
+        System.out.println("\n➔ 수집할 쇼핑몰의 번호를 입력해주세요. (1 2 3) : ");
         List<Integer> selectedShopIndexes = Arrays.stream(sc.nextLine().split(" "))
                 .map(Integer::parseInt)
                 .collect(Collectors.toList());
@@ -189,7 +201,7 @@ public class PurchaseController {
 
     // 주문 취소/반품 하기
     public void promptForPurchaseCancelOrReturn() {
-        System.out.println("취소/반품할 주문의 번호를 입력해주세요. (1 2 3)");
+        System.out.println("\n➔ 취소/반품할 주문의 번호를 입력해주세요. (1 2 3) : ");
         Long purchaseSeq = Long.parseLong(sc.nextLine());
 
         String status = purchaseService.processPurchaseToCancelOrReturn(purchaseSeq);
@@ -216,8 +228,13 @@ public class PurchaseController {
     public void purchaseReturnMenu(Long purchaseSeq) {
         OutgoingProductVO outgoingProduct = new OutgoingProductVO();
         outgoingProduct.setShopPurchaseSeq(purchaseSeq);
-
-        System.out.println("1.송장 접수 | 2.입고 확인 | 3.검수 | 4.돌아가기");
+        String[] menuItems2 = {
+                "1. 송장 접수\t",
+                "2. 입고 확인\t",
+                "3. 검수",
+                "4. 메뉴 나가기\t\t\t",
+        };
+        MenuBoxPrinter.printMenuBoxWithTitle("클레임 관리\t\t\t", menuItems2);
         int ch = Integer.parseInt(sc.nextLine());
 
         switch (ch) {
@@ -261,9 +278,15 @@ public class PurchaseController {
         int status = 0;
         Long invoiceSeq = 0L;
 
-        System.out.println("[송장 출력]");
-        System.out.println("--".repeat(25));
-        System.out.print("송장 종류 입력 (1.일반 | 2.특급 | 3.국제 | 4.등기) ");
+        String[] menuItems = {
+                "1. 일반\t",
+                "2. 특급\t",
+                "3. 국제\t",
+                "4. 등기\t\t",
+        };
+        MenuBoxPrinter.printMenuBoxWithTitle("송장 종류 선택\t", menuItems);
+
+
 
         try{
             int ch = Integer.parseInt(sc.nextLine().trim());
@@ -278,10 +301,14 @@ public class PurchaseController {
             invoice.setPurchaseSeq(outgoingProductVO.getShopPurchaseSeq());
 
             try {
-                System.out.println("[택배사 선택]");
-                System.out.println("--".repeat(25));
-                System.out.println("1. 한진택배 | 2.CJ대한통운 | 3.우체국택배 | 4.롯데택배 | 5.로젠택배");
-                System.out.print("택배사 선택 : ");
+                String[] menuItems2 = {
+                        "1. 한진택배\t",
+                        "2. CJ대한통운\t",
+                        "3. 우체국택배\t\t",
+                        "4. 롯데택배\t",
+                        "5. 로젠택배\t",
+                };
+                MenuBoxPrinter.printMenuBoxWithTitle("택배사 선택\t\t\t", menuItems2);
                 invoice.setLogisticSeq(Long.parseLong(sc.nextLine()));
 
                 invoiceSeq = invoiceService.registerInvoice(invoice);

@@ -13,6 +13,7 @@ import java.util.logging.Logger;
 import service.InvoiceService;
 
 import service.OutgoingService;
+import util.MenuBoxPrinter;
 import util.enumcollect.WaybillTypeEnum;
 import vo.*;
 
@@ -39,9 +40,14 @@ public class OutgoingController {
     public void outgoingProductMenu() {
         boolean continueMenu = true;
         while (continueMenu) {
-            System.out.println("\n1. 출고 지시 목록 조회 | 2. 출고 수정 및 승인 | 3. 메뉴 나가기");
-            System.out.print("선택: ");
-            String input = sc.nextLine();
+            String[] menuItems = {
+                    "1. 출고 지시 목록 조회\t\t\t\t\t",
+                    "2. 출고 수정 및 승인\t\t\t",
+                    "3. 메뉴 나가기\t\t\t"
+            };
+            MenuBoxPrinter.printMenuBoxWithTitle("출고 관리\t\t", menuItems);
+
+            String input = sc.nextLine().trim();
             int choice;
             try {
                 choice = Integer.parseInt(input);
@@ -63,9 +69,13 @@ public class OutgoingController {
 
     public void outgoingProductSubMenu() {
         boolean continueMenu = true;
+
         while (continueMenu) {
-            System.out.println("\n1. 출고 등록 | 2. 서브 메뉴 나가기");
-            System.out.print("선택: ");
+            String[] menuItems = {
+                    "1. 출고 등록\t",
+                    "2. 메뉴 나가기\t\t\t"
+            };
+            MenuBoxPrinter.printMenuBoxWithTitle("출고 지시\t\t", menuItems);
             int choice = Integer.parseInt(sc.nextLine().trim());
 
             switch (choice) {
@@ -93,7 +103,7 @@ public class OutgoingController {
 
     public void addOutgoingProductList() {
         try {
-            System.out.print("출고 등록할 지시 번호 선택: ");
+            System.out.print("\n➔ 출고 등록할 지시 번호 선택: ");
             String input = sc.nextLine().trim();
             int choice;
 
@@ -104,7 +114,7 @@ public class OutgoingController {
                 System.out.println("유효하지 않은 입력입니다. 숫자를 입력해주세요.");
             }
         } catch (Exception e) {
-            System.out.println("출고 상품 추가 중 오류가 발생했습니다: " + e.getMessage());
+            System.out.println("출고 상품 추가 중 오류가 발생했습니다 - " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -112,7 +122,7 @@ public class OutgoingController {
     public void updateOutgoingProductMenu() {
         printAllOutgoings();
         try {
-            System.out.print("수정할 출고 상품의 ID를 입력하세요: ");
+            System.out.print("\n➔ 수정할 출고 상품의 ID를 입력하세요: ");
 
             Long pkOutgoingId = Long.parseLong(sc.nextLine().trim());
 
@@ -121,14 +131,14 @@ public class OutgoingController {
 
             // 출고 수량 조회
             int currentQuantity = outgoingService.getOutgoingProductQuantity(pkOutgoingId);
-            System.out.println("현재 출고 수량: " + currentQuantity + ". 수정할 수량을 입력하세요 (최대 " + currentQuantity + "): ");
+            System.out.println("현재 출고 수량: " + currentQuantity + " \n➔ 수정할 수량을 입력하세요 (최대 " + currentQuantity + ") : ");
 
             int newQuantity = Integer.parseInt(sc.nextLine().trim());
 
             // 출고 일자 입력
             LocalDateTime outgoingDate = null;
             while (outgoingDate == null) {
-                System.out.print("출고 일자를 입력하세요 (예: 202401301400): ");
+                System.out.print("\n➔ 출고 일자를 입력하세요 (예: 202401301400) : ");
                 String outgoingDateInput = sc.nextLine();
                 try {
                     outgoingDate = LocalDateTime.parse(outgoingDateInput, DateTimeFormatter.ofPattern("yyyyMMddHHmm"));
@@ -144,14 +154,14 @@ public class OutgoingController {
                 return;
             }
 
-            System.out.println("선택 가능한 창고 및 구역 목록:");
+            System.out.println("선택 가능한 창고 및 구역 목록");
             for (int i = 0; i < inventories.size(); i++) {
                 InventoryVO inventory = inventories.get(i);
                 System.out.println(
                         (i + 1) + ". 창고 코드: " + inventory.getWarehouseCd() + ", 구역 코드: " + inventory.getZoneCd() + ", 재고 수량: "
                                 + inventory.getInventoryCnt());
             }
-            System.out.print("선택: ");
+            System.out.print("\n➔ 선택 : ");
             int inventoryChoice = Integer.parseInt(sc.nextLine().trim());
             InventoryVO selectedInventory = inventories.get(inventoryChoice - 1);
 
@@ -166,14 +176,14 @@ public class OutgoingController {
             int result = promptInvoice(outgoingProduct);
 
             if (result>0) {
-                System.out.println("출고 승인이 성공적으로 업데이트 되었습니다.\n 예정 출고 일자: " + outgoingDate.format(
+                System.out.println("출고 승인이 성공적으로 업데이트 되었습니다.\n 예정 출고 일자 : " + outgoingDate.format(
                         DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
             } else {
                 System.out.println("출고 실패 하였습니다. 다시 시도해주세요.");
             }
 
         } catch (Exception e) {
-            System.out.println("오류 발생: " + e.getMessage());
+            System.out.println("오류 발생 - " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -198,7 +208,7 @@ public class OutgoingController {
 
             }
         } catch (Exception e) {
-            System.out.println("출고 현황 조회 중 오류가 발생했습니다: " + e.getMessage());
+            System.out.println("출고 현황 조회 중 오류가 발생했습니다 - " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -208,9 +218,13 @@ public class OutgoingController {
         int status = 0;
         Long invoiceSeq = 0L;
 
-        System.out.println("[송장 출력]");
-        System.out.println("--".repeat(25));
-        System.out.print("송장 종류 입력 (1.일반 | 2.특급 | 3.국제 | 4.등기) ");
+        String[] menuItems = {
+                "1. 일반\t",
+                "2. 특급\t",
+                "3. 국제\t",
+                "4. 등기\t\t",
+        };
+        MenuBoxPrinter.printMenuBoxWithTitle("송장 종류 선택\t", menuItems);
 
         try{
             int ch = Integer.parseInt(sc.nextLine().trim());
@@ -225,10 +239,14 @@ public class OutgoingController {
             invoice.setPurchaseSeq(outgoingProductVO.getShopPurchaseSeq());
 
             try {
-                System.out.println("[택배사 선택]");
-                System.out.println("--".repeat(25));
-                System.out.println("1. 한진택배 | 2.CJ대한통운 | 3.우체국택배 | 4.롯데택배 | 5.로젠택배");
-                System.out.print("택배사 선택 : ");
+                String[] menuItems2 = {
+                        "1. 한진택배\t",
+                        "2. CJ대한통운\t",
+                        "3. 우체국택배\t\t",
+                        "4. 롯데택배\t",
+                        "5. 로젠택배\t",
+                };
+                MenuBoxPrinter.printMenuBoxWithTitle("택배사 선택\t\t\t", menuItems2);
                 invoice.setLogisticSeq(Long.parseLong(sc.nextLine()));
 
                 invoiceSeq = invoiceService.registerInvoice(invoice);

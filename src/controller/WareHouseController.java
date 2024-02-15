@@ -5,6 +5,7 @@ import java.io.InputStreamReader;
 
 
 import service.WareHouseService;
+import util.MenuBoxPrinter;
 import vo.WareHouse;
 
 import java.io.IOException;
@@ -35,12 +36,12 @@ public class WareHouseController {
     public void menu() throws IOException {
         boolean running = true;
         while (running) {
-            System.out.println("--".repeat(25));
-            System.out.println("[창고 관리]");
-            System.out.println("--".repeat(25));
-            System.out.println("1.창고 등록 | 2. 창고 조회 | 3. 나가기");
-            System.out.println("--".repeat(25));
-            System.out.print("메뉴 선택 : ");
+            String[] menuItems = {
+                    "1. 창고 등록\t",
+                    "2. 창고 조회\t",
+                    "3. 나가기\t",
+            };
+            MenuBoxPrinter.printMenuBoxWithTitle("창고 관리\t", menuItems);
 
             try {
                 int cmd = Integer.parseInt(br.readLine());
@@ -66,17 +67,16 @@ public class WareHouseController {
         WareHouse wareHouse = new WareHouse();
 
         try{
-            System.out.println("--".repeat(25));
-            System.out.println("[신규 창고 등록]");
-            System.out.print("창고 코드 지정 : ");
+            System.out.println("***신규 창고 등록***");
+            System.out.print("\n➔ 창고 코드 지정 : ");
             wareHouse.setWarehouseCode(br.readLine());
-            System.out.print("창고 명 지정 : ");
+            System.out.print("\n➔ 창고 명 지정 : ");
             wareHouse.setWarehouseName(br.readLine());
-            System.out.print("창고 소재지(도시 국가) 지정 : ");
+            System.out.print("\n➔ 창고 소재지(도시 국가) 지정 : ");
             wareHouse.setWarehouseLocation(br.readLine());
-            System.out.print("창고 종류 지정 : ");
+            System.out.print("\n➔ 창고 종류 지정 : ");
             wareHouse.setWarehouseType(br.readLine());
-            System.out.print("창고관리자 코드 입력 : ");
+            System.out.print("\n➔ 창고관리자 코드 입력 : ");
             wareHouse.setMemberSeq(Integer.parseInt(br.readLine()));
             wareHouseService.registerWareHouse(wareHouse);
             System.out.printf("[%s의 등록이 완료되었습니다.]\n", wareHouse.getWarehouseName());
@@ -89,10 +89,15 @@ public class WareHouseController {
     }
 
     public void viewWareHouse() throws IOException {
-        System.out.println("--".repeat(25));
-        System.out.println("[창고 조회]");
-        System.out.println("1.전체 조회 | 2.창고명별 조회 | 3.소재지별 조회 | 4.창고종류별 조회 | 5. 메뉴 나가기");
-        System.out.print("메뉴 선택 : ");
+        String[] menuItems = {
+                "1. 전체 조회\t",
+                "2. 창고명별 조회\t",
+                "3. 소재지별 조회\t",
+                "4. 창고종류별 조회\t\t",
+                "5. 메뉴 나가기\t\t",
+        };
+        MenuBoxPrinter.printMenuBoxWithTitle("창고 조회\t", menuItems);
+
         int cmd = Integer.parseInt(br.readLine().trim());
         switch (cmd) {
             case 1 -> wareHouseTable();
@@ -132,7 +137,7 @@ public class WareHouseController {
     public void viewWareHouseByName() {
         System.out.println("--".repeat(25));
         System.out.println("[창고 이름별 조회]");
-        System.out.print("창고 이름 입력 : ");
+        System.out.print("\n➔ 창고 이름 입력 : ");
         try{
             String name = br.readLine();
             wareHouseList = wareHouseService.viewWareHouseByName(name);
@@ -158,7 +163,7 @@ public class WareHouseController {
     public void viewWareHouseByLocation(){
         System.out.println("--".repeat(25));
         System.out.println("[창고 소재지별 조회]");
-        System.out.print("창고 소재지 입력 : ");
+        System.out.print("\n➔ 창고 소재지 입력 : ");
         try{
             String location = br.readLine();
             wareHouseList = wareHouseService.viewWareHouseByLocation(location);
@@ -184,7 +189,7 @@ public class WareHouseController {
     public void viewWareHouseByType() {
         System.out.println("--".repeat(25));
         System.out.println("[창고 종류별 조회]");
-        System.out.print("창고 종류 입력 : ");
+        System.out.print("\n➔ 창고 종류 입력 : ");
         try{
             String type = br.readLine();
             wareHouseList = wareHouseService.viewWareHouseByType(type);
