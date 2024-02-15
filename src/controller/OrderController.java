@@ -17,6 +17,7 @@ import vo.OrderVO;
 import vo.Product;
 
 public class OrderController {
+
     private static OrderController instance;
     private Scanner sc = new Scanner(System.in);
 

@@ -1,8 +1,10 @@
 package controller;
 
+import dao.LoginManagementDAOImpl;
 import service.ProductServiceImpl;
 import service.ProductService;
 import util.MenuBoxPrinter;
+import util.enumcollect.MemberEnum;
 import util.enumcollect.SalesStatus;
 import vo.Category;
 import vo.Product;
@@ -15,6 +17,9 @@ import java.util.Scanner;
 import java.util.stream.Collectors;
 
 public class ProductManagementController {
+    private LoginManagementDAOImpl loginDao = LoginManagementDAOImpl.getInstance();
+    private MemberEnum loginMemberRole;
+    private String loginMemberId;
 
     private static ProductManagementController instance;
     private ProductService productService;
@@ -33,6 +38,8 @@ public class ProductManagementController {
         return instance;
     }
     public void menu(){
+        this.loginMemberRole = loginDao.getMemberRole();
+        this.loginMemberId = loginDao.getMemberId();
         boolean continueMenu = true;
         while (continueMenu) {
 

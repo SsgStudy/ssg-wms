@@ -1,11 +1,13 @@
 package controller;
 
+import dao.LoginManagementDAOImpl;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
 
 import service.WareHouseService;
 import util.MenuBoxPrinter;
+import util.enumcollect.MemberEnum;
 import vo.WareHouse;
 
 import java.io.IOException;
@@ -15,6 +17,9 @@ import java.util.List;
 import java.util.logging.Logger;
 
 public class WareHouseController {
+    private LoginManagementDAOImpl loginDao = LoginManagementDAOImpl.getInstance();
+    private MemberEnum loginMemberRole;
+    private String loginMemberId;
     private static WareHouseController instance;
     private static WareHouseService wareHouseService;
     private static Logger logger = Logger.getLogger(WareHouseController.class.getName());
@@ -34,6 +39,8 @@ public class WareHouseController {
     }
 
     public void menu() throws IOException {
+        this.loginMemberRole = loginDao.getMemberRole();
+        this.loginMemberId = loginDao.getMemberId();
         boolean running = true;
         while (running) {
             String[] menuItems = {
@@ -64,6 +71,13 @@ public class WareHouseController {
     }
 
     public void registerWareHouse() {
+        if (!(
+                loginMemberRole == MemberEnum.ADMIN ||
+                        loginMemberRole == MemberEnum.OPERATOR
+        )) {
+            System.out.println("해당 메뉴를 실행할 권한이 없습니다.\n관리자에게 문의해주세요...");
+            return;
+        }
         WareHouse wareHouse = new WareHouse();
 
         try{

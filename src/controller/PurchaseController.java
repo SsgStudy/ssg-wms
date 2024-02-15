@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class PurchaseController {
+
     private static Logger logger = Logger.getLogger(PurchaseController.class.getName());
 
 
@@ -58,6 +59,8 @@ public class PurchaseController {
     }
 
     public void menu() {
+        this.loginMemberRole = loginDao.getMemberRole();
+        this.loginMemberId = loginDao.getMemberId();
         updateLoginInfo();
         String[] menuItems = {
                 "1. 주문 수집하기\t\t\t",

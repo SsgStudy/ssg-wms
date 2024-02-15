@@ -1,5 +1,6 @@
 package controller;
 
+import dao.LoginManagementDAOImpl;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -8,17 +9,24 @@ import java.util.List;
 import java.util.Scanner;
 import service.IncomigService;
 import util.MenuBoxPrinter;
+import util.enumcollect.MemberEnum;
 import vo.DetailedIncomingVO;
 import vo.IncomingVO;
 
 public class IncomingController {
 
     private static IncomingController instance;
+    private LoginManagementDAOImpl loginDao = LoginManagementDAOImpl.getInstance();
+    private MemberEnum loginMemberRole;
+    private String loginMemberId;
+
     private IncomigService incomingService;
+
     Scanner sc = new Scanner(System.in);
 
     public IncomingController(IncomigService incomingService) {
         this.incomingService = incomingService;
+
     }
 
     public static synchronized IncomingController getInstance(IncomigService incomingService) {
@@ -35,10 +43,13 @@ public class IncomingController {
 
     //입고 관리 선택 메뉴
     public void incomingProductMenu() throws Exception {
+        this.loginMemberRole = loginDao.getMemberRole();
+        this.loginMemberId = loginDao.getMemberId();
         boolean continueMenu = true;
         printAllIncomingProductsWithDetails();
 
         while (continueMenu) {
+
             String[] menuItems = {
                     "1. 입고 조회\t",
                     "2. 입고 수정\t",
@@ -70,6 +81,14 @@ public class IncomingController {
 
     //조회 필터 메뉴
     private void selectFilterOption() throws Exception {
+        if (!(
+                loginMemberRole == MemberEnum.ADMIN ||
+                loginMemberRole == MemberEnum.WAREHOUSE_MANAGER ||
+                loginMemberRole == MemberEnum.OPERATOR
+        )) {
+            System.out.println("해당 메뉴를 실행할 권한이 없습니다.\n관리자에게 문의해주세요...");
+            return;
+        }
         String[] menuItems = {
                 "1. 전체 조회\t",
                 "2. 년월 조회\t",
@@ -96,6 +115,13 @@ public class IncomingController {
     ////////////////////////////////////////////////////////////////
     //기능 프롬프트
     public void updateIncomingProduct(long seq) throws Exception {
+        if (!(
+                loginMemberRole == MemberEnum.ADMIN ||
+                        loginMemberRole == MemberEnum.WAREHOUSE_MANAGER
+        )) {
+            System.out.println("해당 메뉴를 실행할 권한이 없습니다.\n관리자에게 문의해주세요...");
+            return;
+        }
         System.out.println("수정 사항 입력");
         System.out.print("\n➔ ZONE 코드 : ");
         String zoneCode = sc.next();
@@ -114,6 +140,14 @@ public class IncomingController {
     }
 
     public void approveIncomingProduct(long seq) throws Exception {
+        if (!(
+                loginMemberRole == MemberEnum.ADMIN ||
+                        loginMemberRole == MemberEnum.WAREHOUSE_MANAGER ||
+                        loginMemberRole == MemberEnum.OPERATOR
+        )) {
+            System.out.println("해당 메뉴를 실행할 권한이 없습니다.\n관리자에게 문의해주세요...");
+            return;
+        }
         try {
             incomingService.approveIncomingProduct(seq);
             System.out.println("성공적으로 승인되었습니다.");

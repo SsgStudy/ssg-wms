@@ -1,7 +1,9 @@
 package controller;
 
+import dao.LoginManagementDAOImpl;
 import service.*;
 import util.MenuBoxPrinter;
+import util.enumcollect.MemberEnum;
 import vo.CategoryVO;
 import vo.InventoryVO;
 import vo.ProductInventoryCategoryVO;
@@ -11,6 +13,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class InventoryController {
+    private LoginManagementDAOImpl loginDao = LoginManagementDAOImpl.getInstance();
+    private MemberEnum loginMemberRole;
+    private String loginMemberId;
     private Scanner sc = new Scanner(System.in);
     private boolean categoryContinue = true;
     private final InventoryAdjustmentService adjustmentService;
@@ -29,6 +34,8 @@ public class InventoryController {
     private List<CategoryVO> categoryList = new ArrayList<>();
 
     public void menu() {
+        this.loginMemberRole = loginDao.getMemberRole();
+        this.loginMemberId = loginDao.getMemberId();
         while (true) {
             String[] menuItems = {
                     "1. 재고 조회\t",
@@ -283,6 +290,13 @@ public class InventoryController {
 
 
     public void adjustInventory() {
+        if (!(
+                        loginMemberRole == MemberEnum.WAREHOUSE_MANAGER ||
+                        loginMemberRole == MemberEnum.OPERATOR
+        )) {
+            System.out.println("해당 메뉴를 실행할 권한이 없습니다.\n관리자에게 문의해주세요...");
+            return;
+        }
         boolean adjustContinue = true;
         while (adjustContinue) {
             String[] menuItems = {
@@ -360,6 +374,13 @@ public class InventoryController {
 
 
     public void moveInventory() {
+        if (!(
+                        loginMemberRole == MemberEnum.WAREHOUSE_MANAGER ||
+                        loginMemberRole == MemberEnum.OPERATOR
+        )) {
+            System.out.println("해당 메뉴를 실행할 권한이 없습니다.\n관리자에게 문의해주세요...");
+            return;
+        }
         while (true) {
             List<InventoryVO> inventoryList = movementService.getInventoryInformation();
             printProductInventoryList(inventoryList);
