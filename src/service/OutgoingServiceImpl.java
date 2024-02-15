@@ -1,17 +1,26 @@
 package service;
 
 import dao.OutgoingDAOImpl;
+
 import java.time.LocalDateTime;
 import java.util.List;
+
 import vo.InventoryVO;
 import vo.OutgoingInstVO;
 import vo.OutgoingProductVO;
 import vo.OutgoingVO;
 
+/**
+ * The type Outgoing service.
+ */
 public class OutgoingServiceImpl implements OutgoingService {
-
     private OutgoingDAOImpl outgoingDAO;
 
+    /**
+     * Instantiates a new Outgoing service.
+     *
+     * @param outgoingDAO the outgoing dao
+     */
     public OutgoingServiceImpl(OutgoingDAOImpl outgoingDAO) {
         this.outgoingDAO = outgoingDAO;
     }

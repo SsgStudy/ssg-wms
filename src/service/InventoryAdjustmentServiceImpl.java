@@ -6,10 +6,16 @@ import vo.InventoryVO;
 
 import java.util.List;
 
+/**
+ * The type Inventory adjustment service.
+ */
 public class InventoryAdjustmentServiceImpl implements InventoryAdjustmentService {
     private InventoryAdjustmentDAO inventoryAdjustmentDao;
     private PurchaseServiceImpl purchaseService;
 
+    /**
+     * Instantiates a new Inventory adjustment service.
+     */
     public InventoryAdjustmentServiceImpl() {
         this.inventoryAdjustmentDao = InventoryAdjustmentDAOImpl.getInstance();
     }
@@ -40,8 +46,7 @@ public class InventoryAdjustmentServiceImpl implements InventoryAdjustmentServic
 
         if (result.equals("success")) {
             return 1;
-        }
-        else return 0;
+        } else return 0;
     }
 
     @Override
@@ -53,8 +58,7 @@ public class InventoryAdjustmentServiceImpl implements InventoryAdjustmentServic
         for (InventoryVO inventory : inventoryList) {
             if (inventory.getInventoryCnt() == 0) {
                 quanity = 1;
-            }
-            else
+            } else
                 quanity = -1;
         }
         return quanity;

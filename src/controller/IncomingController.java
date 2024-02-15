@@ -1,34 +1,52 @@
 package controller;
 
 import dao.LoginManagementDAOImpl;
+
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Scanner;
+
 import service.IncomigService;
 import util.MenuBoxPrinter;
 import util.enumcollect.MemberEnum;
 import vo.DetailedIncomingVO;
 import vo.IncomingVO;
 
+/**
+ *
+ * 이 클래스는 입고 관리를 담당하는 IncomingController 컨트롤러입니다.
+ * 주로 상품 조회, 수정, 승인과 같은 기능을 수행합니다.
+ * 해당 클래스는 Singleton 패턴을 따르며, 하나의 인스턴스만을 생성하여 사용합니다.
+ *
+ * @author : 홍진욱
+ */
 public class IncomingController {
-
     private static IncomingController instance;
     private LoginManagementDAOImpl loginDao = LoginManagementDAOImpl.getInstance();
     private MemberEnum loginMemberRole;
     private String loginMemberId;
-
     private IncomigService incomingService;
-
     Scanner sc = new Scanner(System.in);
 
+    /**
+     * Instantiates a new Incoming controller.
+     *
+     * @param incomingService the incoming service
+     */
     public IncomingController(IncomigService incomingService) {
         this.incomingService = incomingService;
 
     }
 
+    /**
+     * Gets instance.
+     *
+     * @param incomingService the incoming service
+     * @return the instance
+     */
     public static synchronized IncomingController getInstance(IncomigService incomingService) {
         if (instance == null) {
             instance = new IncomingController(incomingService);
@@ -37,11 +55,20 @@ public class IncomingController {
     }
 
 
+    /**
+     * Gets all incoming products with details.
+     *
+     * @return the all incoming products with details
+     */
     public List<IncomingVO> getAllIncomingProductsWithDetails() {
         return incomingService.getAllIncomingProductsWithDetails();
     }
 
-    //입고 관리 선택 메뉴
+    /**
+     * Incoming product menu.
+     *
+     * @throws Exception the exception
+     */
     public void incomingProductMenu() throws Exception {
         this.loginMemberRole = loginDao.getMemberRole();
         this.loginMemberId = loginDao.getMemberId();
@@ -79,12 +106,16 @@ public class IncomingController {
         }
     }
 
-    //조회 필터 메뉴
+    /**
+     * Select filter option.
+     *
+     * @throws Exception the exception
+     */
     private void selectFilterOption() throws Exception {
         if (!(
                 loginMemberRole == MemberEnum.ADMIN ||
-                loginMemberRole == MemberEnum.WAREHOUSE_MANAGER ||
-                loginMemberRole == MemberEnum.OPERATOR
+                        loginMemberRole == MemberEnum.WAREHOUSE_MANAGER ||
+                        loginMemberRole == MemberEnum.OPERATOR
         )) {
             System.out.println("해당 메뉴를 실행할 권한이 없습니다.\n관리자에게 문의해주세요...");
             return;
@@ -112,8 +143,14 @@ public class IncomingController {
         }
     }
 
-    ////////////////////////////////////////////////////////////////
-    //기능 프롬프트
+    /**
+     * Update incoming product.
+     * <p>
+     * 접근제한 : 회원
+     * <p>
+     * @param seq the seq
+     * @throws Exception the exception
+     */
     public void updateIncomingProduct(long seq) throws Exception {
         if (!(
                 loginMemberRole == MemberEnum.ADMIN ||
@@ -139,6 +176,12 @@ public class IncomingController {
         printAllIncomingProductsWithDetails();
     }
 
+    /**
+     * Approve incoming product.
+     *
+     * @param seq the seq
+     * @throws Exception the exception
+     */
     public void approveIncomingProduct(long seq) throws Exception {
         if (!(
                 loginMemberRole == MemberEnum.ADMIN ||
@@ -157,6 +200,11 @@ public class IncomingController {
         printAllIncomingProductsWithDetails();
     }
 
+    /**
+     * Prompt for monthly incoming products.
+     *
+     * @throws Exception the exception
+     */
     private void promptForMonthlyIncomingProducts() throws Exception {
         System.out.print("\n➔ 년도와 월을 입력하세요 (예: 2023 5) : ");
         int year = sc.nextInt();
@@ -169,6 +217,11 @@ public class IncomingController {
         }
     }
 
+    /**
+     * Prompt for incoming products by date range.
+     *
+     * @throws Exception the exception
+     */
     private void promptForIncomingProductsByDateRange() throws Exception {
         System.out.println("\n➔ 시작 날짜와 종료 날짜를 입력하세요 (예: 2023-01-01 2023-01-31) : ");
         String startDateStr = sc.next();
@@ -189,6 +242,11 @@ public class IncomingController {
         }
     }
 
+    /**
+     * Prompt for detailed incoming product.
+     *
+     * @throws Exception the exception
+     */
     private void promptForDetailedIncomingProduct() throws Exception {
         System.out.println("\n➔ 조회할 입고 상품의 번호를 입력하세요 : ");
         long seq = sc.nextLong();
@@ -196,8 +254,11 @@ public class IncomingController {
         printDetailedIncomingProduct(detailedIncomingProduct);
     }
 
-    ////////////////////////////////////////////////////////////////
-    //전체 조회
+    /**
+     * Print all incoming products with details.
+     *
+     * @throws Exception the exception
+     */
     public void printAllIncomingProductsWithDetails() throws Exception {
         List<IncomingVO> incomings = getAllIncomingProductsWithDetails();
         printIncomingProductsHeader();
@@ -209,6 +270,13 @@ public class IncomingController {
 
     }
 
+    /**
+     * Print incoming products by month.
+     *
+     * @param year  the year
+     * @param month the month
+     * @throws Exception the exception
+     */
     private void printIncomingProductsByMonth(int year, int month) throws Exception {
         List<IncomingVO> incomingProducts = incomingService.getIncomingProductsByMonth(year, month);
 
@@ -221,6 +289,13 @@ public class IncomingController {
 
     }
 
+    /**
+     * Print incoming products by date range.
+     *
+     * @param startDate the start date
+     * @param endDate   the end date
+     * @throws Exception the exception
+     */
     private void printIncomingProductsByDateRange(LocalDate startDate, LocalDate endDate) throws Exception {
         List<IncomingVO> incomingProducts = incomingService.getIncomingProductsByDateRange(startDate, endDate);
 
@@ -233,13 +308,21 @@ public class IncomingController {
 
     }
 
+    /**
+     * Print detailed incoming product.
+     *
+     * @param detailedIncomingProduct the detailed incoming product
+     */
     private void printDetailedIncomingProduct(DetailedIncomingVO detailedIncomingProduct) {
         printDetailedIncomingProductHeader();
         printDetailedIncomingProductInfo(detailedIncomingProduct);
     }
 
-    ////////////////////////////////////////////////////////////////
-    //중복 출력 메소드 분리
+    /**
+     * Print detailed incoming product info.
+     *
+     * @param detailedIncomingProduct the detailed incoming product
+     */
     private static void printDetailedIncomingProductInfo(DetailedIncomingVO detailedIncomingProduct) {
         String incomingDate =
                 detailedIncomingProduct.getIncomingProductDate() != null ? detailedIncomingProduct.getIncomingProductDate()
@@ -269,6 +352,9 @@ public class IncomingController {
                 "---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------");
     }
 
+    /**
+     * Print detailed incoming product header.
+     */
     private static void printDetailedIncomingProductHeader() {
         System.out.printf("%-10s%-12s%-25s%-20s%-16s%-20s%-10s%-10s%-12s%-10s%-20s%-12s%-16s%-20s%-20s%-20s%-20s\n",
                 "입고 번호", "입고 상태", "입고 상품 코드", "상품 입고 일자",
@@ -278,6 +364,9 @@ public class IncomingController {
                 "---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------");
     }
 
+    /**
+     * Print incoming products header.
+     */
     private void printIncomingProductsHeader() {
         System.out.printf("%-10s%-12s%-25s%-20s%-16s%-20s%-10s%-10s%-12s%-10s\n",
                 "입고 번호", "입고 상태", "입고 상품 코드", "상품 입고 일자",
@@ -286,6 +375,11 @@ public class IncomingController {
                 "--------------------------------------------------------------------------------------------------------------------------------------------------------------------");
     }
 
+    /**
+     * Print incoming product.
+     *
+     * @param incoming the incoming
+     */
     private void printIncomingProduct(IncomingVO incoming) {
         String incomingDate = incoming.getIncomingProductDate() != null ? incoming.getIncomingProductDate().toString() : "N/A";
         System.out.printf("%-10d%-12s%-26s%-26s%-18s%-26s%-10d%-10d%-16s%-10s\n",
@@ -300,6 +394,4 @@ public class IncomingController {
                 incoming.getWarehouseCode(),
                 incoming.getZoneCode());
     }
-
-
 }

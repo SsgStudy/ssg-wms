@@ -1,6 +1,7 @@
 package controller;
 
 import dao.LoginManagementDAOImpl;
+
 import java.io.IOException;
 import java.sql.Blob;
 import java.sql.SQLException;
@@ -19,22 +20,41 @@ import util.enumcollect.MemberEnum;
 import util.enumcollect.WaybillTypeEnum;
 import vo.*;
 
+/**
+ *  이 클래스는 출고 관리를 담당하는 OutgoingController 컨트롤러입니다.
+ *  주로 목록 조회, 출고 등록, 출고 수정 및 승인, 출고 현황 조회와 같은 기능을 수행합니다.
+ *  해당 클래스는 Singleton 패턴을 따르며, 하나의 인스턴스만을 생성하여 사용합니다.
+ *
+ * @author : 홍진욱
+ */
 public class OutgoingController {
     private LoginManagementDAOImpl loginDao = LoginManagementDAOImpl.getInstance();
     private MemberEnum loginMemberRole;
     private String loginMemberId;
     private static Logger logger = Logger.getLogger(OutgoingController.class.getName());
-
     private static OutgoingController instance;
     private Scanner sc = new Scanner(System.in);
     private OutgoingService outgoingService;
     private InvoiceService invoiceService;
 
+    /**
+     * Instantiates a new Outgoing controller.
+     *
+     * @param outgoingService the outgoing service
+     * @param invoiceService  the invoice service
+     */
     public OutgoingController(OutgoingService outgoingService, InvoiceService invoiceService) {
         this.outgoingService = outgoingService;
         this.invoiceService = invoiceService;
     }
 
+    /**
+     * Gets instance.
+     *
+     * @param outgoingService the outgoing service
+     * @param invoiceService  the invoice service
+     * @return the instance
+     */
     public static OutgoingController getInstance(OutgoingService outgoingService, InvoiceService invoiceService) {
         if (instance == null) {
             instance = new OutgoingController(outgoingService, invoiceService);
@@ -42,6 +62,9 @@ public class OutgoingController {
         return instance;
     }
 
+    /**
+     * Outgoing product menu.
+     */
     public void outgoingProductMenu() {
         this.loginMemberRole = loginDao.getMemberRole();
         this.loginMemberId = loginDao.getMemberId();
@@ -62,7 +85,7 @@ public class OutgoingController {
                     case 1 -> printAllOutgoingInsts();
                     case 2 -> updateOutgoingProductMenu();
                     case 3 -> {
-                        return; // 메뉴 나가기
+                        return;
                     }
                     default -> System.out.println("잘못된 입력입니다.");
 
@@ -74,6 +97,9 @@ public class OutgoingController {
     }
 
 
+    /**
+     * Outgoing product sub menu.
+     */
     public void outgoingProductSubMenu() {
         boolean continueMenu = true;
 
@@ -87,12 +113,17 @@ public class OutgoingController {
 
             switch (choice) {
                 case 1 -> addOutgoingProductList();
-                case 2 -> {return;}
+                case 2 -> {
+                    return;
+                }
                 default -> System.out.println("잘못된 입력입니다.");
             }
         }
     }
 
+    /**
+     * Print all outgoing insts.
+     */
     private void printAllOutgoingInsts() {
         List<OutgoingInstVO> outgoingInsts = outgoingService.getAllOutgoingInsts();
         if (outgoingInsts.isEmpty()) {
@@ -108,6 +139,11 @@ public class OutgoingController {
         outgoingProductSubMenu();
     }
 
+    /**
+     * Add outgoing product list.
+     * <p>
+     * 접근 제한 : 회원
+     */
     public void addOutgoingProductList() {
         if (!(
                 loginMemberRole == MemberEnum.ADMIN ||
@@ -133,6 +169,11 @@ public class OutgoingController {
         }
     }
 
+    /**
+     * Update outgoing product menu.
+     * <p>
+     * 접근제한 : 회원
+     */
     public void updateOutgoingProductMenu() {
         if (!(
                 loginMemberRole == MemberEnum.ADMIN ||
@@ -147,16 +188,13 @@ public class OutgoingController {
 
             Long pkOutgoingId = Long.parseLong(sc.nextLine().trim());
 
-            // 출고 상품에 대한 상품 코드 자동 조회
             String productCd = outgoingService.getProductCodeByOutgoingId(pkOutgoingId);
 
-            // 출고 수량 조회
             int currentQuantity = outgoingService.getOutgoingProductQuantity(pkOutgoingId);
             System.out.println("현재 출고 수량: " + currentQuantity + " \n➔ 수정할 수량을 입력하세요 (최대 " + currentQuantity + ") : ");
 
             int newQuantity = Integer.parseInt(sc.nextLine().trim());
 
-            // 출고 일자 입력
             LocalDateTime outgoingDate = null;
             while (outgoingDate == null) {
                 System.out.print("\n➔ 출고 일자를 입력하세요 (예: 202401301400) : ");
@@ -168,7 +206,6 @@ public class OutgoingController {
                 }
             }
 
-            // 재고 정보 조회 및 선택
             List<InventoryVO> inventories = outgoingService.getInventoryByProductCodeAndQuantity(productCd, newQuantity);
             if (inventories.isEmpty()) {
                 System.out.println("해당 상품에 대한 충분한 재고가 없습니다.");
@@ -186,17 +223,15 @@ public class OutgoingController {
             int inventoryChoice = Integer.parseInt(sc.nextLine().trim());
             InventoryVO selectedInventory = inventories.get(inventoryChoice - 1);
 
-            // 출고 상품 업데이트 및 출고 상태 WAIT로 변경, 출고 일자 업데이트
             outgoingService.updateOutgoingProduct(pkOutgoingId, newQuantity, selectedInventory.getWarehouseCd(),
                     selectedInventory.getZoneCd());
             outgoingService.updateOutgoingProductStatusAndDate(pkOutgoingId, outgoingDate, "WAIT");
 
-            // 송장 연결
             OutgoingProductVO outgoingProduct = outgoingService.getOutgoingProductRowByOutgoingId(pkOutgoingId);
 
             int result = promptInvoice(outgoingProduct);
 
-            if (result>0) {
+            if (result > 0) {
                 System.out.println("출고 승인이 성공적으로 업데이트 되었습니다.\n 예정 출고 일자 : " + outgoingDate.format(
                         DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
             } else {
@@ -209,6 +244,9 @@ public class OutgoingController {
         }
     }
 
+    /**
+     * Print all outgoings.
+     */
     public void printAllOutgoings() {
         try {
             List<OutgoingVO> outgoings = outgoingService.getAllOutgoings();
@@ -234,6 +272,12 @@ public class OutgoingController {
         }
     }
 
+    /**
+     * Prompt invoice int.
+     *
+     * @param outgoingProductVO the outgoing product vo
+     * @return the int
+     */
     public int promptInvoice(OutgoingProductVO outgoingProductVO) {
         Invoice invoice = new Invoice();
         int status = 0;
@@ -247,7 +291,7 @@ public class OutgoingController {
         };
         MenuBoxPrinter.printMenuBoxWithTitle("송장 종류 선택\t", menuItems);
 
-        try{
+        try {
             int ch = Integer.parseInt(sc.nextLine().trim());
 
             switch (ch) {
@@ -278,15 +322,13 @@ public class OutgoingController {
                 Blob qrCodeImage = invoiceService.createQRCode(invoice, outgoingProductVO);
                 status = invoiceService.putQRCode(qrCodeImage, invoiceSeq);
 
-            } catch (NumberFormatException e){
+            } catch (NumberFormatException e) {
                 logger.info("숫자로 입력하세요.");
                 e.printStackTrace();
             }
-        }catch (IOException | SQLException i){
+        } catch (IOException | SQLException i) {
             i.printStackTrace();
         }
-
         return status;
     }
-
 }

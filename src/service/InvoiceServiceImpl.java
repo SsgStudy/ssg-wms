@@ -23,24 +23,37 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.logging.Logger;
 
+/**
+ * The type Invoice service.
+ */
 public class InvoiceServiceImpl implements InvoiceService {
     private static Logger logger = Logger.getLogger(InvoiceServiceImpl.class.getName());
     private InvoiceDaoImpl invoiceDAO;
-
     private static InvoiceServiceImpl instance;
+    List<Invoice> invoiceList = new ArrayList<>();
 
     InvoiceServiceImpl(){};
 
+    /**
+     * Gets instance.
+     *
+     * @return the instance
+     */
     public static synchronized InvoiceServiceImpl getInstance() {
         if (instance == null) {
             instance = new InvoiceServiceImpl();
         }
         return instance;
     }
+
+    /**
+     * Instantiates a new Invoice service.
+     *
+     * @param invoiceDAO the invoice dao
+     */
     public InvoiceServiceImpl(InvoiceDaoImpl invoiceDAO) {
         this.invoiceDAO = invoiceDAO;
     }
-    List<Invoice> invoiceList = new ArrayList<>();
 
 
     @Override
@@ -48,12 +61,12 @@ public class InvoiceServiceImpl implements InvoiceService {
         return invoiceDAO.registerInvoice(invoice);
     }
 
-    public List<Invoice> viewInvoice(){
+    public List<Invoice> viewInvoice() {
         return invoiceDAO.viewInvoice();
     }
 
-    public int putQRCode(Blob qrcode, Long invoiceSeq){
-        return invoiceDAO.putQRCode(qrcode,invoiceSeq);
+    public int putQRCode(Blob qrcode, Long invoiceSeq) {
+        return invoiceDAO.putQRCode(qrcode, invoiceSeq);
     }
 
 
@@ -62,13 +75,22 @@ public class InvoiceServiceImpl implements InvoiceService {
         return invoiceDAO.getInvoiceRowByInvoiceSeq(pkInvoiceSeq);
     }
 
+    /**
+     * Creates a QR Code image based on invoice information and outgoing product details.
+     *
+     * @param invoice         the invoice
+     * @param outgoingProduct the outgoing product
+     * @return
+     * @throws IOException
+     * @throws SQLException
+     */
     public Blob createQRCode(Invoice invoice, OutgoingProductVO outgoingProduct) throws IOException, SQLException {
         String text = new StringBuilder("Invoice Code: " + invoice.getInvoiceCode())
-                        .append("\nInvoice Type: " + invoice.getInvoiceType())
-                        .append("\nPurchase Code: " + invoice.getPurchaseSeq())
-                        .append("\nCustomer Name : " + outgoingProduct.getPurchaseName())
-                        .append("\nCustomer Tel : " + outgoingProduct.getPurchaseTel())
-                        .append("\nCustomer Address : " + outgoingProduct.getPurchaseAddr()).toString();
+                .append("\nInvoice Type: " + invoice.getInvoiceType())
+                .append("\nPurchase Code: " + invoice.getPurchaseSeq())
+                .append("\nCustomer Name : " + outgoingProduct.getPurchaseName())
+                .append("\nCustomer Tel : " + outgoingProduct.getPurchaseTel())
+                .append("\nCustomer Address : " + outgoingProduct.getPurchaseAddr()).toString();
         int width = 300;
         int height = 300;
         try {
@@ -89,10 +111,8 @@ public class InvoiceServiceImpl implements InvoiceService {
                     }
                 }
             }
-            // 이미지 파일로 저장
             File qrFile = new File(invoice.getInvoiceCode() + ".png");
             ImageIO.write(image, "png", qrFile);
-            // 파일을 Blob으로 변환하여 반환
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ImageIO.write(image, "png", baos);
             byte[] imageBytes = baos.toByteArray();

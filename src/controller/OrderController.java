@@ -19,27 +19,44 @@ import vo.Product;
 import vo.WareHouse;
 import vo.WareHouseZone;
 
+/**
+ * 이 클래스는 발주 관리를 담당하는 OrderController 컨트롤러입니다.
+ * 즈로 발주 등록, 발주 확정, 발주 조회와 같은 기능을 수행합니다.
+ * 해당 클래스는 Singleton 패턴을 따르며, 하나의 인스턴스만을 생성하여 사용합니다.
+ *
+ * @author : 장서윤
+ */
 public class OrderController {
-
     private static OrderController instance;
     private Scanner sc = new Scanner(System.in);
-
     private OrderService orderService;
     private WareHouseService wareHouseService;
-
     private LoginManagementDAOImpl loginDao;
     private MemberEnum loginMemberRole;
     private String loginMemberId;
-
     static boolean menuContinue = true;
-static boolean allContinue = true;
+    static boolean allContinue = true;
+
+    /**
+     * Instantiates a new Order controller.
+     *
+     * @param orderService     the order service
+     * @param wareHouseService the warehouse service
+     */
     public OrderController(OrderService orderService, WareHouseService wareHouseService) {
         this.orderService = orderService;
         this.wareHouseService = wareHouseService;
         this.loginDao = LoginManagementDAOImpl.getInstance();
-        updateLoginInfo(); // 로그인 정보 초기화
+        updateLoginInfo();
     }
 
+    /**
+     * Gets instance.
+     *
+     * @param orderService     the order service
+     * @param wareHouseService the warehouse service
+     * @return the instance
+     */
     public static synchronized OrderController getInstance(OrderService orderService, WareHouseService wareHouseService) {
         if (instance == null) {
             instance = new OrderController(orderService, wareHouseService);
@@ -47,11 +64,17 @@ static boolean allContinue = true;
         return instance;
     }
 
+    /**
+     * Update login info.
+     */
     public void updateLoginInfo() {
         this.loginMemberRole = loginDao.getMemberRole();
         this.loginMemberId = loginDao.getMemberId();
     }
 
+    /**
+     * Menu.
+     */
     public void menu() {
         while (allContinue) {
             menuContinue = true;
@@ -75,12 +98,11 @@ static boolean allContinue = true;
                         completeOrder();
                         break;
                     case 3:
-                        // 발주 조회
                         printAllOrdersWithDetails();
                         break;
                     case 4: {
-                        menuContinue=false;
-                        allContinue=false;
+                        menuContinue = false;
+                        allContinue = false;
                         break;
                     }
                     default:
@@ -91,7 +113,9 @@ static boolean allContinue = true;
         }
     }
 
-    // 발주 등록
+    /**
+     * Register order.
+     */
     public void registerOrder() {
         Product product = new Product();
         List<Product> productList = orderService.getProductInventoryList();
@@ -106,36 +130,34 @@ static boolean allContinue = true;
             return;
         }
 
-        // 창고 선택
         List<WareHouse> wareHouses = wareHouseService.viewWareHouseByMemberId(loginMemberId);
         printWarehouseFormat(wareHouses);
         System.out.println("창고를 선택하세요. ");
         int warehouseNo = Integer.parseInt(sc.nextLine().trim());
-        String warehouseCd = wareHouses.get(warehouseNo-1).getWarehouseCode();
+        String warehouseCd = wareHouses.get(warehouseNo - 1).getWarehouseCode();
         product.setWarehouseCode(warehouseCd);
 
-        // 구역 선택
         List<WareHouseZone> wareHouseZones = wareHouseService.viewWareHouseZoneByWarehouseCd(warehouseCd);
         printWarehouseZoneFormat(wareHouseZones);
         System.out.println("구역을 선택하세요. ");
         int warehouseZoneNo = Integer.parseInt(sc.nextLine().trim());
-        String warehouseZone = wareHouseZones.get(warehouseZoneNo-1).getZoneCode();
+        String warehouseZone = wareHouseZones.get(warehouseZoneNo - 1).getZoneCode();
         product.setZoneCode(warehouseZone);
 
         System.out.print("수량을 입력하세요. ");
         product.setInventoryCnt(Integer.parseInt(sc.nextLine()));
 
-        // product 내용으로 발주 등록
         System.out.println("납기 일자를 입력해주세요 (YYYY-mm-dd)");
         String date = sc.nextLine();
         Long orderSeq = orderService.registerOrder(date, product);
 
-        // 등록된 내역 조회
         OrderVO orderDetail = orderService.getOneOrderInformation(orderSeq);
-        menuContinue=false;
+        menuContinue = false;
     }
 
-    // 발주 확정
+    /**
+     * Complete order.
+     */
     public void completeOrder() {
         List<OrderVO> orderList = orderService.getAllOrdersStatusProgress();
         System.out.print("확정할 발주 번호를 입력하세요. ");
@@ -157,13 +179,21 @@ static boolean allContinue = true;
         } else {
             System.out.println("발주 실패 - 미입고 상태입니다.");
         }
-        menuContinue=false;
+        menuContinue = false;
     }
 
+    /**
+     * Gets all orders with details.
+     *
+     * @return the all orders with details
+     */
     public List<OrderVO> getAllOrdersWithDetails() {
         return orderService.getAllOrdersWithDetails();
     }
 
+    /**
+     * Print all orders with details.
+     */
     public void printAllOrdersWithDetails() {
 
         List<OrderVO> orders = getAllOrdersWithDetails();
@@ -186,9 +216,14 @@ static boolean allContinue = true;
                     order.getProductCode(),
                     order.getWarehouseCode());
         }
-        menuContinue=false;
+        menuContinue = false;
     }
 
+    /**
+     * Print warehouse format.
+     *
+     * @param wareHouses the warehouses
+     */
     public void printWarehouseFormat(List<WareHouse> wareHouses) {
         System.out.printf("%-10s %-12s %-25s %-20s %-15s\n",
                 "창고 번호", "창고 코드", "창고명", "창고 위치", "창고 타입");
@@ -205,6 +240,11 @@ static boolean allContinue = true;
         }
     }
 
+    /**
+     * Print warehouse zone format.
+     *
+     * @param wareHouseZones the ware house zones
+     */
     public void printWarehouseZoneFormat(List<WareHouseZone> wareHouseZones) {
         System.out.printf("%-10s %-12s %-25s\n",
                 "창고 번호", "구역 코드", "구역명");
