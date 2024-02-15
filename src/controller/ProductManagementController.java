@@ -116,8 +116,6 @@ public class ProductManagementController {
             boolean isValidDetailCategory = lastThreeCharsList.stream()
                     .anyMatch(c -> c.equals(detailCategoryNumber));
 
-            System.out.println(detailCategoryNumber);
-            System.out.println(lastThreeCharsList);
             if (!isValidDetailCategory) {
                 System.out.println("선택한 소분류에 해당하는 카테고리가 존재하지 않습니다. 메인 메뉴로 돌아갑니다.");
                 return false;
