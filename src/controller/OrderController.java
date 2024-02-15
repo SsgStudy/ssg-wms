@@ -44,76 +44,77 @@ public class OrderController {
     }
 
     public void menu() {
+
         updateLoginInfo();
 
-        String[] menuItems = {
-                "1. 발주 등록\t",
-                "2. 발주 확정\t",
-                "3. 발주 조회\t",
-                "4. 메뉴 나가기\t\t\t"
-        };
-        MenuBoxPrinter.printMenuBoxWithTitle("발주 조회\t\t", menuItems);
+        boolean menuContinue = true;
+        while (menuContinue) {
+            String[] menuItems = {
+                    "1. 발주 등록\t",
+                    "2. 발주 확정\t",
+                    "3. 발주 조회\t",
+                    "4. 메뉴 나가기\t\t\t"
+            };
+            MenuBoxPrinter.printMenuBoxWithTitle("발주 조회\t\t", menuItems);
 
-        String ch = sc.nextLine().trim();
-        switch (ch) {
-            case "1":
-                Product product = new Product();
-                // 상품 재고 순으로 조회
-                List<Product> productList = orderService.getProductInventoryList();
-                System.out.print("\n➔ 발주할 상품을 선택하세요 : ");
-                int productNo = Integer.parseInt(sc.nextLine().trim());
+            int ch = Integer.parseInt(sc.nextLine().trim());
+            switch (ch) {
+                case 1:
+                    Product product = new Product();
+                    // 상품 재고 순으로 조회
+                    List<Product> productList = orderService.getProductInventoryList();
+                    System.out.print("\n➔ 발주할 상품을 선택하세요 : ");
+                    int productNo = Integer.parseInt(sc.nextLine().trim());
 
-                if (productNo >= 1 && productNo <= productList.size())
-                    product = productList.get(productNo - 1);
-                else {
-                    System.out.println("잘못된 입력 입니다.");
-                }
-
-                System.out.print("\n➔ 수량을 입력하세요 : ");
-                product.setInventoryCnt(Integer.parseInt(sc.nextLine().trim()));
-
-                // product 내용으로 발주 등록
-                System.out.println("\n➔ 납기 일자를 입력해주세요 (YYYY-mm-dd) : ");
-                String date = sc.nextLine().trim();
-                Long orderSeq = orderService.registerOrder(date, product);
-
-                // 등록된 내역 조회
-                OrderVO orderDetail = orderService.getOneOrderInformation(orderSeq);
-                menu();
-                break;
-            case "2":
-                // 발주 확정
-                List<OrderVO> orderList = orderService.getAllOrdersStatusProgress();
-                System.out.print("\n➔ 확정할 발주 번호를 입력하세요. ");
-                Long orderProgressSeq = Long.parseLong(sc.nextLine().trim());
-
-                boolean flag = false;
-
-                for (OrderVO o : orderList) {
-                    if (o.getOrderSeq() == orderProgressSeq) {
-                        if (o.getOrderDetailStatus().equals(OrderStatusEnum.COMPLETE)) {
-                            flag = true;
-                        } else flag = false;
+                    if (productNo >= 1 && productNo <= productList.size())
+                        product = productList.get(productNo - 1);
+                    else {
+                        System.out.println("잘못된 입력 입니다.");
+                        break;
                     }
-                }
-                if (flag) {
-                    orderService.updateOrderStauts(orderProgressSeq);
-                    System.out.println(orderProgressSeq + "번의 발주가 확정되었습니다.");
-                } else {
-                    System.out.println("발주 실패 - 미입고 상태입니다.");
-                }
-                menu();
-                break;
-            case "3":
-                // 발주 조회
-                printAllOrdersWithDetails();
-                menu();
-                break;
-            case "4":
-                return;
-            default:
-                System.out.println("잘못된 입력입니다. 다시 입력해주세요.");
-                menu();
+
+                    System.out.print("\n➔ 수량을 입력하세요 : ");
+                    product.setInventoryCnt(Integer.parseInt(sc.nextLine().trim()));
+
+                    // product 내용으로 발주 등록
+                    System.out.print("\n➔ 납기 일자를 입력해주세요 (YYYY-mm-dd) : ");
+                    String date = sc.nextLine().trim();
+                    Long orderSeq = orderService.registerOrder(date, product);
+
+                    // 등록된 내역 조회
+                    OrderVO orderDetail = orderService.getOneOrderInformation(orderSeq);
+                    break;
+                case 2:
+                    // 발주 확정
+                    List<OrderVO> orderList = orderService.getAllOrdersStatusProgress();
+                    System.out.print("\n➔ 확정할 발주 번호를 입력하세요. ");
+                    Long orderProgressSeq = Long.parseLong(sc.nextLine().trim());
+
+                    boolean flag = false;
+
+                    for (OrderVO o : orderList) {
+                        if (o.getOrderSeq() == orderProgressSeq) {
+                            if (o.getOrderDetailStatus().equals(OrderStatusEnum.COMPLETE)) {
+                                flag = true;
+                            } else flag = false;
+                        }
+                    }
+                    if (flag) {
+                        orderService.updateOrderStauts(orderProgressSeq);
+                        System.out.println(orderProgressSeq + "번의 발주가 확정되었습니다.");
+                    } else {
+                        System.out.println("발주 실패 - 미입고 상태입니다.");
+                    }
+                    break;
+                case 3:
+                    // 발주 조회
+                    printAllOrdersWithDetails();
+                    break;
+                case 4:
+                {return;}
+                default:
+                    System.out.println("잘못된 입력입니다.");
+            }
         }
     }
 
