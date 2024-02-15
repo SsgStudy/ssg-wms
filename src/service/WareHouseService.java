@@ -1,6 +1,7 @@
 package service;
 
 import vo.WareHouse;
+import vo.WareHouseZone;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -16,4 +17,8 @@ public interface WareHouseService {
     List<WareHouse> viewWareHouseByLocation(String location) throws SQLException;
 
     List<WareHouse> viewWareHouseByType(String type) throws SQLException;
+
+    List<WareHouse> viewWareHouseByMemberId(String memberId);
+
+    List<WareHouseZone> viewWareHouseZoneByWarehouseCd(String warehouseCd);
 }

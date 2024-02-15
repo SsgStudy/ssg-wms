@@ -12,6 +12,7 @@ import util.enumcollect.OrderStatusEnum;
 import util.enumcollect.PurchaseEnum;
 import vo.OrderVO;
 import vo.Product;
+import vo.WareHouse;
 
 public class OrderDAOImpl implements OrderDAO {
     private static OrderDAOImpl instance;
@@ -81,7 +82,7 @@ public class OrderDAOImpl implements OrderDAO {
             String sql = "SELECT O.PK_ORDER_SEQ, O.V_ORDER_STATUS, O.V_INCOMING_PRODUCT_SUPPLIER_NM, O.DT_DELIVERY_DATE, O.DT_ORDER_COMPLETION_DATE, " +
                     "OD.PK_ORDER_DETAIL_SEQ, OD.N_ORDER_CNT, OD.V_ORDER_STATUS AS V_ORDER_DETAIL_STATUS, OD.V_PRODUCT_CD, OD.V_WAREHOUSE_CD " +
                     "FROM TB_ORDER O JOIN TB_ORDER_DETAIL OD ON O.PK_ORDER_SEQ = OD.PK_ORDER_SEQ " +
-                    "WHERE O.V_ORDER_STATUS LIKE ? ";
+                    "WHERE O.V_ORDER_STATUS LIKE ? AND ";
             stmt = conn.prepareStatement(sql);
             stmt.setString(1, OrderStatusEnum.PROGRESS.toString());
             rs = stmt.executeQuery();
@@ -152,7 +153,7 @@ public class OrderDAOImpl implements OrderDAO {
             try (PreparedStatement pstmtd = conn.prepareStatement(insertDetailSql)) {
                 pstmtd.setLong(1, orderSeq);
                 pstmtd.setInt(2, product.getInventoryCnt());
-                pstmtd.setString(3, OrderStatusEnum.PROGRESS.toString());
+                pstmtd.setString(3, OrderStatusEnum.COMPLETE.toString());
                 pstmtd.setString(4, product.getProductCode());
                 pstmtd.setString(5, product.getWarehouseCode());
                 pstmtd.executeUpdate();
@@ -174,7 +175,9 @@ public class OrderDAOImpl implements OrderDAO {
 
     public List<Product> getAllProductQuantity() {
         List<Product> productList = new ArrayList<>();
-        String sql = "SELECT * FROM TB_PRODUCT p JOIN TB_INVENTORY i ON p.V_PRODUCT_CD=i.V_PRODUCT_CD ORDER BY i.N_INVENTORY_CNT;";
+
+        String sql = "SELECT * FROM TB_PRODUCT;";
+
 
         try {
             Connection conn = DbConnection.getInstance().getConnection();
@@ -186,13 +189,9 @@ public class OrderDAOImpl implements OrderDAO {
                 product.setProductCode(rs.getString("V_PRODUCT_CD"));
                 product.setProductName(rs.getString("V_PRODUCT_NM"));
                 product.setProductPrice(rs.getInt("N_PRODUCT_PRICE"));
-                product.setInventoryCnt(rs.getInt("N_INVENTORY_CNT"));
                 product.setProductBrand(rs.getString("V_PRODUCT_BRAND"));
                 product.setProductOrign(rs.getString("V_PRODUCT_ORIGIN"));
                 product.setManufactor(rs.getString("V_PRODUCT_MANUFACTOR"));
-                product.setZoneCode(rs.getString("V_ZONE_CD"));
-                product.setWarehouseCode(rs.getString("V_WAREHOUSE_CD"));
-                product.setInventoryCnt(rs.getInt("PK_INVENTORY_SEQ"));
                 productList.add(product);
             }
 
@@ -265,4 +264,5 @@ public class OrderDAOImpl implements OrderDAO {
         }
         return updatedRows;
     }
+
 }
