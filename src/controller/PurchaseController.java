@@ -1,36 +1,52 @@
 package controller;
 
 import dao.LoginManagementDAOImpl;
+import service.InventoryAdjustmentService;
+import service.InvoiceService;
 import service.PurchaseService;
 
 import util.enumcollect.MemberEnum;
+import util.enumcollect.PurchaseEnum;
+import util.enumcollect.WaybillTypeEnum;
+import vo.Invoice;
+import vo.OutgoingProductVO;
 import vo.PurchaseVO;
 
+import java.io.IOException;
+import java.sql.Blob;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class PurchaseController {
+    private static Logger logger = Logger.getLogger(PurchaseController.class.getName());
+
 
     private static PurchaseController instance;
     private Scanner sc = new Scanner(System.in);
     private PurchaseService purchaseService;
+    private InvoiceService invoiceService;
+    private InventoryAdjustmentService inventoryAdjustmentService;
 
     private LoginManagementDAOImpl loginDao = LoginManagementDAOImpl.getInstance();
     private MemberEnum loginMemberRole;
     private String loginMemberId;
 
-    private PurchaseController(PurchaseService purchaseService) {
+    private PurchaseController(PurchaseService purchaseService, InvoiceService invoiceService, InventoryAdjustmentService inventoryAdjustmentService) {
         this.purchaseService = purchaseService;
+        this.invoiceService = invoiceService;
+        this.inventoryAdjustmentService = inventoryAdjustmentService;
         updateLoginInfo(); // 로그인 정보 초기화
     }
 
-    public static PurchaseController getInstance(PurchaseService purchaseService) {
+    public static PurchaseController getInstance(PurchaseService purchaseService, InvoiceService invoiceService, InventoryAdjustmentService inventoryAdjustmentService) {
         if (instance == null) {
-            instance = new PurchaseController(purchaseService);
+            instance = new PurchaseController(purchaseService, invoiceService, inventoryAdjustmentService);
         }
         return instance;
     }
@@ -164,7 +180,6 @@ public class PurchaseController {
         else {
             System.out.println("반품 내역이 없습니다.");
         }
-
     }
 
     // 주문 클레임 처리 내역 조회
@@ -178,7 +193,114 @@ public class PurchaseController {
         Long purchaseSeq = Long.parseLong(sc.nextLine());
 
         String status = purchaseService.processPurchaseToCancelOrReturn(purchaseSeq);
-        purchaseService.updatePurchaseToCancel(purchaseSeq, status);
+
+        if (status.equals("CANCEL")) {
+            System.out.println(purchaseSeq + "번 주문이 취소 되었습니다.");
+        } else {
+            if (status.equals("RETURN")) {
+                purchaseService.createPurchaseReturn(purchaseSeq);
+                purchaseService.updatePurchaseStatusToReturn(purchaseSeq, PurchaseEnum.반품완료);
+                System.out.println(purchaseSeq + "번 주문이 반품 처리 되었습니다.");
+            } else if (status.equals("INVOICE")) {
+                purchaseService.createPurchaseReturn(purchaseSeq);
+                System.out.println(purchaseSeq + "번 주문이 반품 처리 중에 있습니다.");
+                purchaseReturnMenu(purchaseSeq);
+            }
+            else {
+                logger.info("null 값");
+            }
+        }
+    }
+
+    // 반품 절차
+    public void purchaseReturnMenu(Long purchaseSeq) {
+        OutgoingProductVO outgoingProduct = new OutgoingProductVO();
+        outgoingProduct.setShopPurchaseSeq(purchaseSeq);
+
+        System.out.println("1.송장 접수 | 2.입고 확인 | 3.검수 | 4.돌아가기");
+        int ch = Integer.parseInt(sc.nextLine());
+
+        switch (ch) {
+            case 1 -> {
+                try {
+                    promptInvoice(outgoingProduct);
+                } catch (Exception e) {
+                    System.out.println();
+                }
+                purchaseReturnMenu(purchaseSeq);
+            }
+            case 2 -> {
+                // 창고에 재고 증가
+                inventoryAdjustmentService.updateRestoreInventoryQuantity(purchaseSeq);
+                // 주문 상태 - 반품 입고
+                purchaseService.updatePurchaseStatusToReturn(purchaseSeq, PurchaseEnum.반품입고);
+                purchaseReturnMenu(purchaseSeq);
+            }
+            case 3 -> {
+                // 검수 - 출고 select by purchaseSeq 상품 일련 번호 -> 창고구역 tb join 재고 변경 이력
+                int quantity = inventoryAdjustmentService.updateRestoration(purchaseSeq);
+                // 주문 상태 - 반품 완료
+                if (quantity == 1)
+                    purchaseService.updatePurchaseStatusToReturn(purchaseSeq, PurchaseEnum.반품완료);
+                else
+                    System.out.println("반품 실패");
+                purchaseReturnMenu(purchaseSeq);
+            }
+            case 4-> {
+                return;
+            }
+            default -> {
+                System.out.println("다시 입력하세요");
+            }
+        }
+
+    }
+
+    public int promptInvoice(OutgoingProductVO outgoingProductVO) {
+        Invoice invoice = new Invoice();
+        int status = 0;
+        Long invoiceSeq = 0L;
+
+        System.out.println("[송장 출력]");
+        System.out.println("--".repeat(25));
+        System.out.print("송장 종류 입력 (1.일반 | 2.특급 | 3.국제 | 4.등기) ");
+
+        try{
+            int ch = Integer.parseInt(sc.nextLine().trim());
+
+            switch (ch) {
+                case 1 -> invoice.setInvoiceType(WaybillTypeEnum.STANDARD);
+                case 2 -> invoice.setInvoiceType(WaybillTypeEnum.EXPRESS);
+                case 3 -> invoice.setInvoiceType(WaybillTypeEnum.INTERNATIONAL);
+                case 4 -> invoice.setInvoiceType(WaybillTypeEnum.REGISTERED);
+            }
+
+            invoice.setPurchaseSeq(outgoingProductVO.getShopPurchaseSeq());
+
+            try {
+                System.out.println("[택배사 선택]");
+                System.out.println("--".repeat(25));
+                System.out.println("1. 한진택배 | 2.CJ대한통운 | 3.우체국택배 | 4.롯데택배 | 5.로젠택배");
+                System.out.print("택배사 선택 : ");
+                invoice.setLogisticSeq(Long.parseLong(sc.nextLine()));
+
+                invoiceSeq = invoiceService.registerInvoice(invoice);
+                Invoice result = invoiceService.getInvoiceRowByInvoiceSeq(invoiceSeq);
+
+                invoice.setInvoiceCode(result.getInvoiceCode());
+                invoice.setInvoicePrintDate(result.getInvoicePrintDate());
+                Blob qrCodeImage = invoiceService.createQRCode(invoice, outgoingProductVO);
+                status = invoiceService.putQRCode(qrCodeImage, invoiceSeq);
+
+            } catch (NumberFormatException e){
+                logger.info("숫자로 입력하세요.");
+                e.printStackTrace();
+            }
+        }catch (IOException | SQLException i){
+            i.printStackTrace();
+        }
+
+        return status;
     }
 
     public void printForAllPurchaseList() {

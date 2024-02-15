@@ -50,7 +50,7 @@ public class mainLauncher {
         ProductManagementController productManagementController = ProductManagementController.getInstance(); // 수정: 싱글톤 인스턴스 사용
         InventoryController inventoryController = new InventoryController(adjustmentService, movementService, queryService);
         InvoiceController invoiceController = InvoiceController.getInstance(invoiceService);
-        PurchaseController purchaseController = PurchaseController.getInstance(purchaseService);
+        PurchaseController purchaseController = PurchaseController.getInstance(purchaseService, invoiceService, adjustmentService);
         OrderController orderController = OrderController.getInstance(orderService);
 
         asciiPrinter.printMainTitle();

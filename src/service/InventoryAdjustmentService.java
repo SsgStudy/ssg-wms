@@ -10,5 +10,6 @@ public interface InventoryAdjustmentService {
     int updateDecreaseInventoryQuantity(int selectedNumber, int adjustedQuantity);
     List<InventoryVO> getUpdatedInventory(int selectedNumber);
     int updateRestoreInventoryQuantity(Long purchaseSeq);
+    int updateRestoration(Long purchaseSeq);
 
 }
