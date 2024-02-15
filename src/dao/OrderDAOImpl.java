@@ -12,6 +12,7 @@ import util.enumcollect.OrderStatusEnum;
 import util.enumcollect.PurchaseEnum;
 import vo.OrderVO;
 import vo.Product;
+import vo.WareHouse;
 
 public class OrderDAOImpl implements OrderDAO {
     private static OrderDAOImpl instance;
@@ -176,7 +177,7 @@ public class OrderDAOImpl implements OrderDAO {
 
     public List<Product> getAllProductQuantity() {
         List<Product> productList = new ArrayList<>();
-        String sql = "SELECT * FROM TB_PRODUCT p JOIN TB_INVENTORY i ON p.V_PRODUCT_CD=i.V_PRODUCT_CD ORDER BY i.N_INVENTORY_CNT;";
+        String sql = "SELECT * FROM TB_PRODUCT;";
         Connection conn = null;
 
         try {
@@ -189,13 +190,9 @@ public class OrderDAOImpl implements OrderDAO {
                 product.setProductCode(rs.getString("V_PRODUCT_CD"));
                 product.setProductName(rs.getString("V_PRODUCT_NM"));
                 product.setProductPrice(rs.getInt("N_PRODUCT_PRICE"));
-                product.setInventoryCnt(rs.getInt("N_INVENTORY_CNT"));
                 product.setProductBrand(rs.getString("V_PRODUCT_BRAND"));
                 product.setProductOrign(rs.getString("V_PRODUCT_ORIGIN"));
                 product.setManufactor(rs.getString("V_PRODUCT_MANUFACTOR"));
-                product.setZoneCode(rs.getString("V_ZONE_CD"));
-                product.setWarehouseCode(rs.getString("V_WAREHOUSE_CD"));
-                product.setInventoryCnt(rs.getInt("PK_INVENTORY_SEQ"));
                 productList.add(product);
             }
 
@@ -270,4 +267,5 @@ public class OrderDAOImpl implements OrderDAO {
         }
         return updatedRows;
     }
+
 }

@@ -53,7 +53,6 @@ public class OrderServiceImpl implements OrderService {
     }
 
 
-
     public void printOrderInfo(OrderVO order) {
         System.out.printf("%-4s %-12s %-20s %-8s%n",
                 "발주 번호", "발주 상태", "공급 업체", "납품 일자");
@@ -74,15 +73,14 @@ public class OrderServiceImpl implements OrderService {
         }
     }
     public void printProductList(List<Product> productList) {
-        System.out.printf("%-4s %-12s %-20s %-8s %-15s %-15s %-15s %-12s %-15s %-10s%n",
-                "번호", "상품 코드", "상품명", "상품 가격", "브랜드", "원산지", "제조사", "재고", "창고", "구역");
+        System.out.printf("%-4s %-12s %-20s %-8s %-15s %-15s %-15s%n",
+                "번호", "상품 코드", "상품명", "상품 가격", "브랜드", "원산지", "제조사");
 
         int index = 1;
         for (Product product : productList) {
-            System.out.printf("%-4d %-12s %-20s %-8d %-15s %-15s %-15s %-12d %-15s %-10s%n",
+            System.out.printf("%-4d %-12s %-20s %-8d %-15s %-15s %-15s%n",
                     index++, product.getProductCode(), product.getProductName(), product.getProductPrice(),
-                    product.getProductBrand(), product.getProductOrign(), product.getManufactor(),
-                    product.getInventoryCnt(), product.getWarehouseCode(), product.getZoneCode());
+                    product.getProductBrand(), product.getProductOrign(), product.getManufactor());
         }
     }
 
