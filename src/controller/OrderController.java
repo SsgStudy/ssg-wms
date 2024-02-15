@@ -31,6 +31,8 @@ public class OrderController {
     private MemberEnum loginMemberRole;
     private String loginMemberId;
 
+    static boolean menuContinue = true;
+static boolean allContinue = true;
     public OrderController(OrderService orderService, WareHouseService wareHouseService) {
         this.orderService = orderService;
         this.wareHouseService = wareHouseService;
@@ -51,11 +53,9 @@ public class OrderController {
     }
 
     public void menu() {
-
-        updateLoginInfo();
-
-        boolean menuContinue = true;
-        while (menuContinue) {
+        while (allContinue) {
+            menuContinue = true;
+            updateLoginInfo();
             String[] menuItems = {
                     "1. 발주 등록\t",
                     "2. 발주 확정\t",
@@ -64,71 +64,30 @@ public class OrderController {
             };
             MenuBoxPrinter.printMenuBoxWithTitle("발주 조회\t\t", menuItems);
 
-            int ch = Integer.parseInt(sc.nextLine().trim());
-            switch (ch) {
-                case 1:
-                                if (!(
-                        loginMemberRole == MemberEnum.ADMIN ||
-                                loginMemberRole == MemberEnum.OPERATOR
-                )) {
-                    System.out.println("해당 메뉴를 실행할 권한이 없습니다.\n관리자에게 문의해주세요...");
-                    break;
-                }
-                
-                    Product product = new Product();
-                    // 상품 재고 순으로 조회
-                    List<Product> productList = orderService.getProductInventoryList();
-                    System.out.print("\n➔ 발주할 상품을 선택하세요 : ");
-                    int productNo = Integer.parseInt(sc.nextLine().trim());
+            while (menuContinue) {
 
-                    if (productNo >= 1 && productNo <= productList.size())
-                        product = productList.get(productNo - 1);
-                    else {
-                        System.out.println("잘못된 입력 입니다.");
+
+                int ch = Integer.parseInt(sc.nextLine().trim());
+                switch (ch) {
+                    case 1:
+                        registerOrder();
+                        break;
+                    case 2:
+                        completeOrder();
+                        break;
+                    case 3:
+                        // 발주 조회
+                        printAllOrdersWithDetails();
+                        break;
+                    case 4: {
+                        menuContinue=false;
+                        allContinue=false;
                         break;
                     }
-
-                    System.out.print("\n➔ 수량을 입력하세요 : ");
-                    product.setInventoryCnt(Integer.parseInt(sc.nextLine().trim()));
-
-                    // product 내용으로 발주 등록
-                    System.out.print("\n➔ 납기 일자를 입력해주세요 (YYYY-mm-dd) : ");
-                    String date = sc.nextLine().trim();
-                    Long orderSeq = orderService.registerOrder(date, product);
-
-                    // 등록된 내역 조회
-                    OrderVO orderDetail = orderService.getOneOrderInformation(orderSeq);
-                    break;
-                case 2:
-                    // 발주 확정
-                    List<OrderVO> orderList = orderService.getAllOrdersStatusProgress();
-                    System.out.print("\n➔ 확정할 발주 번호를 입력하세요. ");
-                    Long orderProgressSeq = Long.parseLong(sc.nextLine().trim());
-
-                    boolean flag = false;
-
-                    for (OrderVO o : orderList) {
-                        if (o.getOrderSeq() == orderProgressSeq) {
-                            if (o.getOrderDetailStatus().equals(OrderStatusEnum.COMPLETE)) {
-                                flag = true;
-                            } else flag = false;
-                        }
-                    }
-                    if (flag) {
-                        orderService.updateOrderStauts(orderProgressSeq);
-                        System.out.println(orderProgressSeq + "번의 발주가 확정되었습니다.");
-                    } else {
-                        System.out.println("발주 실패 - 미입고 상태입니다.");
-                    }
-                    break;
-                case 3:
-                    // 발주 조회
-                    printAllOrdersWithDetails();
-                    break;
-                case 4:
-                {return;}
-                default:
-                    System.out.println("잘못된 입력입니다.");
+                    default:
+                        System.out.println("잘못된 입력입니다.");
+                        break;
+                }
             }
         }
     }
@@ -144,6 +103,8 @@ public class OrderController {
             product = productList.get(productNo - 1);
         else {
             System.out.println("잘못된 입력 입니다.");
+            menuContinue = false;
+            return;
         }
 
         // 창고 선택
@@ -172,14 +133,14 @@ public class OrderController {
 
         // 등록된 내역 조회
         OrderVO orderDetail = orderService.getOneOrderInformation(orderSeq);
-
+        menuContinue=false;
     }
 
     // 발주 확정
     public void completeOrder() {
         List<OrderVO> orderList = orderService.getAllOrdersStatusProgress();
         System.out.print("확정할 발주 번호를 입력하세요. ");
-        Long orderProgressSeq = Long.parseLong(sc.nextLine());
+        Long orderProgressSeq = Long.parseLong(sc.nextLine().trim());
 
         boolean flag = false;
 
@@ -197,7 +158,7 @@ public class OrderController {
         } else {
             System.out.println("발주 실패 - 미입고 상태입니다.");
         }
-
+        menuContinue=false;
     }
 
     public List<OrderVO> getAllOrdersWithDetails() {
@@ -231,6 +192,7 @@ public class OrderController {
                     order.getProductCode(),
                     order.getWarehouseCode());
         }
+        menuContinue=false;
     }
 
     public void printWarehouseFormat(List<WareHouse> wareHouses) {
