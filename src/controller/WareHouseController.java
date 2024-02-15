@@ -82,15 +82,15 @@ public class WareHouseController {
 
         try{
             System.out.println("***신규 창고 등록***");
-            System.out.print("\n➔ 창고 코드 지정 : ");
+            System.out.print("\n➔ 창고 코드 지정 (예 : KR-CJU-01) : ");
             wareHouse.setWarehouseCode(br.readLine());
-            System.out.print("\n➔ 창고 명 지정 : ");
+            System.out.print("\n➔ 창고 명 지정 (예 : 서울 중앙 창고) : ");
             wareHouse.setWarehouseName(br.readLine());
-            System.out.print("\n➔ 창고 소재지(도시 국가) 지정 : ");
+            System.out.print("\n➔ 창고 소재지(도시 국가) 지정 (예 : 노르웨이) : ");
             wareHouse.setWarehouseLocation(br.readLine());
-            System.out.print("\n➔ 창고 종류 지정 : ");
+            System.out.print("\n➔ 창고 종류 지정 (예 : 전자제품) : ");
             wareHouse.setWarehouseType(br.readLine());
-            System.out.print("\n➔ 창고관리자 코드 입력 : ");
+            System.out.print("\n➔ 창고관리자 코드 입력 (예 : 6) : ");
             wareHouse.setMemberSeq(Integer.parseInt(br.readLine()));
             wareHouseService.registerWareHouse(wareHouse);
             System.out.printf("[%s의 등록이 완료되었습니다.]\n", wareHouse.getWarehouseName());
@@ -151,7 +151,7 @@ public class WareHouseController {
     public void viewWareHouseByName() {
         System.out.println("--".repeat(25));
         System.out.println("[창고 이름별 조회]");
-        System.out.print("\n➔ 창고 이름 입력 : ");
+        System.out.print("\n➔ 창고 이름 입력 (예 : 서울 중앙 창고) : ");
         try{
             String name = br.readLine();
             wareHouseList = wareHouseService.viewWareHouseByName(name);
@@ -177,7 +177,7 @@ public class WareHouseController {
     public void viewWareHouseByLocation(){
         System.out.println("--".repeat(25));
         System.out.println("[창고 소재지별 조회]");
-        System.out.print("\n➔ 창고 소재지 입력 : ");
+        System.out.print("\n➔ 창고 소재지 입력 (예 : 서울 중구) : ");
         try{
             String location = br.readLine();
             wareHouseList = wareHouseService.viewWareHouseByLocation(location);
@@ -203,7 +203,7 @@ public class WareHouseController {
     public void viewWareHouseByType() {
         System.out.println("--".repeat(25));
         System.out.println("[창고 종류별 조회]");
-        System.out.print("\n➔ 창고 종류 입력 : ");
+        System.out.print("\n➔ 창고 종류 입력 (예 : 전자제품) : ");
         try{
             String type = br.readLine();
             wareHouseList = wareHouseService.viewWareHouseByType(type);
