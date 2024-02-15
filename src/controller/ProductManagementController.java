@@ -137,7 +137,13 @@ public class ProductManagementController {
     }
 
     public void registerProduct() {
-
+        if (!(
+                        loginMemberRole == MemberEnum.ADMIN ||
+                        loginMemberRole == MemberEnum.OPERATOR
+        )) {
+            System.out.println("해당 메뉴를 실행할 권한이 없습니다.\n관리자에게 문의해주세요...");
+            return;
+        }
         try {
             Product product = new Product();
 
@@ -252,7 +258,16 @@ public class ProductManagementController {
                 int cmd = Integer.parseInt(br.readLine().trim());
 
                 switch (cmd) {
-                    case 1 ->  updateProductByProductCode(productCode);
+                    case 1 ->  {
+                        if (!(
+                                loginMemberRole == MemberEnum.ADMIN ||
+                                        loginMemberRole == MemberEnum.OPERATOR
+                        )) {
+                            System.out.println("해당 메뉴를 실행할 권한이 없습니다.\n관리자에게 문의해주세요...");
+                        }else{
+                            updateProductByProductCode(productCode);
+                        }
+                    }
                     case 2 -> getProductList();
                 }
             }catch (IOException i){
