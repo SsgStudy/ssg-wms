@@ -236,10 +236,10 @@ public class ProductManagementController {
 
             System.out.println("--------------------------------");
             String[] menuItems2 = {
-                    "1. 상품 정보 수정\t",
-                    "2. 상품 목록으로 돌아가기\t",
+                    "1. 상품 정보 수정\t\t\t\t",
+                    "2. 상세 조회 나가기\t\t\t\t",
             };
-            MenuBoxPrinter.printMenuBoxWithTitle("상품 상세조회\t\t\t", menuItems2);
+            MenuBoxPrinter.printMenuBoxWithTitle("상품 상세조회\t\t\t\t\t", menuItems2);
 
             try{
                 int cmd = Integer.parseInt(br.readLine().trim());
