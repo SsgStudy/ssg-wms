@@ -15,6 +15,7 @@ public interface PurchaseDAO {
     int updatePurchaseStatusCancelOrReturn(List<Long> purchaseSeqList);
     String processPurchaseCancelOrReturn(Long purchaseSeq);
     Long createPurchaseReturn(Long purchaseSeq);
+    int updatePurchaseStatusEx(Long purchaseSeq, PurchaseEnum purchaseStatus);
 
 
 }
