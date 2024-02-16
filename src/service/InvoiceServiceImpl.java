@@ -96,6 +96,8 @@ public class InvoiceServiceImpl implements InvoiceService {
         try {
             Hashtable<EncodeHintType, Object> hintMap = new Hashtable<>();
             hintMap.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.L);
+            hintMap.put(EncodeHintType.CHARACTER_SET, "UTF-8");
+
             QRCodeWriter qrCodeWriter = new QRCodeWriter();
             BitMatrix byteMatrix = qrCodeWriter.encode(text, BarcodeFormat.QR_CODE, width, height, hintMap);
             BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);

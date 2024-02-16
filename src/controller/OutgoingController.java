@@ -15,8 +15,10 @@ import java.util.logging.Logger;
 import service.InvoiceService;
 
 import service.OutgoingService;
+import service.PurchaseService;
 import util.MenuBoxPrinter;
 import util.enumcollect.MemberEnum;
+import util.enumcollect.PurchaseEnum;
 import util.enumcollect.WaybillTypeEnum;
 import vo.*;
 
@@ -36,6 +38,7 @@ public class OutgoingController {
     private Scanner sc = new Scanner(System.in);
     private OutgoingService outgoingService;
     private InvoiceService invoiceService;
+    private PurchaseService purchaseService;
 
     /**
      * Instantiates a new Outgoing controller.
@@ -43,9 +46,10 @@ public class OutgoingController {
      * @param outgoingService the outgoing service
      * @param invoiceService  the invoice service
      */
-    public OutgoingController(OutgoingService outgoingService, InvoiceService invoiceService) {
+    public OutgoingController(OutgoingService outgoingService, InvoiceService invoiceService, PurchaseService purchaseService) {
         this.outgoingService = outgoingService;
         this.invoiceService = invoiceService;
+        this.purchaseService = purchaseService;
     }
 
     /**
@@ -55,9 +59,9 @@ public class OutgoingController {
      * @param invoiceService  the invoice service
      * @return the instance
      */
-    public static OutgoingController getInstance(OutgoingService outgoingService, InvoiceService invoiceService) {
+    public static OutgoingController getInstance(OutgoingService outgoingService, InvoiceService invoiceService, PurchaseService purchaseService) {
         if (instance == null) {
-            instance = new OutgoingController(outgoingService, invoiceService);
+            instance = new OutgoingController(outgoingService, invoiceService, purchaseService);
         }
         return instance;
     }
@@ -228,12 +232,13 @@ public class OutgoingController {
             outgoingService.updateOutgoingProductStatusAndDate(pkOutgoingId, outgoingDate, "WAIT");
 
             OutgoingProductVO outgoingProduct = outgoingService.getOutgoingProductRowByOutgoingId(pkOutgoingId);
-
             int result = promptInvoice(outgoingProduct);
 
             if (result > 0) {
                 System.out.println("출고 승인이 성공적으로 업데이트 되었습니다.\n 예정 출고 일자 : " + outgoingDate.format(
                         DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
+                purchaseService.updatePurchaseStatusEx(outgoingProduct.getShopPurchaseSeq(), PurchaseEnum.송장전송완료);
+
             } else {
                 System.out.println("출고 실패 하였습니다. 다시 시도해주세요.");
             }

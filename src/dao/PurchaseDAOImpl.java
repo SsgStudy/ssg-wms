@@ -105,7 +105,7 @@ public class PurchaseDAOImpl implements PurchaseDAO{
                     sql.append(", ");
             }
             sql.append(") ");
-            sql.append("ORDER BY sp.DT_SHOP_PURCHASE_DATE");
+            sql.append("ORDER BY sp.PK_SHOP_PURCHASE_SEQ");
 
             pstmt = conn.prepareStatement(sql.toString());
             pstmt.setString(1, startDate);
@@ -240,7 +240,7 @@ public class PurchaseDAOImpl implements PurchaseDAO{
                     sql.append(", ");
             }
             sql.append(") ");
-            sql.append("ORDER BY sp.DT_SHOP_PURCHASE_DATE");
+            sql.append("ORDER BY sp.PK_SHOP_PURCHASE_SEQ");
 
             pstmt = conn.prepareStatement(sql.toString());
 
@@ -351,15 +351,9 @@ public class PurchaseDAOImpl implements PurchaseDAO{
         try {
             conn = DbConnection.getInstance().getConnection();
             StringBuilder sql =
-                    new StringBuilder("SELECT sp.V_SHOP_PURCHASE_STATUS, sp.DT_SHOP_PURCHASE_DATE, sp.PK_SHOP_PURCHASE_SEQ," +
-                            "sp.V_SHOP_PURCHASE_CLAIM, spd.PK_SHOP_PURCHASE_DETAIL_SEQ, " +
-                            "s.V_SHOP_NM, p.V_PRODUCT_NM, p.V_PRODUCT_BRAND, sp.V_SHOP_PURCHASE_NM, sp.V_SHOP_PURCHASE_TEL, " +
-                            "spd.N_PRODUCT_CNT, p.N_PRODUCT_PRICE ")
-                            .append("FROM TB_SHOP_PURCHASE sp " +
-                                    "JOIN TB_SHOP s ON sp.PK_SHOP_CD = s.PK_SHOP_CD " +
-                                    "JOIN TB_SHOP_PURCHASE_DETAIL spd ON sp.PK_SHOP_PURCHASE_SEQ = spd.PK_SHOP_PURCHASE_SEQ " +
-                                    "JOIN TB_PRODUCT p ON spd.V_PRODUCT_CD = p.V_PRODUCT_CD ")
-                            .append("ORDER BY sp.PK_SHOP_PURCHASE_SEQ");
+                    new StringBuilder("SELECT * ")
+                            .append("FROM TB_SHOP_PURCHASE p JOIN TB_SHOP s ON p.PK_SHOP_CD=s.PK_SHOP_CD ")
+                            .append("ORDER BY p.PK_SHOP_PURCHASE_SEQ");
 
             pstmt = conn.prepareStatement(sql.toString());
             rs = pstmt.executeQuery();
@@ -367,19 +361,14 @@ public class PurchaseDAOImpl implements PurchaseDAO{
             while (rs.next()) {
                 PurchaseVO purchase = new PurchaseVO();
                 if (rs.getString("V_SHOP_PURCHASE_STATUS") != null &&
-                        !rs.getString("V_SHOP_PURCHASE_STATUS").isEmpty())
+                        !rs.getString("V_SHOP_PURCHASE_STATUS").isEmpty()) {
                     purchase.setShopPurchaseStatus(PurchaseEnum.valueOf(rs.getString("V_SHOP_PURCHASE_STATUS")));
-//                purchase.setShopPurchaseClaim(PurchaseClaimEnum.valueOf(rs.getString("V_SHOP_PURCHASE_CLAIM")));
+                }
                 purchase.setShopPurchaseDate(rs.getDate("DT_SHOP_PURCHASE_DATE"));
                 purchase.setShopPurchaseSeq(rs.getLong("PK_SHOP_PURCHASE_SEQ"));
                 purchase.setShopName(rs.getString("V_SHOP_NM"));
                 purchase.setShopPurchaseName(rs.getString("V_SHOP_PURCHASE_NM"));
                 purchase.setShopPurchaseTel(rs.getString("V_SHOP_PURCHASE_TEL"));
-                purchase.setShopPurchaseDetailSeq(rs.getLong("PK_SHOP_PURCHASE_DETAIL_SEQ"));
-                purchase.setProductCnt(rs.getInt("N_PRODUCT_CNT"));
-                purchase.setProductName(rs.getString("V_PRODUCT_NM"));
-                purchase.setProductBrand(rs.getString("V_PRODUCT_BRAND"));
-                purchase.setProductPrice(rs.getInt("N_PRODUCT_PRICE"));
                 purchaseList.add(purchase);
             }
         } catch (Exception e) {
@@ -425,7 +414,6 @@ public class PurchaseDAOImpl implements PurchaseDAO{
 
             pstmt = conn.prepareStatement(sql.toString());
             pstmt.setString(1, PurchaseEnum.주문취소접수.toString());
-//            pstmt.setString(2, PurchaseEnum.반품접수.toString());
 
             int idx = 2;
             for (Long seq : purchaseSeqList) {
@@ -518,6 +506,37 @@ public class PurchaseDAOImpl implements PurchaseDAO{
             }
         }
         return generatedKey;
+    }
+
+    @Override
+    public int updatePurchaseStatusEx(Long purchaseSeq, PurchaseEnum purchaseStatus) {
+        Connection conn;
+        PreparedStatement pstmt = null;
+        int updatedRows = 0;
+
+        try {
+            conn = DbConnection.getInstance().getConnection();
+
+            String sql = new StringBuilder("UPDATE TB_SHOP_PURCHASE ")
+                    .append("SET V_SHOP_PURCHASE_STATUS = ? ")
+                    .append("WHERE PK_SHOP_PURCHASE_SEQ = ? ").toString();
+
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, purchaseStatus.toString());
+            pstmt.setLong(2, purchaseSeq);
+            updatedRows = pstmt.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (pstmt != null) pstmt.close();
+                DbConnection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return updatedRows;
     }
 
     public int updatePurchaseCancelStatus(Long purchaseSeq, PurchaseEnum status) {

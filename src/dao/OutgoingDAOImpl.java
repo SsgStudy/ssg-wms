@@ -314,9 +314,6 @@ public class OutgoingDAOImpl implements OutgoingDAO {
 
                 }
                 outgoingProduct.setProducts(products);
-
-                System.out.println(outgoingProduct);
-                outgoingProduct.getProducts().forEach(System.out::println);
             }
         }
         return outgoingProduct;

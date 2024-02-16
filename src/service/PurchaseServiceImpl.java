@@ -63,7 +63,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         if (!shopPurchaseSeqList.isEmpty()) {
             // 상태 변경
             purchaseDAO.updatePurchaseStatus(shopPurchaseSeqList, PurchaseEnum.신규등록);
-            System.out.println(shopPurchaseSeqList.size() + 1 + "건의 주문이 수집되었습니다.");
+            System.out.println("주문이 수집되었습니다.");
         } else
             System.out.println("수집할 주문이 없습니다.");
 
@@ -88,7 +88,7 @@ public class PurchaseServiceImpl implements PurchaseService {
 
         if (!claimSeqList.isEmpty()) {
             purchaseDAO.updatePurchaseStatusCancelOrReturn(claimSeqList);
-            System.out.println(claimSeqList.size() + "건의 취소/반품 내역이 있습니다.");
+//            System.out.println(claimSeqList.size() + "건의 취소/반품 내역이 있습니다.");
         } else {
             System.out.println("수집/반품 내역이 없습니다.");
         }
@@ -124,6 +124,11 @@ public class PurchaseServiceImpl implements PurchaseService {
     @Override
     public int updatePurchaseStatusToReturn(Long purchaseSeq, PurchaseEnum purchaseEnum) {
         return purchaseDAO.updatePurchaseCancelStatus(purchaseSeq, purchaseEnum);
+    }
+
+    @Override
+    public int updatePurchaseStatusEx(Long purchaseSeq, PurchaseEnum purchaseStatus) {
+        return purchaseDAO.updatePurchaseStatusEx(purchaseSeq, purchaseStatus);
     }
 
     @Override

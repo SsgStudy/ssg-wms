@@ -286,7 +286,10 @@ public class PurchaseController {
 
             if (status.equals("RETURN") || status.equals("RESTORE")) {
                 purchaseService.updatePurchaseStatusToReturn(purchaseReturnKey, PurchaseEnum.반품완료);
+                purchaseService.updatePurchaseStatusEx(purchaseReturnKey,PurchaseEnum.반품완료);
                 System.out.println(purchaseSeq + "번 주문이 반품 처리 되었습니다.");
+
+
             } else if (status.equals("INVOICE")) {
                 System.out.println("반품 처리 중 입니다.");
                 purchaseReturnMenu(purchaseReturnKey);
@@ -407,7 +410,7 @@ public class PurchaseController {
      * @param purchaseSeq the purchase seq
      */
     public void restoreInventory(Long purchaseSeq) {
-        inventoryAdjustmentService.updateRestoreInventoryQuantity(purchaseSeq);
+        int result = inventoryAdjustmentService.updateRestoreInventoryQuantity(purchaseSeq);
         purchaseService.updatePurchaseStatusToReturn(purchaseSeq, PurchaseEnum.반품입고);
     }
 
