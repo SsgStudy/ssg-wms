@@ -173,6 +173,7 @@ public class PurchaseController {
      * <p>
      * 접근제한 : 창고관리자
      * <p>
+     *
      * @param shopPurchaseSeqList the shop purchase seq list
      */
     public void updatePurchaseStatusForNewPurchase(List<Long> shopPurchaseSeqList) {

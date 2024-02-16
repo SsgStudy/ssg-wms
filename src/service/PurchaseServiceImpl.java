@@ -44,6 +44,9 @@ public class PurchaseServiceImpl implements PurchaseService {
         return instance;
     }
 
+    /**
+     * The Inventory adjustment service.
+     */
     private InventoryAdjustmentServiceImpl inventoryAdjustmentService = new InventoryAdjustmentServiceImpl();
 
     @Override

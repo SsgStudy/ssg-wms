@@ -32,6 +32,9 @@ public class InvoiceServiceImpl implements InvoiceService {
     private static InvoiceServiceImpl instance;
     List<Invoice> invoiceList = new ArrayList<>();
 
+    /**
+     * Instantiates a new Invoice service.
+     */
     InvoiceServiceImpl(){};
 
     /**
