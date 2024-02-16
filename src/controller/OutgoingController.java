@@ -23,9 +23,9 @@ import util.enumcollect.WaybillTypeEnum;
 import vo.*;
 
 /**
- *  이 클래스는 출고 관리를 담당하는 OutgoingController 컨트롤러입니다.
- *  주로 목록 조회, 출고 등록, 출고 수정 및 승인, 출고 현황 조회와 같은 기능을 수행합니다.
- *  해당 클래스는 Singleton 패턴을 따르며, 하나의 인스턴스만을 생성하여 사용합니다.
+ * 이 클래스는 출고 관리를 담당하는 OutgoingController 컨트롤러입니다.
+ * 주로 목록 조회, 출고 등록, 출고 수정 및 승인, 출고 현황 조회와 같은 기능을 수행합니다.
+ * 해당 클래스는 Singleton 패턴을 따르며, 하나의 인스턴스만을 생성하여 사용합니다.
  *
  * @author : 홍진욱
  */
@@ -45,6 +45,7 @@ public class OutgoingController {
      *
      * @param outgoingService the outgoing service
      * @param invoiceService  the invoice service
+     * @param purchaseService the purchase service
      */
     public OutgoingController(OutgoingService outgoingService, InvoiceService invoiceService, PurchaseService purchaseService) {
         this.outgoingService = outgoingService;
@@ -57,6 +58,7 @@ public class OutgoingController {
      *
      * @param outgoingService the outgoing service
      * @param invoiceService  the invoice service
+     * @param purchaseService the purchase service
      * @return the instance
      */
     public static OutgoingController getInstance(OutgoingService outgoingService, InvoiceService invoiceService, PurchaseService purchaseService) {

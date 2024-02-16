@@ -99,5 +99,12 @@ public interface PurchaseService {
      */
     int updatePurchaseStatusToReturn(Long purchaseSeq, PurchaseEnum returnStatus);
 
+    /**
+     * Update purchase status ex int.
+     *
+     * @param purchaseSeq    the purchase seq
+     * @param purchaseStatus the purchase status
+     * @return the int
+     */
     int updatePurchaseStatusEx(Long purchaseSeq, PurchaseEnum purchaseStatus);
 }
