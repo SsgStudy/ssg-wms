@@ -147,8 +147,8 @@ public class OrderDAOImpl implements OrderDAO {
             }
 
             // TB_ORDER_DETAIL에 주문 상세 추가
-            String insertDetailSql = "INSERT INTO TB_ORDER_DETAIL (PK_ORDER_SEQ, N_ORDER_CNT, V_ORDER_STATUS, V_PRODUCT_CD, V_WAREHOUSE_CD) " +
-                                        "VALUES (?, ?, ?, ?, ?)";
+            String insertDetailSql = "INSERT INTO TB_ORDER_DETAIL (PK_ORDER_SEQ, N_ORDER_CNT, V_ORDER_STATUS, V_PRODUCT_CD, V_WAREHOUSE_CD, V_ZONE_CD) " +
+                                        "VALUES (?, ?, ?, ?, ?, ?)";
 
             try (PreparedStatement pstmtd = conn.prepareStatement(insertDetailSql)) {
                 pstmtd.setLong(1, orderSeq);
@@ -156,6 +156,7 @@ public class OrderDAOImpl implements OrderDAO {
                 pstmtd.setString(3, OrderStatusEnum.COMPLETE.toString());
                 pstmtd.setString(4, product.getProductCode());
                 pstmtd.setString(5, product.getWarehouseCode());
+                pstmtd.setString(6, product.getZoneCode());
                 pstmtd.executeUpdate();
             }
 
